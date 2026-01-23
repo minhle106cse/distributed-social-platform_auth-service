@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+//////////////////////
+// ENUMS
+//////////////////////
+
+enum AuthProvider {
+  local
+  google
+}
+
+//////////////////////
+// USER
+//////////////////////
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  isActive  Boolean  @default(true) @map("is_active")
+  emailVerified Boolean @default(false) @map("email_verified")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  authMethods   AuthMethod[]
+  refreshTokens RefreshToken[]
+  profile       Profile?
+
+  @@index([email])
+}
+
+model Profile {
+  id        String   @id @default(uuid())
+  userId    String   @unique @map("user_id")
+  fullName  String   @map("full_name")
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user      User     @relation(fields: [userId], references: [id])
+  
+  @@index([userId])
+}
+
+//////////////////////
+// AUTH METHODS
+// (local / google / future SSO)
+//////////////////////
+
+model AuthMethod {
+  id           String   @id @default(uuid())
+  userId       String   @unique @map("user_id")
+
+  provider     AuthProvider
+  passwordHash String?  @map("password_hash")
+  providerId   String?  @map("provider_id")
+
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user         User     @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerId])
+  @@index([userId])
+}
+
+//////////////////////
+// REFRESH TOKENS
+// (rotation + reuse detection)
+//////////////////////
+
+model RefreshToken {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+
+  tokenHash   String   @unique @map("token_hash")
+  expiresAt   DateTime @map("expires_at")
+
+  // rotation / reuse detection
+  usedAt      DateTime? @map("used_at")
+  revokedAt   DateTime? @map("revoked_at")
+
+  // metadata (optional nhưng rất nên có)
+  ipAddress   String? @map("ip_address")
+  userAgent   String? @map("user_agent")
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
