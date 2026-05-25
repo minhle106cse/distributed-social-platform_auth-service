@@ -1,5 +1,23 @@
 import { ApplicationError } from '@distributed-social-platform/shared-kernel'
 
+export class ForbiddenError extends ApplicationError {
+  readonly statusCode = 403
+  readonly code = 'FORBIDDEN'
+
+  constructor() {
+    super('You do not have permission to access this resource')
+  }
+}
+
+export class UnauthorizedError extends ApplicationError {
+  readonly statusCode = 401
+  readonly code = 'UNAUTHORIZED'
+
+  constructor() {
+    super('You are not authenticated')
+  }
+}
+
 export class InvalidCredentialsError extends ApplicationError {
   readonly statusCode = 401
   readonly code = 'INVALID_CREDENTIALS'
@@ -24,5 +42,23 @@ export class AuthMethodNotFoundError extends ApplicationError {
 
   constructor() {
     super('Auth method not found')
+  }
+}
+ 
+export class InvalidAuthProviderError extends ApplicationError {
+  readonly statusCode = 400
+  readonly code = 'INVALID_AUTH_PROVIDER'
+  
+  constructor() {
+    super('Invalid auth provider')
+  }
+}
+
+export class RefreshTokenNotFoundError extends ApplicationError {
+  readonly statusCode = 404
+  readonly code = 'REFRESH_TOKEN_NOT_FOUND'
+
+  constructor() {
+    super('Refresh token not found')
   }
 }

@@ -8,8 +8,9 @@ export class RefreshTokenMapper {
 
   static toCreatePersistence(entity: RefreshToken): Prisma.RefreshTokenCreateInput {
     return {
+      id: entity.id,
       tokenHash: entity.tokenHash,
-      expiresAt: entity.expiresAt,
+      expiredAt: entity.expiredAt,
       usedAt: entity.usedAt,
       revokedAt: entity.revokedAt,
       ipAddress: entity.ipAddress,

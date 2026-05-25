@@ -1,34 +1,42 @@
+import {
+  InvalidAuthProviderError,
+  InvalidCredentialsError,
+} from 'apps/auth-service/src/errors/auth.error'
 import { AuthProvider } from '../enums/auth-provider.enum'
 import { type PasswordService } from '../services/password.service'
 
 export class AuthMethod {
   private constructor(
     public readonly provider: AuthProvider,
-    public readonly passwordHash: string,
-    public readonly providerId: string | null,
+    public readonly passwordHash?: string,
+    public readonly providerId?: string,
   ) {}
 
   static rehydrate(props: {
     provider: AuthProvider
-    passwordHash: string
+    passwordHash: string | null
     providerId: string | null
   }): AuthMethod {
     return new AuthMethod(
       props.provider,
-      props.passwordHash,
-      props.providerId,
+      props.passwordHash ?? undefined,
+      props.providerId ?? undefined,
     )
   }
 
+  static createForRegister(passwordHash: string): AuthMethod {
+    return new AuthMethod(AuthProvider.LOCAL, passwordHash)
+  }
+
   async localAuthenticate(plainPassword: string, passwordService: PasswordService): Promise<void> {
-    if (this.provider !== AuthProvider.LOCAL) {
-      throw new Error('Invalid auth provider')
+    if (this.provider !== AuthProvider.LOCAL || !this.passwordHash) {
+      throw new InvalidAuthProviderError()
     }
 
     const valid = await passwordService.verify(plainPassword, this.passwordHash)
 
     if (!valid) {
-      throw new Error('Invalid credentials')
+      throw new InvalidCredentialsError()
     }
   }
 }

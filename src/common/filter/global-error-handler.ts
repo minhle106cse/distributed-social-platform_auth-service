@@ -7,14 +7,13 @@ export function globalErrorHandler(exception: FastifyError, req: FastifyRequest,
   let status = 500
   let code = 'INTERNAL_SERVER_ERROR' as string
   let message = 'Internal server error'
-  let userMessage = 'An unexpected error occurred'
   let details: ErrorDetails
 
   if (exception?.code === 'FST_ERR_VALIDATION') {
+    reply.code(400)
     status = 400
     code = 'VALIDATION_ERROR'
     message = exception.message
-    userMessage = 'Invalid request data'
 
     details = exception?.validation?.map((v: { instancePath?: string; message?: string }) => ({
       field: v.instancePath?.replace('/', '') || 'unknown',
@@ -23,10 +22,10 @@ export function globalErrorHandler(exception: FastifyError, req: FastifyRequest,
   }
 
   if (exception instanceof ApplicationError) {
+    reply.code(exception.statusCode)
     status = exception.statusCode
     code = exception.code
     message = exception.message
-    userMessage = exception.userMessage || userMessage
 
     if (exception.details !== undefined) {
       details = exception.details
@@ -39,10 +38,9 @@ export function globalErrorHandler(exception: FastifyError, req: FastifyRequest,
 
   const body: ErrorResponse = {
     success: false,
-    message: userMessage,
+    message,
     error: {
       code,
-      message,
       details,
     },
     meta: {

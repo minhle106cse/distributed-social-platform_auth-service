@@ -1,3 +1,4 @@
 export interface PasswordService {
-  verify(plain: string, hash: string): Promise<boolean>;
+  verify(plain: string, hash: string): Promise<boolean>
+  hash(plain: string): Promise<string>
 }

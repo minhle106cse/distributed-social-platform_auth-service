@@ -1,11 +1,8 @@
 import { Readable } from 'node:stream'
 import type { FastifyReply, FastifyRequest } from 'fastify'
+import { HttpResponseBuilder, HttpResponseError } from 'packages/shared-kernel'
 
-export function httpResponseHook(
-  req: FastifyRequest,
-  reply: FastifyReply,
-  payload: unknown,
-) {
+export function httpResponseHook(req: FastifyRequest, reply: FastifyReply, payload: unknown) {
   const routeConfig = req.routeOptions.config as { skipResponseWrapper?: boolean } | undefined
 
   if (reply.statusCode >= 400) {
@@ -16,24 +13,23 @@ export function httpResponseHook(
     return payload
   }
 
-  if (payload && typeof payload === 'object' && 'success' in payload) {
+  if (Buffer.isBuffer(payload) || payload instanceof Uint8Array || payload instanceof Readable) {
     return payload
   }
 
-  if (
-    Buffer.isBuffer(payload) ||
-    payload instanceof Uint8Array ||
-    payload instanceof Readable
-  ) {
-    return payload
+  if (payload instanceof HttpResponseBuilder) {
+    reply.code(payload.statusCode)
+
+    return {
+      success: payload.success,
+      data: payload.data,
+      message: payload.message,
+      meta: {
+        requestId: req.id,
+        timestamp: new Date().toISOString(),
+      },
+    }
   }
 
-  return {
-    success: true,
-    data: payload,
-    meta: {
-      requestId: req.id,
-      timestamp: new Date().toISOString(),
-    },
-  }
+  throw new HttpResponseError()
 }

@@ -1,12 +1,12 @@
 export interface TokenService {
   signAccessToken(payload: object): {
-    token: string;
-    expiresAt: Date;
-  };
+    token: string
+    expiredAt: Date
+  }
 
   signRefreshToken(payload: object): {
-    token: string;
-    tokenHash: string;
-    expiresAt: Date;
-  };
+    token: string
+    tokenHash: string
+    expiredAt: Date
+  }
 }

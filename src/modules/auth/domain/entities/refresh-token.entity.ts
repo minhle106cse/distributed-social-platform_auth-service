@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto'
+import { v7 } from 'uuid'
 import { type TokenService } from '../services/token.service'
 
 export class RefreshToken {
@@ -6,18 +6,18 @@ export class RefreshToken {
     public readonly id: string,
     public readonly userId: string,
     public readonly tokenHash: string,
-    public readonly expiresAt: Date,
-    public readonly usedAt: Date | null,
-    public readonly revokedAt: Date | null,
-    public readonly ipAddress: string | null,
-    public readonly userAgent: string | null,
+    public readonly expiredAt: Date,
+    public readonly usedAt?: Date,
+    public readonly revokedAt?: Date,
+    public readonly ipAddress?: string,
+    public readonly userAgent?: string,
   ) {}
 
-static rehydrate(props: {
+  static rehydrate(props: {
     id: string
     userId: string
     tokenHash: string
-    expiresAt: Date
+    expiredAt: Date
     usedAt: Date | null
     revokedAt: Date | null
     ipAddress: string | null
@@ -27,19 +27,19 @@ static rehydrate(props: {
       props.id,
       props.userId,
       props.tokenHash,
-      props.expiresAt,
-      props.usedAt,
-      props.revokedAt,
-      props.ipAddress,
-      props.userAgent,
+      props.expiredAt,
+      props.usedAt ?? undefined,
+      props.revokedAt ?? undefined,
+      props.ipAddress ?? undefined,
+      props.userAgent ?? undefined,
     )
   }
 
- static issue(
+  static createForLogin(
     props: {
       userId: string
-      ipAddress: string | null
-      userAgent: string | null
+      ipAddress?: string
+      userAgent?: string
     },
     tokenService: TokenService,
   ): {
@@ -51,12 +51,12 @@ static rehydrate(props: {
     })
 
     const entity = new RefreshToken(
-      randomUUID(),
+      v7(),
       props.userId,
       signed.tokenHash,
-      signed.expiresAt,
-      null,
-      null,
+      signed.expiredAt,
+      undefined,
+      undefined,
       props.ipAddress,
       props.userAgent,
     )

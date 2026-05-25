@@ -6,6 +6,7 @@ import compress from '@fastify/compress'
 import rateLimit from '@fastify/rate-limit'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
+import fastifyJwt from '@fastify/jwt';
 import { authRoutes } from './modules/auth/presenstation/routes/auth.routes'
 import { type UseCases } from './container/usecases'
 import { createPinoLogger } from './common/logger/logger'
@@ -13,6 +14,8 @@ import { httpLoggingHook } from './common/hooks/http-logging.hook'
 import { httpResponseHook } from './common/hooks/http-response.hook'
 import { globalErrorHandler } from './common/filter/global-error-handler'
 import { config } from './config'
+import { authenticate } from './common/decorators/authenticate.decorator';
+import { authorize } from './common/decorators/authorize.decorator';
 
 interface ServerDeps {
   auth: UseCases['auth']
@@ -46,9 +49,12 @@ export function buildServer(deps: ServerDeps) {
     encodings: ['gzip', 'deflate', 'br'],
   })
 
-/*   fastify.register(fastifyJwt, {
-    secret: config.jwt.secretKey
-  }) */
+  fastify.register(fastifyJwt, {
+    secret: config.jwt.accessSecret
+  })
+
+  fastify.decorate('authenticate', authenticate)
+  fastify.decorate('authorize', authorize)
 
   fastify.setValidatorCompiler(validatorCompiler as FastifySchemaCompiler<FastifySchema>);
   fastify.setSerializerCompiler(serializerCompiler as FastifySerializerCompiler<FastifySchema>);
