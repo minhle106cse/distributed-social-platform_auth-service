@@ -9,4 +9,6 @@ export interface TokenService {
     tokenHash: string
     expiredAt: Date
   }
+
+  verifyRefreshToken(token: string): string
 }

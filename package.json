@@ -1,6 +1,6 @@
 {
   "name": "@distributed-social-platform/auth-service",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "",
   "author": "minhle106cse",
   "private": true,
@@ -16,7 +16,7 @@
     "clean": "tsc -b --clean",
     "build": "tsc -b",
     "start": "node dist/main.js",
-    "dev": "ts-node-dev --respawn --transpile-only src/main.ts"
+    "dev": "tsx watch src/main.ts"
   },
   "dependencies": {
     "@distributed-social-platform/shared-kernel": "*",

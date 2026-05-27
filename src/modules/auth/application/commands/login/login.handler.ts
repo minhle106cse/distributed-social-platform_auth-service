@@ -33,6 +33,7 @@ export class LoginHandler {
     const { refreshToken, refreshTokenEntity } = RefreshToken.createForLogin(
       {
         userId: user.id,
+        email,
         ipAddress,
         userAgent,
       },

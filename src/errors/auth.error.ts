@@ -27,6 +27,14 @@ export class InvalidCredentialsError extends ApplicationError {
   }
 }
 
+export class UserAlreadyExistsError extends ApplicationError {
+  readonly statusCode = 409
+  readonly code = 'USER_ALREADY_EXISTS'
+  constructor() {
+    super('A user with the given email already exists')
+  }
+}
+
 export class UserCannotLoginError extends ApplicationError {
   readonly statusCode = 403
   readonly code = 'USER_CANNOT_LOGIN'
@@ -44,11 +52,11 @@ export class AuthMethodNotFoundError extends ApplicationError {
     super('Auth method not found')
   }
 }
- 
+
 export class InvalidAuthProviderError extends ApplicationError {
   readonly statusCode = 400
   readonly code = 'INVALID_AUTH_PROVIDER'
-  
+
   constructor() {
     super('Invalid auth provider')
   }
@@ -60,5 +68,32 @@ export class RefreshTokenNotFoundError extends ApplicationError {
 
   constructor() {
     super('Refresh token not found')
+  }
+}
+
+export class RefreshTokenRevokedError extends ApplicationError {
+  readonly statusCode = 400
+  readonly code = 'REFRESH_TOKEN_REVOKED'
+
+  constructor() {
+    super('Refresh token has been revoked')
+  }
+}
+
+export class RefreshTokenExpiredError extends ApplicationError {
+  readonly statusCode = 400
+  readonly code = 'REFRESH_TOKEN_EXPIRED'
+
+  constructor() {
+    super('Refresh token has expired')
+  }
+}
+
+export class RefreshTokenUsedError extends ApplicationError {
+  readonly statusCode = 400
+  readonly code = 'REFRESH_TOKEN_USED'
+
+  constructor() {
+    super('Refresh token has been used')
   }
 }

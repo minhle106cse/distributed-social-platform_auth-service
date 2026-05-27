@@ -8,6 +8,6 @@ const registerBodySchema = z.object({
 
 export type RegisterBody = z.infer<typeof registerBodySchema>;
 
-export const registerSchema = z.object({
+export const registerSchema = {
   body: registerBodySchema,
-});
+};

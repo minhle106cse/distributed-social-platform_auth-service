@@ -1,3 +1,4 @@
+import { UserAlreadyExistsError } from 'apps/auth-service/src/errors/auth.error'
 import { User } from '../../../domain/entities/user.entity'
 import type { UserRepository } from '../../../domain/repositories/user.repository'
 import type { PasswordService } from '../../../domain/services/password.service'
@@ -15,7 +16,7 @@ export class RegisterHandler {
     const existingUser = await this.userRepository.findByEmail(email)
 
     if (existingUser) {
-      throw new Error('Email already in use')
+      throw new UserAlreadyExistsError()
     }
 
     const user = await User.createForRegister({ email, password, fullName }, this.passwordService)

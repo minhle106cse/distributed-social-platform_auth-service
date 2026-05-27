@@ -1,4 +1,8 @@
 import { v7 } from 'uuid'
+import {
+  RefreshTokenExpiredError,
+  RefreshTokenRevokedError,
+} from 'apps/auth-service/src/errors/auth.error'
 import { type TokenService } from '../services/token.service'
 
 export class RefreshToken {
@@ -7,11 +11,15 @@ export class RefreshToken {
     public readonly userId: string,
     public readonly tokenHash: string,
     public readonly expiredAt: Date,
-    public readonly usedAt?: Date,
+    private _usedAt?: Date,
     public readonly revokedAt?: Date,
     public readonly ipAddress?: string,
     public readonly userAgent?: string,
   ) {}
+
+  get usedAt() {
+    return this._usedAt
+  }
 
   static rehydrate(props: {
     id: string
@@ -38,6 +46,7 @@ export class RefreshToken {
   static createForLogin(
     props: {
       userId: string
+      email?: string
       ipAddress?: string
       userAgent?: string
     },
@@ -48,6 +57,7 @@ export class RefreshToken {
   } {
     const signed = tokenService.signRefreshToken({
       sub: props.userId,
+      email: props.email,
     })
 
     const entity = new RefreshToken(
@@ -65,5 +75,19 @@ export class RefreshToken {
       refreshToken: signed.token,
       refreshTokenEntity: entity,
     }
+  }
+
+  assertUsable() {
+    if (this.revokedAt) {
+      throw new RefreshTokenRevokedError()
+    }
+
+    if (this.expiredAt < new Date()) {
+      throw new RefreshTokenExpiredError()
+    }
+  }
+
+  markAsUsed() {
+    this._usedAt = new Date()
   }
 }

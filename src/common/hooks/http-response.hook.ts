@@ -2,7 +2,8 @@ import { Readable } from 'node:stream'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { HttpResponseBuilder, HttpResponseError } from 'packages/shared-kernel'
 
-export function httpResponseHook(req: FastifyRequest, reply: FastifyReply, payload: unknown) {
+// eslint-disable-next-line @typescript-eslint/require-await
+export async function httpResponseHook(req: FastifyRequest, reply: FastifyReply, payload: unknown) {
   const routeConfig = req.routeOptions.config as { skipResponseWrapper?: boolean } | undefined
 
   if (reply.statusCode >= 400) {

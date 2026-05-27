@@ -20,4 +20,11 @@ export class RefreshTokenMapper {
       },
     }
   }
+
+  static toUpdatePersistence(entity: RefreshToken): Prisma.RefreshTokenUpdateInput {
+    return {
+      usedAt: entity.usedAt,
+      revokedAt: entity.revokedAt,
+    }
+  }
 }

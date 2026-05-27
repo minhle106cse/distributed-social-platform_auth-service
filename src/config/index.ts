@@ -11,10 +11,10 @@ export const config = {
     refreshSecret: env.JWT_REFRESH_SECRET,
   },
 
-  google: {
+  /* google: {
     clientId: env.GOOGLE_CLIENT_ID,
     clientSecret: env.GOOGLE_CLIENT_SECRET,
-  },
+  }, */
 
   logLevel: env.LOG_LEVEL,
 };
