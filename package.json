@@ -7,6 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "prisma:generate": "prisma generate",
+    "postinstall": "npx prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
@@ -14,18 +15,22 @@
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier . --write",
     "clean": "tsc -b --clean",
-    "build": "tsc -b",
+    "build": "tsc -b && tsc-alias",
+    "dev": "tsx watch src/main.ts",
     "start": "node dist/main.js",
-    "dev": "tsx watch src/main.ts"
+    "test": "jest"
   },
   "dependencies": {
     "@distributed-social-platform/shared-kernel": "*",
     "@fastify/aws-lambda": "^6.4.0",
     "@fastify/compress": "^8.3.1",
+    "@fastify/cookie": "^11.0.2",
     "@fastify/cors": "^11.2.0",
     "@fastify/helmet": "^13.0.2",
     "@fastify/jwt": "^10.0.0",
     "@fastify/rate-limit": "^10.3.0",
+    "@fastify/swagger": "^9.7.0",
+    "@fastify/swagger-ui": "^5.2.6",
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.8.0",
     "argon2": "^0.44.0",
@@ -68,6 +73,7 @@
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
+    "tsc-alias": "^1.8.17",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
@@ -88,6 +94,11 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/$1",
+      "^(\\.{1,2}/.*)\\.js$": "$1",
+      "^@distributed-social-platform/shared-kernel$": "<rootDir>/../../../packages/shared-kernel/src/index.ts"
+    }
   }
 }

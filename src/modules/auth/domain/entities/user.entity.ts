@@ -1,9 +1,9 @@
 import { v7 } from 'uuid'
-import { type AuthProvider } from '../enums/auth-provider.enum'
-import { AuthMethod } from '../value-objects/auth-method.vo'
-import type { PasswordService } from '../services/password.service'
-import { Profile } from '../value-objects/profile.vo'
-import { AuthMethodNotFoundError } from '../../../../errors/auth.error'
+import { type AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
+import { AuthMethod } from '@/modules/auth/domain/value-objects/auth-method.vo'
+import type { PasswordService } from '@/modules/auth/domain/services/password.service'
+import { Profile } from '@/modules/auth/domain/value-objects/profile.vo'
+import { AuthMethodNotFoundError } from '@/errors/auth.error'
 
 export class User {
   private constructor(

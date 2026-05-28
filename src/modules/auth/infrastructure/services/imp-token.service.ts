@@ -1,7 +1,7 @@
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
-import { config } from '../../../../config'
-import { type TokenService } from '../../domain/services/token.service'
+import { config } from '@/config'
+import { type TokenService } from '@/modules/auth/domain/services/token.service'
 
 export class ImpTokenService implements TokenService {
   signAccessToken(payload: object) {

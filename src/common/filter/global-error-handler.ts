@@ -1,7 +1,7 @@
 import type { FastifyError } from 'fastify';
 import { type FastifyReply, type FastifyRequest } from 'fastify'
-import type { ErrorResponse } from 'packages/shared-kernel'
-import { ApplicationError, type ErrorDetails } from 'packages/shared-kernel'
+import type { ErrorResponse } from '@distributed-social-platform/shared-kernel'
+import { ApplicationError, type ErrorDetails } from '@distributed-social-platform/shared-kernel'
 
 export function globalErrorHandler(exception: FastifyError, req: FastifyRequest, reply: FastifyReply) {
   let status = 500
@@ -46,6 +46,7 @@ export function globalErrorHandler(exception: FastifyError, req: FastifyRequest,
     meta: {
       requestId: req.id,
       timestamp: new Date().toISOString(),
+      version: '1.0.0'
     },
   }
 

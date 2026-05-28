@@ -1,7 +1,7 @@
-import { UserAlreadyExistsError } from 'apps/auth-service/src/errors/auth.error'
-import { User } from '../../../domain/entities/user.entity'
-import type { UserRepository } from '../../../domain/repositories/user.repository'
-import type { PasswordService } from '../../../domain/services/password.service'
+import { UserAlreadyExistsError } from '@/errors/auth.error'
+import { User } from '@/modules/auth/domain/entities/user.entity'
+import type { UserRepository } from '@/modules/auth/domain/repositories/user.repository'
+import type { PasswordService } from '@/modules/auth/domain/services/password.service'
 import type { RegisterCommand } from './register.command'
 
 export class RegisterHandler {

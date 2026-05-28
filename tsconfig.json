@@ -7,6 +7,10 @@
     "composite": true,
     "rootDir": "src",
     "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
 
     "declaration": true,
     "sourceMap": true,

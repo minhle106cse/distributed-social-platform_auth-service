@@ -1,10 +1,10 @@
 import {
   RefreshTokenNotFoundError,
   RefreshTokenUsedError,
-} from 'apps/auth-service/src/errors/auth.error'
-import type { RefreshTokenRepository } from '../../../domain/repositories/refresh-token.repository'
-import type { TokenService } from '../../../domain/services/token.service'
-import { RefreshToken } from '../../../domain/entities/refresh-token.entity'
+} from '@/errors/auth.error'
+import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
+import type { TokenService } from '@/modules/auth/domain/services/token.service'
+import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
 import type { RefreshCommand } from './refresh.command'
 
 export class RefreshHandler {

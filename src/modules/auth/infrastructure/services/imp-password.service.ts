@@ -1,5 +1,5 @@
 import argon2 from 'argon2';
-import { type PasswordService } from '../../domain/services/password.service';
+import { type PasswordService } from '@/modules/auth/domain/services/password.service';
 
 export class ImpPasswordService implements PasswordService {
   verify(plain: string, hash: string): Promise<boolean> {

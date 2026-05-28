@@ -1,6 +1,6 @@
 import type { FastifyJWT } from '@fastify/jwt'
 import type { FastifyRequest, FastifyReply } from 'fastify'
-import { UnauthorizedError } from '../../errors/auth.error'
+import { UnauthorizedError } from '@/errors/auth.error'
  
 export async function authenticate(request: FastifyRequest, _reply: FastifyReply) {
   try {

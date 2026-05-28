@@ -1,4 +1,4 @@
-import { type RefreshToken } from '../entities/refresh-token.entity'
+import { type RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
 
 export interface RefreshTokenRepository {
   create(refreshToken: RefreshToken): Promise<void>

@@ -1,7 +1,7 @@
-import type { PrismaClient } from 'apps/auth-service/src/generated'
-import type { User } from '../../../domain/entities/user.entity'
-import type { UserRepository } from '../../../domain/repositories/user.repository'
-import { UserMapper } from '../../mapper/user.mapper'
+import type { PrismaClient } from '@/generated'
+import type { User } from '@/modules/auth/domain/entities/user.entity'
+import type { UserRepository } from '@/modules/auth/domain/repositories/user.repository'
+import { UserMapper } from '@/modules/auth/infrastructure/mapper/user.mapper'
 
 export class PrismaUserRepository implements UserRepository {
   constructor(private readonly prisma: PrismaClient) {}

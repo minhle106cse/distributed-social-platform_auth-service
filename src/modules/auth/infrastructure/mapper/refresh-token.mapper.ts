@@ -1,5 +1,5 @@
-import { type Prisma, type RefreshToken as PrismaRefreshToken } from '../../../../generated'
-import { RefreshToken } from '../../domain/entities/refresh-token.entity'
+import { type Prisma, type RefreshToken as PrismaRefreshToken } from '@/generated'
+import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
 
 export class RefreshTokenMapper {
   static toDomain(record: PrismaRefreshToken): RefreshToken {

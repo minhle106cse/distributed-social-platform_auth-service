@@ -3,7 +3,7 @@ import { createApp } from './app'
 import { config } from './config'
 
 async function bootstrap() {
-  const app = createApp()
+  const app = await createApp()
 
   await app.listen({
     port: config.port,

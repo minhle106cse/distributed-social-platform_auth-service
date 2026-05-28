@@ -3,10 +3,10 @@ import type {
   AuthMethod as PrismaAuthMethod,
   Prisma,
   Profile as PrismaProfile,
-} from 'apps/auth-service/src/generated'
-import { User } from '../../domain/entities/user.entity'
-import { type AuthProvider } from '../../domain/enums/auth-provider.enum'
-import { AuthMethod } from '../../domain/value-objects/auth-method.vo'
+} from '@/generated'
+import { User } from '@/modules/auth/domain/entities/user.entity'
+import { type AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
+import { AuthMethod } from '@/modules/auth/domain/value-objects/auth-method.vo'
 
 export class UserMapper {
   static toDomain(

@@ -1,15 +1,16 @@
 import { type FastifyInstance, type FastifyPluginOptions } from 'fastify'
-import { HttpResponseBuilder } from 'packages/shared-kernel'
-import { type UseCases } from '../../../../container/usecases'
-import type { LoginBody } from '../schemas/login.schema'
-import { loginSchema } from '../schemas/login.schema'
-import type { RegisterBody } from '../schemas/register.schema'
-import { registerSchema } from '../schemas/register.schema'
-import type { RefreshBody } from '../schemas/refresh.schema'
-import { refreshSchema } from '../schemas/refresh.schema'
-import { LoginCommand } from '../../application/commands/login/login.command'
-import { RegisterCommand } from '../../application/commands/register/register.command'
-import { RefreshCommand } from '../../application/commands/refresh/refresh.command'
+import { HttpResponseBuilder } from '@distributed-social-platform/shared-kernel'
+import { z } from 'zod'
+import { type UseCases } from '@/container/usecases'
+import type { LoginBody } from '@/modules/auth/presentation/schemas/login.schema'
+import { loginSchema } from '@/modules/auth/presentation/schemas/login.schema'
+import type { RegisterBody } from '@/modules/auth/presentation/schemas/register.schema'
+import { registerSchema } from '@/modules/auth/presentation/schemas/register.schema'
+import type { RefreshBody } from '@/modules/auth/presentation/schemas/refresh.schema'
+import { refreshSchema } from '@/modules/auth/presentation/schemas/refresh.schema'
+import { LoginCommand } from '@/modules/auth/application/commands/login/login.command'
+import { RegisterCommand } from '@/modules/auth/application/commands/register/register.command'
+import { RefreshCommand } from '@/modules/auth/application/commands/refresh/refresh.command'
 interface AuthRouteOptions extends FastifyPluginOptions {
   auth: UseCases['auth']
 }
@@ -22,7 +23,11 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
   }>(
     '/login',
     {
-      schema: loginSchema,
+      schema: {
+        description: 'Login to the application',
+        tags: ['auth'],
+        ...loginSchema,
+      },
     },
     async (req, _reply) => {
       const { email, password } = req.body
@@ -36,7 +41,11 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
   }>(
     '/register',
     {
-      schema: registerSchema,
+      schema: {
+        description: 'Register a new user',
+        tags: ['auth'],
+        ...registerSchema,
+      },
     },
     async (req, _reply) => {
       const { email, password, fullName } = req.body
@@ -50,7 +59,11 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
   }>(
     '/refresh',
     {
-      schema: refreshSchema,
+      schema: {
+        description: 'Refresh access token',
+        tags: ['auth'],
+        ...refreshSchema,
+      },
     },
     async (req, _reply) => {
       const { refreshToken, ipAddress, userAgent } = req.body

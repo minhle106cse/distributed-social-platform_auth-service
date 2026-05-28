@@ -1,6 +1,6 @@
 import { Readable } from 'node:stream'
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { HttpResponseBuilder, HttpResponseError } from 'packages/shared-kernel'
+import { HttpResponseBuilder, HttpResponseError } from '@distributed-social-platform/shared-kernel'
 
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function httpResponseHook(req: FastifyRequest, reply: FastifyReply, payload: unknown) {
@@ -28,6 +28,7 @@ export async function httpResponseHook(req: FastifyRequest, reply: FastifyReply,
       meta: {
         requestId: req.id,
         timestamp: new Date().toISOString(),
+        version: '1.0.0'
       },
     }
   }

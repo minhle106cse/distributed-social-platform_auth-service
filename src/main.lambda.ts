@@ -6,15 +6,15 @@ type LambdaHandler = (event: APIGatewayProxyEvent, context: Context) => Promise<
 
 let proxy: LambdaHandler
 
-function bootstrap(): LambdaHandler {
-  const app = createApp()
+async function bootstrap(): Promise<LambdaHandler> {
+  const app = await createApp()
 
   return awsLambdaFastify(app) as LambdaHandler
 }
 
-export const handler = (event: APIGatewayProxyEvent, context: Context) => {
+export const handler = async (event: APIGatewayProxyEvent, context: Context) => {
   if (!proxy) {
-    proxy = bootstrap()
+    proxy = await bootstrap()
   }
 
   return proxy(event, context)

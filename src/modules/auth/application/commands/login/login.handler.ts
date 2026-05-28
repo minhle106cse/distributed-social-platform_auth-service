@@ -1,10 +1,10 @@
-import { InvalidCredentialsError } from 'apps/auth-service/src/errors/auth.error'
-import type { RefreshTokenRepository } from '../../../domain/repositories/refresh-token.repository'
-import type { UserRepository } from '../../../domain/repositories/user.repository'
-import type { PasswordService } from '../../../domain/services/password.service'
-import type { TokenService } from '../../../domain/services/token.service'
-import { AuthProvider } from '../../../domain/enums/auth-provider.enum'
-import { RefreshToken } from '../../../domain/entities/refresh-token.entity'
+import { InvalidCredentialsError } from '@/errors/auth.error'
+import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
+import type { UserRepository } from '@/modules/auth/domain/repositories/user.repository'
+import type { PasswordService } from '@/modules/auth/domain/services/password.service'
+import type { TokenService } from '@/modules/auth/domain/services/token.service'
+import { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
+import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
 import type { LoginCommand } from './login.command'
 
 export class LoginHandler {

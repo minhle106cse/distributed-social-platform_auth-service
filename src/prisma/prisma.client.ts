@@ -1,6 +1,6 @@
 import { PrismaPg } from '@prisma/adapter-pg'
-import { PrismaClient } from '../generated/client'
-import { config } from '../config'
+import { PrismaClient } from '@/generated/client'
+import { config } from '@/config'
 
 const logLevels: Array<'query' | 'info' | 'warn' | 'error'> =
   config.nodeEnv === 'production' ? ['warn', 'error'] : ['query', 'info', 'warn', 'error']
