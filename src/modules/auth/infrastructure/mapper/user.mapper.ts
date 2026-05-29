@@ -37,16 +37,16 @@ export class UserMapper {
       isActive: user.isActive,
       emailVerified: user.emailVerified,
       authMethods: {
-        create: user['authMethods'].map((m) => ({
+        create: user.getAuthMethods.map((m) => ({
           provider: m.provider,
           passwordHash: m.passwordHash,
           providerId: m.providerId,
         })),
       },
-      profile: user['profile']
+      profile: user.getProfile
         ? {
             create: {
-              fullName: user['profile'].fullName,
+              fullName: user.getProfile.fullName,
             },
           }
         : undefined,

@@ -1,6 +1,5 @@
 import { type FastifyInstance, type FastifyPluginOptions } from 'fastify'
 import { HttpResponseBuilder } from '@distributed-social-platform/shared-kernel'
-import { z } from 'zod'
 import { type UseCases } from '@/container/usecases'
 import type { LoginBody } from '@/modules/auth/presentation/schemas/login.schema'
 import { loginSchema } from '@/modules/auth/presentation/schemas/login.schema'
@@ -11,6 +10,8 @@ import { refreshSchema } from '@/modules/auth/presentation/schemas/refresh.schem
 import { LoginCommand } from '@/modules/auth/application/commands/login/login.command'
 import { RegisterCommand } from '@/modules/auth/application/commands/register/register.command'
 import { RefreshCommand } from '@/modules/auth/application/commands/refresh/refresh.command'
+import { UnauthorizedError } from '@/errors/auth.error'
+
 interface AuthRouteOptions extends FastifyPluginOptions {
   auth: UseCases['auth']
 }
@@ -67,7 +68,12 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
     },
     async (req, _reply) => {
       const { refreshToken, ipAddress, userAgent } = req.body
-      const decoded = fastify.jwt.decode(refreshToken) as { sub: string, email: string }
+      const decoded = fastify.jwt.decode(refreshToken) as { sub: string; email: string } | null
+
+      if (!decoded?.sub) {
+        throw new UnauthorizedError()
+      }
+
       const data = await auth.refresh.execute(
         new RefreshCommand(refreshToken, ipAddress, userAgent),
         decoded,

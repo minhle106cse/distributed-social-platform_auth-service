@@ -3,7 +3,7 @@ import { type AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enu
 import { AuthMethod } from '@/modules/auth/domain/value-objects/auth-method.vo'
 import type { PasswordService } from '@/modules/auth/domain/services/password.service'
 import { Profile } from '@/modules/auth/domain/value-objects/profile.vo'
-import { AuthMethodNotFoundError } from '@/errors/auth.error'
+import { AuthMethodNotFoundError, UserCannotLoginError } from '@/errors/auth.error'
 
 export class User {
   private constructor(
@@ -23,7 +23,7 @@ export class User {
     authMethods: AuthMethod[]
     profile?: Profile
   }): User {
-    return new User(props.id, props.email, props.isActive, props.emailVerified, props.authMethods)
+    return new User(props.id, props.email, props.isActive, props.emailVerified, props.authMethods, props.profile)
   }
 
   static async createForRegister(
@@ -41,9 +41,17 @@ export class User {
     return new User(v7(), props.email, true, false, [authMethod], profile)
   }
 
+  get getAuthMethods(): AuthMethod[] {
+    return this.authMethods
+  }
+
+  get getProfile(): Profile | undefined {
+    return this.profile
+  }
+
   ensureCanLogin() {
     if (!this.isActive) {
-      throw new Error('User is inactive')
+      throw new UserCannotLoginError()
     }
   }
 

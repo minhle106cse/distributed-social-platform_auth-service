@@ -1,6 +1,6 @@
 import { User } from './user.entity'
 import { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
-import { AuthMethodNotFoundError } from '@/errors/auth.error'
+import { AuthMethodNotFoundError, UserCannotLoginError } from '@/errors/auth.error'
 import { PasswordService } from '@/modules/auth/domain/services/password.service'
 import { AuthMethod } from '@/modules/auth/domain/value-objects/auth-method.vo'
 
@@ -62,7 +62,7 @@ describe('User Entity', () => {
         authMethods: [],
       })
 
-      expect(() => user.ensureCanLogin()).toThrow('User is inactive')
+      expect(() => user.ensureCanLogin()).toThrow(UserCannotLoginError)
     })
   })
 

@@ -5,6 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 //////////////////////
@@ -56,7 +57,7 @@ model Profile {
 
 model AuthMethod {
   id           String   @id @default(uuid())
-  userId       String   @unique @map("user_id")
+  userId       String   @map("user_id")
 
   provider     AuthProvider
   passwordHash String?  @map("password_hash")
@@ -67,6 +68,8 @@ model AuthMethod {
 
   user         User     @relation(fields: [userId], references: [id])
 
+  // 1 user có thể có nhiều auth methods (LOCAL + GOOGLE + ...)
+  @@unique([userId, provider])
   @@unique([provider, providerId])
   @@index([userId])
 }

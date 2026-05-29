@@ -72,7 +72,7 @@ export class RefreshTokenNotFoundError extends ApplicationError {
 }
 
 export class RefreshTokenRevokedError extends ApplicationError {
-  readonly statusCode = 400
+  readonly statusCode = 401
   readonly code = 'REFRESH_TOKEN_REVOKED'
 
   constructor() {
@@ -81,7 +81,7 @@ export class RefreshTokenRevokedError extends ApplicationError {
 }
 
 export class RefreshTokenExpiredError extends ApplicationError {
-  readonly statusCode = 400
+  readonly statusCode = 401
   readonly code = 'REFRESH_TOKEN_EXPIRED'
 
   constructor() {
@@ -90,7 +90,7 @@ export class RefreshTokenExpiredError extends ApplicationError {
 }
 
 export class RefreshTokenUsedError extends ApplicationError {
-  readonly statusCode = 400
+  readonly statusCode = 401
   readonly code = 'REFRESH_TOKEN_USED'
 
   constructor() {

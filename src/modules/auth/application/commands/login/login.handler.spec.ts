@@ -3,7 +3,7 @@ import { UserRepository } from '@/modules/auth/domain/repositories/user.reposito
 import { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
 import { PasswordService } from '@/modules/auth/domain/services/password.service'
 import { TokenService } from '@/modules/auth/domain/services/token.service'
-import { InvalidCredentialsError } from '@/errors/auth.error'
+import { InvalidCredentialsError, UserCannotLoginError } from '@/errors/auth.error'
 import { User } from '@/modules/auth/domain/entities/user.entity'
 import { AuthMethod } from '@/modules/auth/domain/value-objects/auth-method.vo'
 import { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
@@ -124,6 +124,6 @@ describe('LoginHandler', () => {
         email: 'test@example.com',
         password: 'pass'
       })
-    ).rejects.toThrow('User is inactive')
+    ).rejects.toThrow(UserCannotLoginError)
   })
 })

@@ -17,7 +17,7 @@ export async function setupFastify(fastify: FastifyInstance) {
   fastify.withTypeProvider<ZodTypeProvider>()
 
   await fastify.register(cors, {
-    origin: ['*'],
+    origin: config.corsOrigins,
     credentials: true,
   })
 
