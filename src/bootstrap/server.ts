@@ -1,7 +1,6 @@
 import Fastify from 'fastify'
 import { type UseCases } from '@/container/usecases'
-import { createPinoLogger } from '@/common/logger/logger'
-import { config } from '@/config'
+import { createLogger } from '@distributed-social-platform/shared-kernel'
 import { setupFastify } from './fastify'
 import { setupSwagger } from './swagger'
 import { authRoutes } from '@/modules/auth/presentation/routes/auth.routes'
@@ -12,7 +11,7 @@ interface ServerDeps {
 
 export async function buildServer(deps: ServerDeps) {
   const fastify = Fastify({
-    logger: createPinoLogger(config.nodeEnv || 'development'),
+    logger: createLogger('auth-service'),
     genReqId: (req) => {
       return Array.isArray(req.headers['x-request-id'])
         ? req.headers['x-request-id'][0]
