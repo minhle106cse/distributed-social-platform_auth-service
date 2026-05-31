@@ -1,4 +1,4 @@
-import { InvalidCredentialsError } from '@/errors/auth.error'
+import { InvalidCredentialsError } from '@/common/errors/auth.error'
 import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
 import type { UserRepository } from '@/modules/auth/domain/repositories/user.repository'
 import type { PasswordService } from '@/modules/auth/domain/services/password.service'

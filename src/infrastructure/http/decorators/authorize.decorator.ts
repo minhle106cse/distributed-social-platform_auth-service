@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { /* ForbiddenError,  */ UnauthorizedError } from '@/errors/auth.error'
+import { /* ForbiddenError,  */ UnauthorizedError } from '@/common/errors/auth.error'
 
 export function authorize(_roles: string[]) {
   return function (request: FastifyRequest, _reply: FastifyReply) {

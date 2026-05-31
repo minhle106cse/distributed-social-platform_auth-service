@@ -10,14 +10,14 @@ import { refreshSchema } from '@/modules/auth/presentation/schemas/refresh.schem
 import { LoginCommand } from '@/modules/auth/application/commands/login/login.command'
 import { RegisterCommand } from '@/modules/auth/application/commands/register/register.command'
 import { RefreshCommand } from '@/modules/auth/application/commands/refresh/refresh.command'
-import { UnauthorizedError } from '@/errors/auth.error'
+import { UnauthorizedError } from '@/common/errors/auth.error'
 
 interface AuthRouteOptions extends FastifyPluginOptions {
-  auth: UseCases['auth']
+  commandBus: UseCases['commandBus']
 }
 
 export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) {
-  const { auth } = options
+  const { commandBus } = options
 
   fastify.post<{
     Body: LoginBody
@@ -32,7 +32,8 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
     },
     async (req, _reply) => {
       const { email, password } = req.body
-      const data = await auth.login.execute(new LoginCommand(email, password))
+      const command = new LoginCommand(email, password)
+      const data = await commandBus.execute(command)
       return new HttpResponseBuilder(data, 'Login successful', 200)
     },
   )
@@ -50,7 +51,8 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
     },
     async (req, _reply) => {
       const { email, password, fullName } = req.body
-      await auth.register.execute(new RegisterCommand(email, password, fullName))
+      const command = new RegisterCommand(email, password, fullName)
+      await commandBus.execute(command)
       return new HttpResponseBuilder(null, 'Registration successful', 201)
     },
   )
@@ -74,10 +76,8 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
         throw new UnauthorizedError()
       }
 
-      const data = await auth.refresh.execute(
-        new RefreshCommand(refreshToken, ipAddress, userAgent),
-        decoded,
-      )
+      const command = new RefreshCommand(refreshToken, decoded, ipAddress, userAgent)
+      const data = await commandBus.execute(command)
       return new HttpResponseBuilder(data, 'Token refreshed successfully', 200)
     },
   )

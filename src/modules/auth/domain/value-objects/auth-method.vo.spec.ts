@@ -1,6 +1,6 @@
 import { AuthMethod } from './auth-method.vo'
 import { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
-import { InvalidCredentialsError, InvalidAuthProviderError } from '@/errors/auth.error'
+import { InvalidCredentialsError, InvalidAuthProviderError } from '@/common/errors/auth.error'
 import { PasswordService } from '@/modules/auth/domain/services/password.service'
 
 describe('AuthMethod Value Object', () => {

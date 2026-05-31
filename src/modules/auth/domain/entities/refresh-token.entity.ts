@@ -2,7 +2,7 @@ import { v7 } from 'uuid'
 import {
   RefreshTokenExpiredError,
   RefreshTokenRevokedError,
-} from '@/errors/auth.error'
+} from '@/common/errors/auth.error'
 import { type TokenService } from '@/modules/auth/domain/services/token.service'
 
 export class RefreshToken {

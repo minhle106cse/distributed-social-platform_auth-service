@@ -1,20 +1,21 @@
 import {
   RefreshTokenNotFoundError,
   RefreshTokenUsedError,
-} from '@/errors/auth.error'
+} from '@/common/errors/auth.error'
 import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
 import type { TokenService } from '@/modules/auth/domain/services/token.service'
 import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
 import type { RefreshCommand } from './refresh.command'
+import { ICommandHandler } from '@/common/cqrs'
 
-export class RefreshHandler {
+export class RefreshHandler implements ICommandHandler<RefreshCommand> {
   constructor(
     public readonly refreshTokenRepository: RefreshTokenRepository,
     public readonly tokenService: TokenService,
   ) {}
 
-  async execute(command: RefreshCommand, decoded: { sub: string; email: string }) {
-    const { refreshToken, ipAddress, userAgent } = command
+  async execute(command: RefreshCommand) {
+    const { refreshToken, decoded, ipAddress, userAgent } = command
     const tokenHash = this.tokenService.verifyRefreshToken(refreshToken)
     const refreshTokenEntity = await this.refreshTokenRepository.findByTokenHash(tokenHash)
 

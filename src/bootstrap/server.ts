@@ -6,12 +6,12 @@ import { setupSwagger } from './swagger'
 import { authRoutes } from '@/modules/auth/presentation/routes/auth.routes'
 
 interface ServerDeps {
-  auth: UseCases['auth']
+  commandBus: UseCases['commandBus']
 }
 
 export async function buildServer(deps: ServerDeps) {
   const fastify = Fastify({
-    logger: createLogger('auth-service'),
+    logger: process.env.NODE_ENV === 'test' ? false : createLogger('auth-service'),
     genReqId: (req) => {
       return Array.isArray(req.headers['x-request-id'])
         ? req.headers['x-request-id'][0]
@@ -30,7 +30,7 @@ export async function buildServer(deps: ServerDeps) {
 
   await fastify.register(authRoutes, {
     prefix: '/auth',
-    auth: deps.auth,
+    commandBus: deps.commandBus,
   })
 
   return fastify

@@ -1,6 +1,6 @@
 import { User } from './user.entity'
 import { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
-import { AuthMethodNotFoundError, UserCannotLoginError } from '@/errors/auth.error'
+import { AuthMethodNotFoundError, UserCannotLoginError } from '@/common/errors/auth.error'
 import { PasswordService } from '@/modules/auth/domain/services/password.service'
 import { AuthMethod } from '@/modules/auth/domain/value-objects/auth-method.vo'
 

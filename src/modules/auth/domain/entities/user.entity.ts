@@ -3,7 +3,7 @@ import { type AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enu
 import { AuthMethod } from '@/modules/auth/domain/value-objects/auth-method.vo'
 import type { PasswordService } from '@/modules/auth/domain/services/password.service'
 import { Profile } from '@/modules/auth/domain/value-objects/profile.vo'
-import { AuthMethodNotFoundError, UserCannotLoginError } from '@/errors/auth.error'
+import { AuthMethodNotFoundError, UserCannotLoginError } from '@/common/errors/auth.error'
 
 export class User {
   private constructor(

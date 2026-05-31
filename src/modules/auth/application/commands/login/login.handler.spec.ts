@@ -3,7 +3,7 @@ import { UserRepository } from '@/modules/auth/domain/repositories/user.reposito
 import { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
 import { PasswordService } from '@/modules/auth/domain/services/password.service'
 import { TokenService } from '@/modules/auth/domain/services/token.service'
-import { InvalidCredentialsError, UserCannotLoginError } from '@/errors/auth.error'
+import { InvalidCredentialsError, UserCannotLoginError } from '@/common/errors/auth.error'
 import { User } from '@/modules/auth/domain/entities/user.entity'
 import { AuthMethod } from '@/modules/auth/domain/value-objects/auth-method.vo'
 import { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
@@ -85,7 +85,7 @@ describe('LoginHandler', () => {
       password: 'plain-pass',
       ipAddress: '127.0.0.1',
       userAgent: 'jest'
-    })
+    } as any)
 
     // Assertions
     expect(mockUserRepo.findByEmail).toHaveBeenCalledWith('test@example.com')
@@ -104,7 +104,7 @@ describe('LoginHandler', () => {
       handler.execute({
         email: 'notfound@example.com',
         password: 'pass'
-      })
+      } as any)
     ).rejects.toThrow(InvalidCredentialsError)
   })
 
@@ -123,7 +123,7 @@ describe('LoginHandler', () => {
       handler.execute({
         email: 'test@example.com',
         password: 'pass'
-      })
+      } as any)
     ).rejects.toThrow(UserCannotLoginError)
   })
 })

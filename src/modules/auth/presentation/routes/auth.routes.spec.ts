@@ -8,14 +8,12 @@ describe('Auth Routes (Unit)', () => {
   let app: FastifyInstance
   
   // Mock the UseCases
-  const mockAuthUsecases = {
-    login: { execute: jest.fn() },
-    register: { execute: jest.fn() },
-    refresh: { execute: jest.fn() }
-  } as unknown as UseCases['auth']
+  const mockCommandBus = {
+    execute: jest.fn()
+  } as unknown as UseCases['commandBus']
 
   beforeAll(async () => {
-    app = await buildServer({ auth: mockAuthUsecases })
+    app = await buildServer({ commandBus: mockCommandBus })
     await app.ready()
   })
 
@@ -31,7 +29,7 @@ describe('Auth Routes (Unit)', () => {
 
   describe('POST /auth/register', () => {
     it('should return 201 on successful registration', async () => {
-      ;(mockAuthUsecases.register.execute as jest.Mock).mockResolvedValue(undefined)
+      ;(mockCommandBus.execute as jest.Mock).mockResolvedValue(undefined)
 
       const response = await app.inject({
         method: 'POST',
@@ -44,7 +42,7 @@ describe('Auth Routes (Unit)', () => {
       })
 
       expect(response.statusCode).toBe(201)
-      expect(mockAuthUsecases.register.execute).toHaveBeenCalledTimes(1)
+      expect(mockCommandBus.execute).toHaveBeenCalledTimes(1)
       const data = response.json()
       expect(data.success).toBe(true)
       expect(data.message).toBe('Registration successful')
@@ -62,14 +60,14 @@ describe('Auth Routes (Unit)', () => {
       })
 
       expect(response.statusCode).toBe(400)
-      expect(mockAuthUsecases.register.execute).not.toHaveBeenCalled()
+      expect(mockCommandBus.execute).not.toHaveBeenCalled()
     })
   })
 
   describe('POST /auth/login', () => {
     it('should return 200 and tokens on successful login', async () => {
       const mockTokens = { accessToken: 'access', refreshToken: 'refresh' }
-      ;(mockAuthUsecases.login.execute as jest.Mock).mockResolvedValue(mockTokens)
+      ;(mockCommandBus.execute as jest.Mock).mockResolvedValue(mockTokens)
 
       const response = await app.inject({
         method: 'POST',
@@ -81,7 +79,7 @@ describe('Auth Routes (Unit)', () => {
       })
 
       expect(response.statusCode).toBe(200)
-      expect(mockAuthUsecases.login.execute).toHaveBeenCalledTimes(1)
+      expect(mockCommandBus.execute).toHaveBeenCalledTimes(1)
       const data = response.json()
       expect(data.success).toBe(true)
       expect(data.data.accessToken).toBe('access')
@@ -95,7 +93,7 @@ describe('Auth Routes (Unit)', () => {
       app.jwt.decode = jest.fn().mockReturnValue({ sub: 'user1', email: 'test@example.com' })
       
       const mockTokens = { accessToken: 'new-access', refreshToken: 'new-refresh' }
-      ;(mockAuthUsecases.refresh.execute as jest.Mock).mockResolvedValue(mockTokens)
+      ;(mockCommandBus.execute as jest.Mock).mockResolvedValue(mockTokens)
 
       const response = await app.inject({
         method: 'POST',
@@ -106,7 +104,7 @@ describe('Auth Routes (Unit)', () => {
       })
 
       expect(response.statusCode).toBe(200)
-      expect(mockAuthUsecases.refresh.execute).toHaveBeenCalledTimes(1)
+      expect(mockCommandBus.execute).toHaveBeenCalledTimes(1)
       const data = response.json()
       expect(data.data.accessToken).toBe('new-access')
     })

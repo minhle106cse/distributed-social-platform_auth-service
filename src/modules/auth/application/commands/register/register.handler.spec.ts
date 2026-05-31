@@ -1,7 +1,7 @@
 import { RegisterHandler } from './register.handler'
 import { UserRepository } from '@/modules/auth/domain/repositories/user.repository'
 import { PasswordService } from '@/modules/auth/domain/services/password.service'
-import { UserAlreadyExistsError } from '@/errors/auth.error'
+import { UserAlreadyExistsError } from '@/common/errors/auth.error'
 import { User } from '@/modules/auth/domain/entities/user.entity'
 
 jest.mock('uuid', () => ({
@@ -39,7 +39,7 @@ describe('RegisterHandler', () => {
       email: 'new@example.com',
       password: 'password123',
       fullName: 'Test User'
-    })
+    } as any)
 
     expect(mockUserRepo.findByEmail).toHaveBeenCalledWith('new@example.com')
     expect(User.createForRegister).toHaveBeenCalledWith(
@@ -59,7 +59,7 @@ describe('RegisterHandler', () => {
         email: 'taken@example.com',
         password: 'pass',
         fullName: 'Test'
-      })
+      } as any)
     ).rejects.toThrow(UserAlreadyExistsError)
 
     expect(mockUserRepo.create).not.toHaveBeenCalled()

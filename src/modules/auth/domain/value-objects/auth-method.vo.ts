@@ -1,7 +1,7 @@
 import {
   InvalidAuthProviderError,
   InvalidCredentialsError,
-} from '@/errors/auth.error'
+} from '@/common/errors/auth.error'
 import { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
 import { type PasswordService } from '@/modules/auth/domain/services/password.service'
 

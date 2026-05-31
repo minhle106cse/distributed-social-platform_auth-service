@@ -2,6 +2,7 @@ import type { PrismaClient } from '@/generated'
 import { type RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
 import { type RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
 import { RefreshTokenMapper } from '@/modules/auth/infrastructure/mapper/refresh-token.mapper'
+import { getTx } from '@/common/database/transaction.context'
 
 export class PrismaRefreshTokenRepository implements RefreshTokenRepository {
   constructor(
@@ -9,7 +10,8 @@ export class PrismaRefreshTokenRepository implements RefreshTokenRepository {
   ) {}
 
   async findByTokenHash(tokenHash: string) {
-    const record = await this.prisma.refreshToken.findUnique({
+    const db = (getTx() ?? this.prisma) as PrismaClient;
+    const record = await db.refreshToken.findUnique({
       where: {
         tokenHash,
       },
@@ -22,19 +24,22 @@ export class PrismaRefreshTokenRepository implements RefreshTokenRepository {
 
   async create(refreshToken: RefreshToken) {
     const data = RefreshTokenMapper.toCreatePersistence(refreshToken)
-    await this.prisma.refreshToken.create({ data })
+    const db = (getTx() ?? this.prisma) as PrismaClient;
+    await db.refreshToken.create({ data })
   }
 
   async update(refreshToken: RefreshToken) {
     const data = RefreshTokenMapper.toUpdatePersistence(refreshToken)
-    await this.prisma.refreshToken.update({
+    const db = (getTx() ?? this.prisma) as PrismaClient;
+    await db.refreshToken.update({
       where: { id: refreshToken.id },
       data,
     })
   }
 
   async revokeAllByUserId(userId: string): Promise<void> {
-    await this.prisma.refreshToken.updateMany({
+    const db = (getTx() ?? this.prisma) as PrismaClient;
+    await db.refreshToken.updateMany({
       where: { userId },
       data: { revokedAt: new Date() },
     })

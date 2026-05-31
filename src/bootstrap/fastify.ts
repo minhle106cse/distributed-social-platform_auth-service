@@ -7,11 +7,11 @@ import fastifyJwt from '@fastify/jwt'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod'
 import { config } from '@/config'
-import { authenticate } from '@/common/decorators/authenticate.decorator'
-import { authorize } from '@/common/decorators/authorize.decorator'
-import { httpLoggingHook } from '@/common/hooks/http-logging.hook'
-import { httpResponseHook } from '@/common/hooks/http-response.hook'
-import { globalErrorHandler } from '@/common/filter/global-error-handler'
+import { authenticate } from '@/infrastructure/http/decorators/authenticate.decorator'
+import { authorize } from '@/infrastructure/http/decorators/authorize.decorator'
+import { httpLoggingHook } from '@/infrastructure/http/hooks/http-logging.hook'
+import { httpResponseHook } from '@/infrastructure/http/hooks/http-response.hook'
+import { globalErrorHandler } from '@/infrastructure/http/filter/global-error-handler'
 
 export async function setupFastify(fastify: FastifyInstance) {
   fastify.withTypeProvider<ZodTypeProvider>()
