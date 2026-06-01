@@ -28,10 +28,12 @@ export async function buildServer(deps: ServerDeps) {
     return { status: 'ok' }
   })
 
-  await fastify.register(authRoutes, {
-    prefix: '/auth',
-    commandBus: deps.commandBus,
-  })
+  await fastify.register(async (api) => {
+    await api.register(authRoutes, {
+      prefix: '/auth',
+      commandBus: deps.commandBus,
+    })
+  }, { prefix: '/api/v1' })
 
   return fastify
 }
