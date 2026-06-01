@@ -1,6 +1,6 @@
 import { ICommandMiddleware, NextFn, ICommand } from '@/common/cqrs';
 import { ITransactionManager } from '@/common/database/transaction-manager.interface';
-import { ILogger } from '@/common/logger';
+import { ILogger } from '@distributed-social-platform/shared-kernel';
 
 /**
  * Wraps each command execution in a database transaction.

@@ -3,8 +3,7 @@ import { PrismaUserRepository } from '@/modules/auth/infrastructure/repositories
 import { ImpPasswordService } from '@/modules/auth/infrastructure/services/imp-password.service'
 import { ImpTokenService } from '@/modules/auth/infrastructure/services/imp-token.service'
 import { prisma } from '@/infrastructure/database/prisma/prisma.client'
-import { createLogger } from '@distributed-social-platform/shared-kernel'
-import { ILogger } from '@/common/logger'
+import { createLogger, ILogger } from '@distributed-social-platform/shared-kernel'
 
 export function buildInfra() {
   return {

@@ -1,5 +1,5 @@
 import { ICommandMiddleware, NextFn, ICommand } from '@/common/cqrs';
-import { ILogger } from '@/common/logger';
+import { ILogger } from '@distributed-social-platform/shared-kernel';
 
 /**
  * Retries transient command failures with exponential backoff.
@@ -12,7 +12,7 @@ export class RetryMiddleware implements ICommandMiddleware {
     private readonly isTransientError: (error: unknown) => boolean,
     private readonly maxRetries: number = 3,
     private readonly baseDelayMs: number = 100,
-  ) {}
+  ) { }
 
   async execute<T extends ICommand, R = any>(command: T, next: NextFn<R>): Promise<R> {
     if (!command.options?.retryable) {

@@ -1,5 +1,5 @@
 import { ICommandMiddleware, NextFn, ICommand } from '@/common/cqrs';
-import { ILogger } from '@/common/logger';
+import { ILogger } from '@distributed-social-platform/shared-kernel';
 
 export class LoggingMiddleware implements ICommandMiddleware {
   constructor(private readonly logger: ILogger) {}

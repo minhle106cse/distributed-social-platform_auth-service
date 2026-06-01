@@ -8,5 +8,5 @@ export class LoginCommand implements ICommand {
     public password: string,
     public ipAddress?: string,
     public userAgent?: string,
-  ) {}
+  ) { }
 }
