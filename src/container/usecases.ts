@@ -1,4 +1,4 @@
-import { CommandBus, EventBus } from '@/common/cqrs'
+import { CommandBus, EventBus, QueryBus } from '@/common/cqrs'
 import { LoginHandler } from '@/modules/auth/application/commands/login/login.handler'
 import { RefreshHandler } from '@/modules/auth/application/commands/refresh/refresh.handler'
 import { RegisterHandler } from '@/modules/auth/application/commands/register/register.handler'
@@ -12,6 +12,7 @@ import { isPrismaTransientError } from '@/infrastructure/database/prisma/prisma-
 export function buildUseCases(infra: InfraDeps) {
   const commandBus = new CommandBus()
   const eventBus = new EventBus()
+  const queryBus = new QueryBus()
 
   // Wiring Infra implementations into framework-agnostic Middlewares.
   // This is the ONLY place that knows about Prisma-specific details.
@@ -38,6 +39,7 @@ export function buildUseCases(infra: InfraDeps) {
   return {
     commandBus,
     eventBus,
+    queryBus,
   }
 }
 
