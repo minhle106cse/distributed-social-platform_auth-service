@@ -12,12 +12,13 @@ datasource db {
 //////////////////////
 
 enum AuthProvider {
-  local
-  google
+  LOCAL
+  GOOGLE
+  APPLE
 }
 
 //////////////////////
-// USER
+// USER (Identity)
 //////////////////////
 
 model User {
@@ -29,54 +30,40 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  authMethods   AuthMethod[]
-  refreshTokens RefreshToken[]
-  profile       Profile?
-  roles         UserRole[]
+  authIdentities AuthIdentity[]
+  refreshTokens  RefreshToken[]
+  roles          UserRole[]
 
   @@index([email])
-}
-
-model Profile {
-  id        String   @id @default(uuid())
-  userId    String   @unique @map("user_id")
-  fullName  String   @map("full_name")
-  
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  user      User     @relation(fields: [userId], references: [id])
-  
-  @@index([userId])
+  @@map("users")
 }
 
 //////////////////////
-// AUTH METHODS
-// (local / google / future SSO)
+// AUTH IDENTITIES
 //////////////////////
 
-model AuthMethod {
+model AuthIdentity {
   id           String   @id @default(uuid())
   userId       String   @map("user_id")
 
-  provider     AuthProvider
+  provider     AuthProvider @default(LOCAL)
   passwordHash String?  @map("password_hash")
-  providerId   String?  @map("provider_id")
+  providerId   String?  @map("provider_id") // For Google/Apple ID
 
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   user         User     @relation(fields: [userId], references: [id])
 
-  // 1 user có thể có nhiều auth methods (LOCAL + GOOGLE + ...)
+  // 1 user có thể có nhiều auth methods
   @@unique([userId, provider])
   @@unique([provider, providerId])
   @@index([userId])
+  @@map("auth_identities")
 }
 
 //////////////////////
 // REFRESH TOKENS
-// (rotation + reuse detection)
 //////////////////////
 
 model RefreshToken {
@@ -90,7 +77,7 @@ model RefreshToken {
   usedAt      DateTime? @map("used_at")
   revokedAt   DateTime? @map("revoked_at")
 
-  // metadata (optional nhưng rất nên có)
+  // metadata
   ipAddress   String? @map("ip_address")
   userAgent   String? @map("user_agent")
 
@@ -100,6 +87,7 @@ model RefreshToken {
   user        User     @relation(fields: [userId], references: [id])
 
   @@index([userId])
+  @@map("refresh_tokens")
 }
 
 //////////////////////
@@ -124,7 +112,7 @@ model Role {
 model Permission {
   id          String   @id @default(uuid())
   code        String   @unique // VD: "USER:BAN", "POST:DELETE"
-  module      String   // Phân loại nhóm quyền. VD: "USER", "POST", "SYSTEM"
+  module      String   // Phân loại nhóm quyền
   description String?
 
   createdAt   DateTime @default(now()) @map("created_at")

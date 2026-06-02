@@ -5,7 +5,7 @@ import { PasswordService } from '@/modules/auth/domain/services/password.service
 import { TokenService } from '@/modules/auth/domain/services/token.service'
 import { InvalidCredentialsError, UserCannotLoginError } from '@/common/errors/auth.error'
 import { User } from '@/modules/auth/domain/entities/user.entity'
-import { AuthMethod } from '@/modules/auth/domain/value-objects/auth-method.vo'
+import { AuthIdentity } from '@/modules/auth/domain/value-objects/auth-identity.vo'
 import { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
 import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
 
@@ -52,13 +52,13 @@ describe('LoginHandler', () => {
 
   it('should successfully login and return tokens', async () => {
     // Setup Mock User
-    const authMethod = AuthMethod.createForRegister('hashed-pass')
+    const authIdentity = AuthIdentity.createForRegister('hashed-pass')
     const user = User.rehydrate({
       id: 'user-id',
       email: 'test@example.com',
       isActive: true,
       emailVerified: true,
-      authMethods: [authMethod],
+      authIdentities: [authIdentity],
     })
     
     // Mock user repo finding user
@@ -114,7 +114,7 @@ describe('LoginHandler', () => {
       email: 'test@example.com',
       isActive: false, // Inactive!
       emailVerified: true,
-      authMethods: [],
+      authIdentities: [],
     })
     
     mockUserRepo.findByEmail.mockResolvedValue(user)

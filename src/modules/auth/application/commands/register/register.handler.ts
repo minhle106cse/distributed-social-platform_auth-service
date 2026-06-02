@@ -12,7 +12,7 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand> {
   ) {}
 
   async execute(command: RegisterCommand) {
-    const { email, password, fullName } = command
+    const { email, password, username } = command
 
     const existingUser = await this.userRepository.findByEmail(email)
 
@@ -20,7 +20,8 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand> {
       throw new UserAlreadyExistsError()
     }
 
-    const user = await User.createForRegister({ email, password, fullName }, this.passwordService)
+    // username is not saved here, it will be published via Kafka in a later phase.
+    const user = await User.createForRegister({ email, password }, this.passwordService)
     await this.userRepository.create(user)
   }
 }

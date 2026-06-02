@@ -6,6 +6,6 @@ export class RegisterCommand implements ICommand {
   constructor(
     public email: string,
     public password: string,
-    public fullName: string,
+    public username: string,
   ) {}
 }

@@ -33,11 +33,11 @@ describe('Auth Routes (Unit)', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/auth/register',
+        url: '/api/v1/auth/register',
         payload: {
           email: 'test@example.com',
           password: 'password123',
-          fullName: 'Test User'
+          username: 'testuser'
         }
       })
 
@@ -51,11 +51,11 @@ describe('Auth Routes (Unit)', () => {
     it('should return 400 when validation fails (password too short)', async () => {
       const response = await app.inject({
         method: 'POST',
-        url: '/auth/register',
+        url: '/api/v1/auth/register',
         payload: {
           email: 'test@example.com',
           password: '123', // < 6 chars
-          fullName: 'Test User'
+          username: 'testuser'
         }
       })
 
@@ -66,12 +66,15 @@ describe('Auth Routes (Unit)', () => {
 
   describe('POST /auth/login', () => {
     it('should return 200 and tokens on successful login', async () => {
-      const mockTokens = { accessToken: 'access', refreshToken: 'refresh' }
+      const mockTokens = {
+        accessToken: { token: 'access', expiredAt: new Date().toISOString() },
+        refreshToken: { token: 'refresh', expiredAt: new Date().toISOString() }
+      }
       ;(mockCommandBus.execute as jest.Mock).mockResolvedValue(mockTokens)
 
       const response = await app.inject({
         method: 'POST',
-        url: '/auth/login',
+        url: '/api/v1/auth/login',
         payload: {
           email: 'test@example.com',
           password: 'password123'
@@ -82,8 +85,8 @@ describe('Auth Routes (Unit)', () => {
       expect(mockCommandBus.execute).toHaveBeenCalledTimes(1)
       const data = response.json()
       expect(data.success).toBe(true)
-      expect(data.data.accessToken).toBe('access')
-      expect(data.data.refreshToken).toBe('refresh')
+      expect(data.data.accessToken.token).toBe('access')
+      expect(data.data.refreshToken.token).toBe('refresh')
     })
   })
 
@@ -92,12 +95,15 @@ describe('Auth Routes (Unit)', () => {
       // Decode mock to bypass JWT check in handler
       app.jwt.decode = jest.fn().mockReturnValue({ sub: 'user1', email: 'test@example.com' })
       
-      const mockTokens = { accessToken: 'new-access', refreshToken: 'new-refresh' }
+      const mockTokens = {
+        accessToken: { token: 'new-access', expiredAt: new Date().toISOString() },
+        refreshToken: { token: 'new-refresh', expiredAt: new Date().toISOString() }
+      }
       ;(mockCommandBus.execute as jest.Mock).mockResolvedValue(mockTokens)
 
       const response = await app.inject({
         method: 'POST',
-        url: '/auth/refresh',
+        url: '/api/v1/auth/refresh',
         payload: {
           refreshToken: 'valid-refresh-token'
         }
@@ -106,7 +112,7 @@ describe('Auth Routes (Unit)', () => {
       expect(response.statusCode).toBe(200)
       expect(mockCommandBus.execute).toHaveBeenCalledTimes(1)
       const data = response.json()
-      expect(data.data.accessToken).toBe('new-access')
+      expect(data.data.accessToken.token).toBe('new-access')
     })
   })
 })

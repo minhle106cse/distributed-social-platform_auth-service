@@ -50,8 +50,8 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
       },
     },
     async (req, _reply) => {
-      const { email, password, fullName } = req.body
-      const command = new RegisterCommand(email, password, fullName)
+      const { email, password, username } = req.body
+      const command = new RegisterCommand(email, password, username)
       await commandBus.execute(command)
       return new HttpResponseBuilder(null, 'Registration successful', 201)
     },

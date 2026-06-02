@@ -9,9 +9,14 @@ interface ServerDeps {
   commandBus: UseCases['commandBus']
 }
 
+import { FastifyBaseLogger } from 'fastify'
+
 export async function buildServer(deps: ServerDeps) {
+  const isTest = process.env.NODE_ENV === 'test'
   const fastify = Fastify({
-    logger: process.env.NODE_ENV === 'test' ? false : createLogger('auth-service'),
+    ...(isTest
+      ? { logger: false }
+      : { loggerInstance: createLogger('auth-service') as any }),
     genReqId: (req) => {
       return Array.isArray(req.headers['x-request-id'])
         ? req.headers['x-request-id'][0]

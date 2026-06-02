@@ -1,6 +1,6 @@
-POST http://localhost:3000/auth/refresh
+POST http://localhost:4001/api/v1/auth/refresh
 Content-Type: application/json
 
 {
-    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmMmE1Nzc1NC01M2RlLTQwZTYtYmNlMi05ZWRjNjgyNzY1NzkiLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJpYXQiOjE3Nzk4OTUzOTEsImV4cCI6MTc4MjQ4NzM5MX0.djtPfbYuwPcsqBYgf2LIhsRwmnXve2IW8ZiJnTqhkqw"
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMTllODk0OC1hYTM4LTc1YWEtOTY3My02NDliNmU4MGQ2OTAiLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODA0MTk3MTMsImV4cCI6MTc4MzAxMTcxM30.G7P6RCRQXJRcxU8BPCd6HvCv-IVtsvS55zM437uY1co"
 }

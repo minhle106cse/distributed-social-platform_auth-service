@@ -11,7 +11,7 @@ export class PrismaUserRepository implements UserRepository {
     const db = (getTx() ?? this.prisma) as PrismaClient;
     const record = await db.user.findUnique({
       where: { email },
-      include: { authMethods: true },
+      include: { authIdentities: true },
     })
 
     if (!record) return null
@@ -20,7 +20,7 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async create(user: User): Promise<void> {
-    const data = UserMapper.toCreatePersistence(user)
+    const data = UserMapper.toPersistence(user)
     const db = (getTx() ?? this.prisma) as PrismaClient;
     await db.user.create({ data })
   }

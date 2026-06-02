@@ -1,55 +1,45 @@
-import type {
+import {
   User as PrismaUser,
-  AuthMethod as PrismaAuthMethod,
-  Prisma,
-  Profile as PrismaProfile,
+  AuthIdentity as PrismaAuthIdentity,
 } from '@/generated'
 import { User } from '@/modules/auth/domain/entities/user.entity'
-import { type AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
-import { AuthMethod } from '@/modules/auth/domain/value-objects/auth-method.vo'
+import { AuthIdentity } from '@/modules/auth/domain/value-objects/auth-identity.vo'
+import { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
 
 export class UserMapper {
   static toDomain(
-    record: PrismaUser & { authMethods?: PrismaAuthMethod[] } & { profile?: PrismaProfile },
+    record: PrismaUser & { authIdentities?: PrismaAuthIdentity[] },
   ): User {
     return User.rehydrate({
-      ...record,
-      authMethods: record.authMethods
-        ? record.authMethods.map((r) =>
-            AuthMethod.rehydrate({
+      id: record.id,
+      email: record.email,
+      isActive: record.isActive,
+      emailVerified: record.emailVerified,
+      authIdentities: record.authIdentities
+        ? record.authIdentities.map((r) =>
+            AuthIdentity.rehydrate({
               provider: r.provider as AuthProvider,
               passwordHash: r.passwordHash,
               providerId: r.providerId,
             }),
           )
         : [],
-      profile: record.profile
-        ? {
-            fullName: record.profile.fullName,
-          }
-        : undefined,
     })
   }
 
-  static toCreatePersistence(user: User): Prisma.UserCreateInput {
+  static toPersistence(user: User) {
     return {
+      id: user.id,
       email: user.email,
       isActive: user.isActive,
       emailVerified: user.emailVerified,
-      authMethods: {
-        create: user.getAuthMethods.map((m) => ({
+      authIdentities: {
+        create: user.getAuthIdentities.map((m) => ({
           provider: m.provider,
           passwordHash: m.passwordHash,
           providerId: m.providerId,
         })),
       },
-      profile: user.getProfile
-        ? {
-            create: {
-              fullName: user.getProfile.fullName,
-            },
-          }
-        : undefined,
     }
   }
 }

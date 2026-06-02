@@ -1,8 +1,7 @@
 import { v7 } from 'uuid'
 import { type AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
-import { AuthMethod } from '@/modules/auth/domain/value-objects/auth-method.vo'
+import { AuthIdentity } from '@/modules/auth/domain/value-objects/auth-identity.vo'
 import type { PasswordService } from '@/modules/auth/domain/services/password.service'
-import { Profile } from '@/modules/auth/domain/value-objects/profile.vo'
 import { AuthMethodNotFoundError, UserCannotLoginError } from '@/common/errors/auth.error'
 
 export class User {
@@ -11,8 +10,7 @@ export class User {
     public readonly email: string,
     public readonly isActive: boolean,
     public readonly emailVerified: boolean,
-    private authMethods: AuthMethod[],
-    private profile?: Profile,
+    private authIdentities: AuthIdentity[],
   ) {}
 
   static rehydrate(props: {
@@ -20,33 +18,26 @@ export class User {
     email: string
     isActive: boolean
     emailVerified: boolean
-    authMethods: AuthMethod[]
-    profile?: Profile
+    authIdentities: AuthIdentity[]
   }): User {
-    return new User(props.id, props.email, props.isActive, props.emailVerified, props.authMethods, props.profile)
+    return new User(props.id, props.email, props.isActive, props.emailVerified, props.authIdentities)
   }
 
   static async createForRegister(
     props: {
       email: string
       password: string
-      fullName: string
     },
     passwordService: PasswordService,
   ): Promise<User> {
     const passwordHash = await passwordService.hash(props.password)
-    const authMethod = AuthMethod.createForRegister(passwordHash)
-    const profile = Profile.createForRegister({ fullName: props.fullName })
+    const authIdentity = AuthIdentity.createForRegister(passwordHash)
 
-    return new User(v7(), props.email, true, false, [authMethod], profile)
+    return new User(v7(), props.email, true, false, [authIdentity])
   }
 
-  get getAuthMethods(): AuthMethod[] {
-    return this.authMethods
-  }
-
-  get getProfile(): Profile | undefined {
-    return this.profile
+  get getAuthIdentities(): AuthIdentity[] {
+    return this.authIdentities
   }
 
   ensureCanLogin() {
@@ -55,13 +46,13 @@ export class User {
     }
   }
 
-  getAuthMethod(provider: AuthProvider): AuthMethod {
-    const method = this.authMethods.find((m) => m.provider === provider)
+  getAuthIdentity(provider: AuthProvider): AuthIdentity {
+    const identity = this.authIdentities.find((m) => m.provider === provider)
 
-    if (!method) {
+    if (!identity) {
       throw new AuthMethodNotFoundError()
     }
 
-    return method
+    return identity
   }
 }

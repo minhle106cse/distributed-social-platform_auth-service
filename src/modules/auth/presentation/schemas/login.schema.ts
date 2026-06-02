@@ -13,8 +13,14 @@ export const loginSchema = {
   response: {
     200: createSuccessResponseSchema(
       z.object({
-        accessToken: z.string(),
-        refreshToken: z.string(),
+        accessToken: z.object({
+          token: z.string(),
+          expiredAt: z.union([z.string(), z.number(), z.date()]),
+        }),
+        refreshToken: z.object({
+          token: z.string(),
+          expiredAt: z.union([z.string(), z.number(), z.date()]),
+        }),
       })
     ),
     400: ErrorResponseSchema,

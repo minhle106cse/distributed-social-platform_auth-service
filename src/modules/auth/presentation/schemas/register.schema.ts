@@ -4,7 +4,7 @@ import { ErrorResponseSchema, createSuccessResponseSchema } from '@distributed-s
 export const registerBodySchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
-  fullName: z.string().min(2),
+  username: z.string().min(2),
 })
 
 export type RegisterBody = z.infer<typeof registerBodySchema>

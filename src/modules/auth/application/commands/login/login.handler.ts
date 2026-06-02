@@ -26,9 +26,9 @@ export class LoginHandler {
 
     user.ensureCanLogin()
 
-    const authMethod = user.getAuthMethod(AuthProvider.LOCAL)
+    const authIdentity = user.getAuthIdentity(AuthProvider.LOCAL)
 
-    await authMethod.localAuthenticate(password, this.passwordService)
+    await authIdentity.localAuthenticate(password, this.passwordService)
 
     const { refreshToken, refreshTokenEntity } = RefreshToken.createForLogin(
       {

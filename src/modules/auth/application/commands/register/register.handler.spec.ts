@@ -38,12 +38,12 @@ describe('RegisterHandler', () => {
     const result = await handler.execute({
       email: 'new@example.com',
       password: 'password123',
-      fullName: 'Test User'
+      username: 'testuser'
     } as any)
 
     expect(mockUserRepo.findByEmail).toHaveBeenCalledWith('new@example.com')
     expect(User.createForRegister).toHaveBeenCalledWith(
-      { email: 'new@example.com', password: 'password123', fullName: 'Test User' },
+      { email: 'new@example.com', password: 'password123' },
       mockPasswordService
     )
     expect(mockUserRepo.create).toHaveBeenCalledWith(mockUserEntity)
@@ -58,7 +58,7 @@ describe('RegisterHandler', () => {
       handler.execute({
         email: 'taken@example.com',
         password: 'pass',
-        fullName: 'Test'
+        username: 'testuser'
       } as any)
     ).rejects.toThrow(UserAlreadyExistsError)
 
