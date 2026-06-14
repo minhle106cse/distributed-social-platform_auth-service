@@ -27,19 +27,19 @@ describe('LoginHandler', () => {
       create: jest.fn(),
       findById: jest.fn(),
     } as unknown as jest.Mocked<UserRepository>
-    
+
     mockRefreshTokenRepo = {
       create: jest.fn(),
       findByToken: jest.fn(),
       revoke: jest.fn(),
       revokeAllUserTokens: jest.fn(),
     } as unknown as jest.Mocked<RefreshTokenRepository>
-    
+
     mockPasswordService = {
       hash: jest.fn(),
       verify: jest.fn(),
     } as unknown as jest.Mocked<PasswordService>
-    
+
     mockTokenService = {
       signAccessToken: jest.fn(),
       signRefreshToken: jest.fn(),
@@ -60,19 +60,19 @@ describe('LoginHandler', () => {
       emailVerified: true,
       authIdentities: [authIdentity],
     })
-    
+
     // Mock user repo finding user
     mockUserRepo.findByEmail.mockResolvedValue(user)
-    
+
     // Mock password comparison (must be true)
     mockPasswordService.verify.mockResolvedValue(true)
-    
+
     // Mock RefreshToken creation
     const mockRefreshTokenEntity = { expiredAt: new Date(Date.now() + 10000) } as RefreshToken
-    ;(RefreshToken.createForLogin as jest.Mock).mockReturnValue({
-      refreshToken: 'mock-refresh-token',
-      refreshTokenEntity: mockRefreshTokenEntity
-    })
+      ; (RefreshToken.createForLogin as jest.Mock).mockReturnValue({
+        refreshToken: 'mock-refresh-token',
+        refreshTokenEntity: mockRefreshTokenEntity
+      })
 
     // Mock AccessToken generation
     mockTokenService.signAccessToken.mockReturnValue({
@@ -92,7 +92,7 @@ describe('LoginHandler', () => {
     expect(mockPasswordService.verify).toHaveBeenCalledWith('plain-pass', 'hashed-pass')
     expect(mockRefreshTokenRepo.create).toHaveBeenCalledWith(mockRefreshTokenEntity)
     expect(mockTokenService.signAccessToken).toHaveBeenCalledWith({ sub: 'user-id', email: 'test@example.com' })
-    
+
     expect(result.accessToken.token).toBe('mock-access-token')
     expect(result.refreshToken.token).toBe('mock-refresh-token')
   })
@@ -116,7 +116,7 @@ describe('LoginHandler', () => {
       emailVerified: true,
       authIdentities: [],
     })
-    
+
     mockUserRepo.findByEmail.mockResolvedValue(user)
 
     await expect(

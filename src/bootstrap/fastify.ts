@@ -4,6 +4,7 @@ import helmet from '@fastify/helmet'
 import compress from '@fastify/compress'
 import rateLimit from '@fastify/rate-limit'
 import fastifyJwt from '@fastify/jwt'
+import fastifyCookie from '@fastify/cookie'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod'
 import { config } from '@/config'
@@ -15,6 +16,8 @@ import { globalErrorHandler } from '@/infrastructure/http/filter/global-error-ha
 
 export async function setupFastify(fastify: FastifyInstance) {
   fastify.withTypeProvider<ZodTypeProvider>()
+
+  await fastify.register(fastifyCookie)
 
   await fastify.register(cors, {
     origin: config.corsOrigins,
@@ -33,7 +36,11 @@ export async function setupFastify(fastify: FastifyInstance) {
   })
 
   await fastify.register(fastifyJwt, {
-    secret: config.jwt.accessSecret
+    secret: config.jwt.accessSecret,
+    cookie: {
+      cookieName: 'accessToken',
+      signed: false
+    }
   })
 
   fastify.decorate('authenticate', authenticate)

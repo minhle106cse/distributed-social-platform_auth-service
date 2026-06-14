@@ -12,6 +12,30 @@ describe('AuthIdentity Value Object', () => {
     jest.clearAllMocks()
   })
 
+  describe('rehydrate', () => {
+    it('should create AuthIdentity with undefined for null values', () => {
+      const identity = AuthIdentity.rehydrate({
+        provider: AuthProvider.GOOGLE,
+        passwordHash: null,
+        providerId: 'google-123'
+      })
+      expect(identity.provider).toBe(AuthProvider.GOOGLE)
+      expect(identity.passwordHash).toBeUndefined()
+      expect(identity.providerId).toBe('google-123')
+    })
+
+    it('should create AuthIdentity with provided values', () => {
+      const identity = AuthIdentity.rehydrate({
+        provider: AuthProvider.LOCAL,
+        passwordHash: 'hashed-pass',
+        providerId: null
+      })
+      expect(identity.provider).toBe(AuthProvider.LOCAL)
+      expect(identity.passwordHash).toBe('hashed-pass')
+      expect(identity.providerId).toBeUndefined()
+    })
+  })
+
   describe('localAuthenticate', () => {
     it('should pass if password is correct', async () => {
       mockPasswordService.verify.mockResolvedValueOnce(true)

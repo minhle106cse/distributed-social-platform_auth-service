@@ -1,10 +1,10 @@
 import { buildInfra } from './container/infra'
-import { buildUseCases } from './container/usecases'
+import { buildApplication } from './container/application'
 import { buildServer } from './bootstrap/server'
 
 export async function createApp() {
   const infra = buildInfra()
-  const useCases = buildUseCases(infra)
+  const application = buildApplication(infra)
 
-  return await buildServer(useCases)
+  return await buildServer(application)
 }

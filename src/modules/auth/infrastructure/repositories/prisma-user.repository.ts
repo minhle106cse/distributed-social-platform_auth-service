@@ -5,7 +5,7 @@ import { UserMapper } from '@/modules/auth/infrastructure/mapper/user.mapper'
 import { getTx } from '@/common/database/transaction.context'
 
 export class PrismaUserRepository implements UserRepository {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(private readonly prisma: PrismaClient) { }
 
   async findByEmail(email: string): Promise<User | null> {
     const db = (getTx() ?? this.prisma) as PrismaClient;

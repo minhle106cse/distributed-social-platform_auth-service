@@ -7,7 +7,7 @@ import { getTx } from '@/common/database/transaction.context'
 export class PrismaRefreshTokenRepository implements RefreshTokenRepository {
   constructor(
     private readonly prisma: PrismaClient
-  ) {}
+  ) { }
 
   async findByTokenHash(tokenHash: string) {
     const db = (getTx() ?? this.prisma) as PrismaClient;

@@ -6,7 +6,7 @@ export async function authenticate(request: FastifyRequest, _reply: FastifyReply
   try {
     const jwtPayload: FastifyJWT['payload'] = await request.jwtVerify()
     const user: FastifyJWT['user'] = {
-      id: jwtPayload.sub,
+      sub: jwtPayload.sub,
       email: jwtPayload.email, 
     }
 

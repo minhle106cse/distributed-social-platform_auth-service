@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { ErrorResponseSchema, createSuccessResponseSchema } from '@distributed-social-platform/shared-kernel'
 
 export const refreshBodySchema = z.object({
-  refreshToken: z.string(),
+  refreshToken: z.string().optional(),
   ipAddress: z.string().optional(),
   userAgent: z.string().optional(),
 })
@@ -15,10 +15,6 @@ export const refreshSchema = {
     200: createSuccessResponseSchema(
       z.object({
         accessToken: z.object({
-          token: z.string(),
-          expiredAt: z.union([z.string(), z.number(), z.date()]),
-        }),
-        refreshToken: z.object({
           token: z.string(),
           expiredAt: z.union([z.string(), z.number(), z.date()]),
         }),

@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify'
 import { buildServer } from '@/bootstrap/server'
-import { UseCases } from '@/container/usecases'
+import { Application } from '@/container/application'
 
 jest.setTimeout(30000)
 
@@ -10,10 +10,14 @@ describe('Auth Routes (Unit)', () => {
   // Mock the UseCases
   const mockCommandBus = {
     execute: jest.fn()
-  } as unknown as UseCases['commandBus']
+  } as unknown as Application['commandBus']
+
+  const mockQueryBus = {
+    execute: jest.fn()
+  } as unknown as Application['queryBus']
 
   beforeAll(async () => {
-    app = await buildServer({ commandBus: mockCommandBus })
+    app = await buildServer({ commandBus: mockCommandBus, queryBus: mockQueryBus })
     await app.ready()
   })
 
@@ -81,12 +85,15 @@ describe('Auth Routes (Unit)', () => {
         }
       })
 
+      if (response.statusCode !== 200) {
+        console.log(response.body)
+      }
       expect(response.statusCode).toBe(200)
       expect(mockCommandBus.execute).toHaveBeenCalledTimes(1)
       const data = response.json()
       expect(data.success).toBe(true)
       expect(data.data.accessToken.token).toBe('access')
-      expect(data.data.refreshToken.token).toBe('refresh')
+      expect(data.data.refreshToken).toBeUndefined()
     })
   })
 
@@ -113,6 +120,65 @@ describe('Auth Routes (Unit)', () => {
       expect(mockCommandBus.execute).toHaveBeenCalledTimes(1)
       const data = response.json()
       expect(data.data.accessToken.token).toBe('new-access')
+    })
+
+    it('should return 401 if refreshToken is missing', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/refresh',
+        payload: {}
+      })
+      expect(response.statusCode).toBe(401)
+    })
+
+    it('should return 401 if decoded payload has no sub', async () => {
+      app.jwt.decode = jest.fn().mockReturnValue({ email: 'test@example.com' }) // no sub
+      const response = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/refresh',
+        payload: {
+          refreshToken: 'valid-refresh-token'
+        }
+      })
+      expect(response.statusCode).toBe(401)
+    })
+  })
+
+  describe('POST /auth/logout', () => {
+    it('should return 200 on successful logout', async () => {
+      ;(mockCommandBus.execute as jest.Mock).mockResolvedValue(undefined)
+      
+      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com' })
+      const response = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/logout',
+        headers: {
+          authorization: `Bearer ${token}`
+        }
+      })
+
+      expect(response.statusCode).toBe(200)
+      expect(mockCommandBus.execute).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('GET /auth/me', () => {
+    it('should return 200 on successful fetch', async () => {
+      ;(mockQueryBus.execute as jest.Mock).mockResolvedValue({ id: 'user123', email: 'test@example.com' })
+      
+      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com' })
+      const response = await app.inject({
+        method: 'GET',
+        url: '/api/v1/auth/me',
+        headers: {
+          authorization: `Bearer ${token}`
+        }
+      })
+
+      expect(response.statusCode).toBe(200)
+      expect(mockQueryBus.execute).toHaveBeenCalledTimes(1)
+      const data = response.json()
+      expect(data.data.email).toBe('test@example.com')
     })
   })
 })

@@ -97,3 +97,13 @@ export class RefreshTokenUsedError extends ApplicationError {
     super('Refresh token has been used')
   }
 }
+
+export class UserNotFoundError extends ApplicationError {
+  readonly statusCode = 404
+  readonly code = 'USER_NOT_FOUND'
+
+  constructor() {
+    super('User not found')
+  }
+}
+

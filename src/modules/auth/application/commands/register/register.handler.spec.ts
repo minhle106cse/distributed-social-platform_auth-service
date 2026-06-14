@@ -20,7 +20,7 @@ describe('RegisterHandler', () => {
       create: jest.fn(),
       findById: jest.fn(),
     } as unknown as jest.Mocked<UserRepository>
-    
+
     mockPasswordService = {
       hash: jest.fn(),
       verify: jest.fn(),
@@ -33,7 +33,7 @@ describe('RegisterHandler', () => {
     mockUserRepo.findByEmail.mockResolvedValue(null) // No existing user
 
     const mockUserEntity = { id: 'new-user-id', email: 'new@example.com' } as User
-    ;(User.createForRegister as jest.Mock).mockResolvedValue(mockUserEntity)
+      ; (User.createForRegister as jest.Mock).mockResolvedValue(mockUserEntity)
 
     const result = await handler.execute({
       email: 'new@example.com',

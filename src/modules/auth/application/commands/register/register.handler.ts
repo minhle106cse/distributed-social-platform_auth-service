@@ -9,7 +9,7 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand> {
   constructor(
     public readonly userRepository: UserRepository,
     public readonly passwordService: PasswordService,
-  ) {}
+  ) { }
 
   async execute(command: RegisterCommand) {
     const { email, password, username } = command

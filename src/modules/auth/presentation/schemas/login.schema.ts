@@ -17,10 +17,6 @@ export const loginSchema = {
           token: z.string(),
           expiredAt: z.union([z.string(), z.number(), z.date()]),
         }),
-        refreshToken: z.object({
-          token: z.string(),
-          expiredAt: z.union([z.string(), z.number(), z.date()]),
-        }),
       })
     ),
     400: ErrorResponseSchema,

@@ -12,13 +12,17 @@ export class RefreshToken {
     public readonly tokenHash: string,
     public readonly expiredAt: Date,
     private _usedAt?: Date,
-    public readonly revokedAt?: Date,
+    private _revokedAt?: Date,
     public readonly ipAddress?: string,
     public readonly userAgent?: string,
   ) {}
 
   get usedAt() {
     return this._usedAt
+  }
+
+  get revokedAt() {
+    return this._revokedAt
   }
 
   static rehydrate(props: {
@@ -89,5 +93,9 @@ export class RefreshToken {
 
   markAsUsed() {
     this._usedAt = new Date()
+  }
+
+  revoke() {
+    this._revokedAt = new Date()
   }
 }

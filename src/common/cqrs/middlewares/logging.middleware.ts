@@ -2,7 +2,7 @@ import { ICommandMiddleware, NextFn, ICommand } from '@/common/cqrs';
 import { ILogger } from '@distributed-social-platform/shared-kernel';
 
 export class LoggingMiddleware implements ICommandMiddleware {
-  constructor(private readonly logger: ILogger) {}
+  constructor(private readonly logger: ILogger) { }
 
   async execute<T extends ICommand, R = any>(command: T, next: NextFn<R>): Promise<R> {
     const startTime = Date.now();
