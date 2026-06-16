@@ -9,7 +9,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod'
 import { config } from '@/config'
 import { authenticate } from '@/infrastructure/http/decorators/authenticate.decorator'
-import { authorize } from '@/infrastructure/http/decorators/authorize.decorator'
+import { requirePermissions } from '@/infrastructure/http/decorators/authorize.decorator'
 import { httpLoggingHook } from '@/infrastructure/http/hooks/http-logging.hook'
 import { httpResponseHook } from '@/infrastructure/http/hooks/http-response.hook'
 import { globalErrorHandler } from '@/infrastructure/http/filter/global-error-handler'
@@ -44,7 +44,7 @@ export async function setupFastify(fastify: FastifyInstance) {
   })
 
   fastify.decorate('authenticate', authenticate)
-  fastify.decorate('authorize', authorize)
+  fastify.decorate('requirePermissions', requirePermissions)
 
   fastify.setValidatorCompiler(validatorCompiler)
   fastify.setSerializerCompiler(serializerCompiler)

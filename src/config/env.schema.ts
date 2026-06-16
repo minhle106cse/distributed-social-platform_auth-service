@@ -4,9 +4,9 @@ export const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production'])
     .default('development'),
 
-  PORT: z.string().default('3000'),
+  AUTH_SERVICE_PORT: z.string().default('4001'),
 
-  DATABASE_URL: z.string().url(),
+  AUTH_DATABASE_URL: z.string().url(),
 
   JWT_ACCESS_SECRET: z.string().min(32),
   JWT_REFRESH_SECRET: z.string().min(32),

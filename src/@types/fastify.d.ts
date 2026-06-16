@@ -9,17 +9,7 @@ declare module 'fastify' {
 
   interface FastifyInstance {
     authenticate: any;
-    authorize: any;
-  }
-}
-
-declare module '@fastify/jwt' {
-  interface FastifyJWT {
-    payload: { sub: string; email: string } // payload type is used for req.user
-    user: {
-      sub: string
-      email: string
-    } 
+    requirePermissions: (permissions: string[]) => any;
   }
 }
 

@@ -4,6 +4,9 @@ import { setupFastify } from './fastify'
 import { setupSwagger } from './swagger'
 import { type Application } from '@/container/application'
 import { authRoutes } from '@/modules/auth/presentation/routes/auth.routes'
+import { userRoutes } from '@/modules/user/presentation/routes/user.routes'
+import { roleRoutes } from '@/modules/rbac/presentation/routes/role.routes'
+import { permissionRoutes } from '@/modules/rbac/presentation/routes/permission.routes'
 
 interface ServerDeps {
   commandBus: Application['commandBus']
@@ -45,6 +48,21 @@ export async function buildServer(deps: ServerDeps) {
       prefix: '/auth',
       commandBus: deps.commandBus,
       queryBus: deps.queryBus
+    })
+    await api.register(userRoutes, {
+      prefix: '/users',
+      queryBus: deps.queryBus,
+      commandBus: deps.commandBus
+    })
+    await api.register(roleRoutes, {
+      prefix: '/roles',
+      queryBus: deps.queryBus,
+      commandBus: deps.commandBus
+    })
+    await api.register(permissionRoutes, {
+      prefix: '/permissions', // NOTE: we might also mount them under /rbac or no prefix since the route has /permissions already, but wait, permissionRoutes has '/permissions', if we prefix it, it becomes /api/v1/permissions/permissions. Let's check what prefix is used.
+      queryBus: deps.queryBus,
+      commandBus: deps.commandBus
     })
   }, { prefix: '/api/v1' })
 

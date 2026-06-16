@@ -1,4 +1,8 @@
-POST http://localhost:4001/api/v1/auth/refresh
+@baseUrl = http://localhost:4001/api/v1
+
+### Refresh Token
+# @name refreshToken
+POST {{baseUrl}}/auth/refresh
 Content-Type: application/json
 
 {

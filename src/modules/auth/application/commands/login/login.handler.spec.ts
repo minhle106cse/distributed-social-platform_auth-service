@@ -1,10 +1,11 @@
 import { LoginHandler } from './login.handler'
-import { UserRepository } from '@/modules/auth/domain/repositories/user.repository'
+import { UserRepository } from '@/modules/user/domain/repositories/user.repository'
 import { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
 import { PasswordService } from '@/modules/auth/domain/services/password.service'
 import { TokenService } from '@/modules/auth/domain/services/token.service'
-import { InvalidCredentialsError, UserCannotLoginError } from '@/common/errors/auth.error'
-import { User } from '@/modules/auth/domain/entities/user.entity'
+import { InvalidCredentialsError } from '@/common/errors/auth.error'
+import { UserCannotLoginError } from '@/common/errors/user.error'
+import { User } from '@/modules/user/domain/entities/user.entity'
 import { AuthIdentity } from '@/modules/auth/domain/value-objects/auth-identity.vo'
 import { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
 import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
@@ -91,7 +92,7 @@ describe('LoginHandler', () => {
     expect(mockUserRepo.findByEmail).toHaveBeenCalledWith('test@example.com')
     expect(mockPasswordService.verify).toHaveBeenCalledWith('plain-pass', 'hashed-pass')
     expect(mockRefreshTokenRepo.create).toHaveBeenCalledWith(mockRefreshTokenEntity)
-    expect(mockTokenService.signAccessToken).toHaveBeenCalledWith({ sub: 'user-id', email: 'test@example.com' })
+    expect(mockTokenService.signAccessToken).toHaveBeenCalledWith({ sub: 'user-id', email: 'test@example.com', roles: [], permissions: [] })
 
     expect(result.accessToken.token).toBe('mock-access-token')
     expect(result.refreshToken.token).toBe('mock-refresh-token')

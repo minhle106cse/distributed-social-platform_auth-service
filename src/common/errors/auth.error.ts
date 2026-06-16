@@ -27,23 +27,6 @@ export class InvalidCredentialsError extends ApplicationError {
   }
 }
 
-export class UserAlreadyExistsError extends ApplicationError {
-  readonly statusCode = 409
-  readonly code = 'USER_ALREADY_EXISTS'
-  constructor() {
-    super('A user with the given email already exists')
-  }
-}
-
-export class UserCannotLoginError extends ApplicationError {
-  readonly statusCode = 403
-  readonly code = 'USER_CANNOT_LOGIN'
-
-  constructor() {
-    super('User not allowed to authenticate')
-  }
-}
-
 export class AuthMethodNotFoundError extends ApplicationError {
   readonly statusCode = 404
   readonly code = 'AUTH_METHOD_NOT_FOUND'
@@ -95,15 +78,6 @@ export class RefreshTokenUsedError extends ApplicationError {
 
   constructor() {
     super('Refresh token has been used')
-  }
-}
-
-export class UserNotFoundError extends ApplicationError {
-  readonly statusCode = 404
-  readonly code = 'USER_NOT_FOUND'
-
-  constructor() {
-    super('User not found')
   }
 }
 

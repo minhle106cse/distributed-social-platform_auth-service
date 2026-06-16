@@ -2,9 +2,9 @@ import { env } from './env';
 
 export const config = {
   nodeEnv: env.NODE_ENV,
-  port: Number(env.PORT),
+  port: Number(env.AUTH_SERVICE_PORT),
 
-  databaseUrl: env.DATABASE_URL,
+  databaseUrl: env.AUTH_DATABASE_URL,
 
   jwt: {
     accessSecret: env.JWT_ACCESS_SECRET,

@@ -11,7 +11,7 @@ import { LoginCommand } from '@/modules/auth/application/commands/login/login.co
 import { RegisterCommand } from '@/modules/auth/application/commands/register/register.command'
 import { RefreshCommand } from '@/modules/auth/application/commands/refresh/refresh.command'
 import { LogoutCommand } from '@/modules/auth/application/commands/logout/logout.command'
-import { GetMeQuery } from '@/modules/auth/application/queries/get-me/get-me.query'
+import { logoutSchema } from '@/modules/auth/presentation/schemas/logout.schema'
 import { UnauthorizedError } from '@/common/errors/auth.error'
 
 interface AuthRouteOptions extends FastifyPluginOptions {
@@ -66,11 +66,7 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
         expires: new Date(data.refreshToken.expiredAt)
       })
 
-      // We remove the refreshToken from the response body for security
-      const responsePayload = { ...(data as object) } as any
-      delete responsePayload.refreshToken
-
-      return new HttpResponseBuilder(responsePayload, 'Login successful', 200)
+      return new HttpResponseBuilder(null, 'Login successful', 200)
     },
   )
 
@@ -147,10 +143,7 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
         expires: new Date(data.refreshToken.expiredAt)
       })
 
-      const responsePayload = { ...(data as object) } as any
-      delete responsePayload.refreshToken
-
-      return new HttpResponseBuilder(responsePayload, 'Token refreshed successfully', 200)
+      return new HttpResponseBuilder(null, 'Token refreshed successfully', 200)
     },
   )
 
@@ -160,36 +153,21 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
       schema: {
         description: 'Logout current user',
         tags: ['auth'],
+        security: [{ cookieAuth: [] }],
+        ...logoutSchema,
       },
       preHandler: [fastify.authenticate],
     },
     async (req, reply) => {
       const refreshToken = req.cookies.refreshToken
-      const user = req.user as { sub: string }
+      const user = req.user
 
-      const command = new LogoutCommand(user.sub, refreshToken)
+      const command = new LogoutCommand(user.id, refreshToken)
       await commandBus.execute(command)
 
       reply.clearCookie('accessToken', { path: '/' })
       reply.clearCookie('refreshToken', { path: '/' })
       return new HttpResponseBuilder(null, 'Logout successful', 200)
-    },
-  )
-
-  fastify.get(
-    '/me',
-    {
-      schema: {
-        description: 'Get current user profile',
-        tags: ['auth'],
-      },
-      preHandler: [fastify.authenticate],
-    },
-    async (req, _reply) => {
-      const user = req.user as { sub: string }
-      const query = new GetMeQuery(user.sub)
-      const data = await queryBus.execute(query)
-      return new HttpResponseBuilder(data, 'User profile fetched successfully', 200)
     },
   )
 }

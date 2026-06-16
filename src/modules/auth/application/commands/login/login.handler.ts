@@ -1,6 +1,6 @@
 import { InvalidCredentialsError } from '@/common/errors/auth.error'
 import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
-import type { UserRepository } from '@/modules/auth/domain/repositories/user.repository'
+import type { UserRepository } from '@/modules/user/domain/repositories/user.repository'
 import type { PasswordService } from '@/modules/auth/domain/services/password.service'
 import type { TokenService } from '@/modules/auth/domain/services/token.service'
 import { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
@@ -45,6 +45,8 @@ export class LoginHandler {
     const accessToken = this.tokenService.signAccessToken({
       sub: user.id,
       email: user.email,
+      roles: user.getRoles,
+      permissions: user.getPermissions,
     })
 
     return {

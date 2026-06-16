@@ -1,4 +1,6 @@
-import 'dotenv/config'
+import { config } from 'dotenv'
+import { join } from 'path'
+config({ path: join(process.cwd(), '../../.env') })
 import { defineConfig } from 'prisma/config'
 
 export default defineConfig({
@@ -7,6 +9,6 @@ export default defineConfig({
     path: 'prisma/migrations',
   },
   datasource: {
-    url: process.env.DIRECT_URL || process.env.DATABASE_URL!,
+    url: process.env.AUTH_DIRECT_URL || process.env.AUTH_DATABASE_URL!,
   }
 })

@@ -33,9 +33,31 @@ model User {
   authIdentities AuthIdentity[]
   refreshTokens  RefreshToken[]
   roles          UserRole[]
+  profile        UserProfile?
 
   @@index([email])
   @@map("users")
+}
+
+//////////////////////
+// USER PROFILE
+//////////////////////
+
+model UserProfile {
+  id          String   @id @default(uuid())
+  userId      String   @unique @map("user_id")
+  firstName   String?  @map("first_name")
+  lastName    String?  @map("last_name")
+  displayName String?  @map("display_name")
+  avatarUrl   String?  @map("avatar_url")
+  phoneNumber String?  @map("phone_number")
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
 }
 
 //////////////////////

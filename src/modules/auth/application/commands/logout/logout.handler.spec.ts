@@ -3,6 +3,7 @@ import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/
 import type { TokenService } from '@/modules/auth/domain/services/token.service'
 import { LogoutCommand } from './logout.command'
 import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
+import { RefreshTokenNotFoundError, ForbiddenError } from '@/common/errors/auth.error'
 
 describe('LogoutHandler', () => {
   let handler: LogoutHandler
@@ -33,26 +34,30 @@ describe('LogoutHandler', () => {
     expect(mockRefreshTokenRepository.findByTokenHash).not.toHaveBeenCalled()
   })
 
-  it('should ignore if refresh token is invalid (throws error)', async () => {
+  it('should throw error if refresh token is invalid', async () => {
     const command = new LogoutCommand('user-1', 'invalid-token')
     mockTokenService.verifyRefreshToken.mockImplementation(() => {
       throw new Error('Invalid token')
     })
 
-    await expect(handler.execute(command)).resolves.not.toThrow()
+    await expect(handler.execute(command)).rejects.toThrow('Invalid token')
     expect(mockRefreshTokenRepository.findByTokenHash).not.toHaveBeenCalled()
   })
 
-  it('should ignore if token entity not found or belongs to another user', async () => {
+  it('should throw RefreshTokenNotFoundError if token entity not found', async () => {
     const command = new LogoutCommand('user-1', 'valid-token')
     mockTokenService.verifyRefreshToken.mockReturnValue('hash')
     
-    // Case 1: not found
     mockRefreshTokenRepository.findByTokenHash.mockResolvedValueOnce(null)
-    await handler.execute(command)
+    
+    await expect(handler.execute(command)).rejects.toThrow(RefreshTokenNotFoundError)
     expect(mockRefreshTokenRepository.update).not.toHaveBeenCalled()
+  })
 
-    // Case 2: wrong user
+  it('should throw ForbiddenError if token belongs to another user', async () => {
+    const command = new LogoutCommand('user-1', 'valid-token')
+    mockTokenService.verifyRefreshToken.mockReturnValue('hash')
+    
     const tokenEntity = RefreshToken.rehydrate({
       id: 'token-1',
       userId: 'user-2',
@@ -64,7 +69,8 @@ describe('LogoutHandler', () => {
       userAgent: null,
     })
     mockRefreshTokenRepository.findByTokenHash.mockResolvedValueOnce(tokenEntity)
-    await handler.execute(command)
+    
+    await expect(handler.execute(command)).rejects.toThrow(ForbiddenError)
     expect(mockRefreshTokenRepository.update).not.toHaveBeenCalled()
   })
 

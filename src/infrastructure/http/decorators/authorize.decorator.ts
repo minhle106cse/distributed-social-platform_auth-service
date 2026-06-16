@@ -1,14 +1,17 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { /* ForbiddenError,  */ UnauthorizedError } from '@/common/errors/auth.error'
+import { ForbiddenError, UnauthorizedError } from '@/common/errors/auth.error'
 
-export function authorize(_roles: string[]) {
-  return function (request: FastifyRequest, _reply: FastifyReply) {
+export function requirePermissions(permissions: string[]) {
+  return function (request: FastifyRequest, _reply: FastifyReply, done: (err?: Error) => void) {
     if (!request.user) {
-      throw new UnauthorizedError()
+      return done(new UnauthorizedError())
     }
 
-    /* if (!roles.includes(request.user.role)) {
-      throw new ForbiddenError()
-    } */
+    const hasPermission = permissions.every(p => request.user.permissions?.includes(p))
+    if (!hasPermission) {
+      return done(new ForbiddenError())
+    }
+
+    done()
   }
 }

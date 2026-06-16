@@ -1,4 +1,6 @@
-import 'dotenv/config';
+import { config } from 'dotenv';
+import { join } from 'path';
+config({ path: join(process.cwd(), '../../.env') });
 import { envSchema } from './env.schema';
 
 const parsed = envSchema.safeParse(process.env);

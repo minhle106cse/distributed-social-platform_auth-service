@@ -11,6 +11,15 @@ export async function setupSwagger(fastify: FastifyInstance) {
         description: 'Authentication Service',
         version: '1.0.0',
       },
+      components: {
+        securitySchemes: {
+          cookieAuth: {
+            type: 'apiKey',
+            in: 'cookie',
+            name: 'accessToken',
+          },
+        },
+      },
     },
     transform: jsonSchemaTransform,
   })

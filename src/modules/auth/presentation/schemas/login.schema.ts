@@ -11,14 +11,7 @@ export type LoginBody = z.infer<typeof loginBodySchema>
 export const loginSchema = {
   body: loginBodySchema,
   response: {
-    200: createSuccessResponseSchema(
-      z.object({
-        accessToken: z.object({
-          token: z.string(),
-          expiredAt: z.union([z.string(), z.number(), z.date()]),
-        }),
-      })
-    ),
+    200: createSuccessResponseSchema(z.null()),
     400: ErrorResponseSchema,
     401: ErrorResponseSchema,
     500: ErrorResponseSchema

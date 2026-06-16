@@ -25,7 +25,7 @@ describe('RefreshHandler', () => {
       signRefreshToken: jest.fn(),
     } as any
 
-    handler = new RefreshHandler(mockRefreshTokenRepository, mockTokenService)
+    handler = new RefreshHandler(mockRefreshTokenRepository, mockTokenService, { findById: jest.fn().mockResolvedValue({ id: 'u1', email: 'e@e.com', getRoles: [], getPermissions: [] }), findByEmail: jest.fn().mockResolvedValue({ id: 'u1', email: 'e@e.com', getRoles: [], getPermissions: [] }) } as any)
   })
 
   it('should throw RefreshTokenNotFoundError if token not in DB', async () => {
@@ -105,7 +105,7 @@ describe('RefreshHandler', () => {
 
     // New token should be created
     expect(mockRefreshTokenRepository.create).toHaveBeenCalled()
-    expect(mockTokenService.signAccessToken).toHaveBeenCalledWith({ sub: 'u1', email: 'e@e.com' })
+    expect(mockTokenService.signAccessToken).toHaveBeenCalledWith({ sub: 'u1', email: 'e@e.com', roles: [], permissions: [] })
 
     expect(result.accessToken.token).toBe('access-token')
     expect(result.refreshToken.token).toBe('new-token')

@@ -1,0 +1,7 @@
+@baseUrl = http://localhost:4001/api/v1
+
+### Logout
+# @name logoutUser
+POST {{baseUrl}}/auth/logout
+Content-Type: application/json
+# The token is handled automatically via cookies if previously logged in (accessToken and refreshToken cookies)

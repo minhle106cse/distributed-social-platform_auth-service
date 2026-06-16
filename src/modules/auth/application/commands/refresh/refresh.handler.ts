@@ -7,11 +7,13 @@ import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/
 import type { TokenService } from '@/modules/auth/domain/services/token.service'
 import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
 import type { ICommandHandler } from '@/common/cqrs'
+import type { UserRepository } from '@/modules/user/domain/repositories/user.repository'
 
 export class RefreshHandler implements ICommandHandler<RefreshCommand> {
   constructor(
     public readonly refreshTokenRepository: RefreshTokenRepository,
     public readonly tokenService: TokenService,
+    public readonly userRepository: UserRepository,
   ) { }
 
   async execute(command: RefreshCommand) {
@@ -46,9 +48,17 @@ export class RefreshHandler implements ICommandHandler<RefreshCommand> {
 
     await this.refreshTokenRepository.create(newRefreshTokenEntity)
 
+    // Fetch user to get latest roles
+    const user = await this.userRepository.findByEmail(decoded.email)
+    if (!user) {
+      throw new Error('User not found during refresh')
+    }
+
     const accessToken = this.tokenService.signAccessToken({
-      sub: decoded.sub,
-      email: decoded.email,
+      sub: user.id,
+      email: user.email,
+      roles: user.getRoles,
+      permissions: user.getPermissions,
     })
 
     return {

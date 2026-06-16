@@ -92,8 +92,7 @@ describe('Auth Routes (Unit)', () => {
       expect(mockCommandBus.execute).toHaveBeenCalledTimes(1)
       const data = response.json()
       expect(data.success).toBe(true)
-      expect(data.data.accessToken.token).toBe('access')
-      expect(data.data.refreshToken).toBeUndefined()
+      expect(data.data).toBeNull()
     })
   })
 
@@ -119,7 +118,7 @@ describe('Auth Routes (Unit)', () => {
       expect(response.statusCode).toBe(200)
       expect(mockCommandBus.execute).toHaveBeenCalledTimes(1)
       const data = response.json()
-      expect(data.data.accessToken.token).toBe('new-access')
+      expect(data.data).toBeNull()
     })
 
     it('should return 401 if refreshToken is missing', async () => {
@@ -148,7 +147,7 @@ describe('Auth Routes (Unit)', () => {
     it('should return 200 on successful logout', async () => {
       ;(mockCommandBus.execute as jest.Mock).mockResolvedValue(undefined)
       
-      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com' })
+      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: [] })
       const response = await app.inject({
         method: 'POST',
         url: '/api/v1/auth/logout',
@@ -162,23 +161,5 @@ describe('Auth Routes (Unit)', () => {
     })
   })
 
-  describe('GET /auth/me', () => {
-    it('should return 200 on successful fetch', async () => {
-      ;(mockQueryBus.execute as jest.Mock).mockResolvedValue({ id: 'user123', email: 'test@example.com' })
-      
-      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com' })
-      const response = await app.inject({
-        method: 'GET',
-        url: '/api/v1/auth/me',
-        headers: {
-          authorization: `Bearer ${token}`
-        }
-      })
 
-      expect(response.statusCode).toBe(200)
-      expect(mockQueryBus.execute).toHaveBeenCalledTimes(1)
-      const data = response.json()
-      expect(data.data.email).toBe('test@example.com')
-    })
-  })
 })

@@ -1,4 +1,6 @@
-import 'dotenv/config'
+import { config as dotenvConfig } from 'dotenv'
+import { join } from 'path'
+dotenvConfig({ path: join(process.cwd(), '../../.env') })
 import { createApp } from './app'
 import { config } from './config'
 

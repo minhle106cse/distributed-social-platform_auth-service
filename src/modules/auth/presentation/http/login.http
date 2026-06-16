@@ -1,4 +1,8 @@
-POST http://localhost:4001/api/v1/auth/login
+@baseUrl = http://localhost:4001/api/v1
+
+### Login
+# @name loginUser
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
