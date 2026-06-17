@@ -55,8 +55,8 @@ export function userRoutes(fastify: FastifyInstance, options: UserRouteOptions) 
         body.avatarUrl,
         body.phoneNumber
       )
-      await commandBus.execute(command)
-      return new HttpResponseBuilder(null, 'User profile updated successfully', 200)
+      const result = await commandBus.execute(command)
+      return new HttpResponseBuilder(result, 'User profile updated successfully', 200)
     },
   )
 }

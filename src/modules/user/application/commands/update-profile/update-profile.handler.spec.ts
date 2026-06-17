@@ -56,6 +56,43 @@ describe('UpdateProfileHandler', () => {
     expect(result).toEqual({ success: true });
   });
 
+  it('should update profile when user already has a profile', async () => {
+    const userId = 'user-123';
+    const command = new UpdateProfileCommand(
+      userId,
+      'Jane',
+      'Doe',
+      'Jane Doe',
+      'https://avatar.com/jane.jpg',
+      '123456789'
+    );
+
+    const mockUser = User.rehydrate({
+      id: userId,
+      email: 'test@example.com',
+      isActive: true,
+      emailVerified: true,
+      authIdentities: [],
+    });
+    
+    const existingProfile = UserProfile.rehydrate({ id: 'p1', userId, firstName: 'Old', lastName: 'Name', displayName: null, avatarUrl: null, phoneNumber: null });
+    mockUser.assignProfile(existingProfile);
+
+    mockUserRepo.findById.mockResolvedValue(mockUser);
+
+    const result = await handler.execute(command);
+
+    expect(mockUserRepo.findById).toHaveBeenCalledWith(userId);
+    expect(mockUserRepo.save).toHaveBeenCalled();
+    const savedUser = mockUserRepo.save.mock.calls[0][0];
+    const profile = savedUser.getProfile;
+    expect(profile).toBeDefined();
+    expect(profile?.firstName).toBe('Jane');
+    expect(profile?.lastName).toBe('Doe');
+
+    expect(result).toEqual({ success: true });
+  });
+
   it('should throw UserNotFoundError when user does not exist', async () => {
     const command = new UpdateProfileCommand(
       'user-123',

@@ -59,4 +59,30 @@ describe('User Routes (Unit)', () => {
       expect(data.data.email).toBe('test@example.com')
     })
   })
+
+  describe('PUT /users/me/profile', () => {
+    it('should return 200 on successful update', async () => {
+      ;(mockCommandBus.execute as jest.Mock).mockResolvedValue({ success: true })
+      
+      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: [] })
+      const response = await app.inject({
+        method: 'PUT',
+        url: '/api/v1/users/me/profile',
+        cookies: {
+          accessToken: token
+        },
+        payload: {
+          firstName: 'John',
+          lastName: 'Doe'
+        }
+      })
+      if (response.statusCode !== 200) {
+        console.log(response.body)
+      }
+      expect(response.statusCode).toBe(200)
+      expect(mockCommandBus.execute).toHaveBeenCalledTimes(1)
+      const data = response.json()
+      expect(data.message).toBe('User profile updated successfully')
+    })
+  })
 })

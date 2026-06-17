@@ -14,6 +14,23 @@ describe('User Entity', () => {
     jest.clearAllMocks()
   })
 
+  describe('rehydrate', () => {
+    it('should rehydrate with default values if optional fields are missing', () => {
+      const user = User.rehydrate({
+        id: '1',
+        email: 'test@test.com',
+        isActive: true,
+        emailVerified: true,
+        authIdentities: [],
+      })
+
+      expect(user.getProfile).toBeNull()
+      expect(user.getRoles).toEqual([])
+      expect(user.getPermissions).toEqual([])
+      expect(user.deletedAt).toBeNull()
+    })
+  })
+
   describe('createForRegister', () => {
     it('should create a new user with local auth identity', async () => {
       mockPasswordService.hash.mockResolvedValueOnce('hashed-password')
@@ -86,6 +103,71 @@ describe('User Entity', () => {
       })
 
       expect(() => user.getAuthIdentity(AuthProvider.LOCAL)).toThrow(AuthMethodNotFoundError)
+    })
+  })
+
+  describe('RBAC and deletion', () => {
+    it('should handle role assignment and revocation', () => {
+      const user = User.rehydrate({
+        id: '1',
+        email: 'test@test.com',
+        isActive: true,
+        emailVerified: true,
+        authIdentities: [],
+      })
+
+      user.assignRoles(['ADMIN', 'USER'])
+      expect(user.getRoles).toEqual(['ADMIN', 'USER'])
+
+      user.revokeRole('ADMIN')
+      expect(user.getRoles).toEqual(['USER'])
+    })
+
+    it('should track deleted status', () => {
+      const user = User.rehydrate({
+        id: '1',
+        email: 'test@test.com',
+        isActive: true,
+        emailVerified: true,
+        authIdentities: [],
+        deletedAt: new Date(),
+      })
+
+      expect(user.deletedAt).toBeDefined()
+      expect(user.isDeleted()).toBe(true)
+
+      user.restore()
+      expect(user.deletedAt).toBeNull()
+      expect(user.isDeleted()).toBe(false)
+    })
+
+    it('should do nothing if restore is called on an active user', () => {
+      const user = User.rehydrate({
+        id: '1',
+        email: 'test@test.com',
+        isActive: true,
+        emailVerified: true,
+        authIdentities: [],
+        deletedAt: null,
+      })
+
+      user.restore()
+      expect(user.deletedAt).toBeNull()
+      expect(user.isDeleted()).toBe(false)
+    })
+
+    it('should assign a profile', () => {
+      const user = User.rehydrate({
+        id: '1',
+        email: 'test@test.com',
+        isActive: true,
+        emailVerified: true,
+        authIdentities: [],
+      })
+      const { UserProfile } = require('./user-profile.entity')
+      const profile = UserProfile.create({ userId: '1' })
+      user.assignProfile(profile)
+      expect(user.getProfile).toBe(profile)
     })
   })
 })

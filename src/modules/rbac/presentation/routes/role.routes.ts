@@ -25,7 +25,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
   const { commandBus, queryBus } = options
 
   fastify.post<{ Body: CreateRoleBody }>(
-    '/roles',
+    '/',
     {
       schema: {
         description: 'Create a new role',
@@ -44,7 +44,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
   )
 
   fastify.post<{ Body: AssignRoleBody }>(
-    '/roles/assign',
+    '/assign',
     {
       schema: {
         description: 'Assign role to a user',
@@ -63,7 +63,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
   )
 
   fastify.post<{ Body: AssignPermissionsBody, Params: AssignPermissionsParams }>(
-    '/roles/:code/permissions',
+    '/:code/permissions',
     {
       schema: {
         description: 'Assign permissions to a role',
@@ -83,7 +83,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
   )
 
   fastify.get(
-    '/roles',
+    '/',
     {
       schema: {
         description: 'Get all roles',
@@ -100,7 +100,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
   )
 
   fastify.get<{ Params: GetRoleParams }>(
-    '/roles/:code',
+    '/:code',
     {
       schema: {
         description: 'Get a role by code',
@@ -117,7 +117,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
   )
 
   fastify.delete<{ Params: DeleteRoleParams }>(
-    '/roles/:code',
+    '/:code',
     {
       schema: {
         description: 'Delete a role',
@@ -134,7 +134,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
   )
 
   fastify.delete<{ Body: RevokeRoleBody }>(
-    '/roles/assign',
+    '/assign',
     {
       schema: {
         description: 'Revoke a role from a user',
@@ -151,7 +151,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
   )
 
   fastify.delete<{ Body: RevokePermissionsBody, Params: RevokePermissionsParams }>(
-    '/roles/:code/permissions',
+    '/:code/permissions',
     {
       schema: {
         description: 'Revoke permissions from a role',

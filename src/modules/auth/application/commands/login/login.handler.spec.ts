@@ -27,6 +27,7 @@ describe('LoginHandler', () => {
       findByEmail: jest.fn(),
       create: jest.fn(),
       findById: jest.fn(),
+      save: jest.fn(),
     } as unknown as jest.Mocked<UserRepository>
 
     mockRefreshTokenRepo = {
@@ -89,7 +90,7 @@ describe('LoginHandler', () => {
     } as any)
 
     // Assertions
-    expect(mockUserRepo.findByEmail).toHaveBeenCalledWith('test@example.com')
+    expect(mockUserRepo.findByEmail).toHaveBeenCalledWith('test@example.com', true)
     expect(mockPasswordService.verify).toHaveBeenCalledWith('plain-pass', 'hashed-pass')
     expect(mockRefreshTokenRepo.create).toHaveBeenCalledWith(mockRefreshTokenEntity)
     expect(mockTokenService.signAccessToken).toHaveBeenCalledWith({ sub: 'user-id', email: 'test@example.com', roles: [], permissions: [] })
@@ -126,5 +127,38 @@ describe('LoginHandler', () => {
         password: 'pass'
       } as any)
     ).rejects.toThrow(UserCannotLoginError)
+  })
+
+  it('should auto-restore user if they were soft-deleted', async () => {
+    const authIdentity = AuthIdentity.createForRegister('hashed-pass')
+    const user = User.rehydrate({
+      id: 'user-id',
+      email: 'test@example.com',
+      isActive: true,
+      emailVerified: true,
+      authIdentities: [authIdentity],
+      deletedAt: new Date(), // Soft deleted
+    })
+
+    mockUserRepo.findByEmail.mockResolvedValue(user)
+    mockPasswordService.verify.mockResolvedValue(true)
+    mockUserRepo.save.mockResolvedValue()
+    
+    ;(RefreshToken.createForLogin as jest.Mock).mockReturnValue({
+      refreshToken: 'mock-refresh-token',
+      refreshTokenEntity: { expiredAt: new Date() } as RefreshToken
+    })
+
+    mockTokenService.signAccessToken.mockReturnValue({ token: 'access', expiredAt: new Date() })
+
+    await handler.execute({
+      email: 'test@example.com',
+      password: 'plain-pass',
+      ipAddress: '127.0.0.1',
+      userAgent: 'jest'
+    } as any)
+
+    expect(user.isDeleted()).toBe(false)
+    expect(mockUserRepo.save).toHaveBeenCalledWith(user)
   })
 })
