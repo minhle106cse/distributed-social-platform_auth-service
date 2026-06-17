@@ -15,6 +15,7 @@ export interface UserProps {
   profile: UserProfile | null;
   roles: string[]; // System roles
   permissions: string[]; // Aggregated permissions
+  deletedAt: Date | null;
 }
 
 export class User {
@@ -26,6 +27,7 @@ export class User {
   private _profile: UserProfile | null;
   private _roles: string[];
   private _permissions: string[];
+  private _deletedAt: Date | null;
 
   private constructor(props: UserProps) {
     this._id = props.id;
@@ -36,14 +38,16 @@ export class User {
     this._profile = props.profile;
     this._roles = [...props.roles];
     this._permissions = [...props.permissions];
+    this._deletedAt = props.deletedAt;
   }
 
-  static rehydrate(props: Omit<UserProps, 'profile' | 'roles' | 'permissions'> & { profile?: UserProfile | null, roles?: string[], permissions?: string[] }): User {
+  static rehydrate(props: Omit<UserProps, 'profile' | 'roles' | 'permissions' | 'deletedAt'> & { profile?: UserProfile | null, roles?: string[], permissions?: string[], deletedAt?: Date | null }): User {
     return new User({
       ...props,
       profile: props.profile || null,
       roles: props.roles || [],
       permissions: props.permissions || [],
+      deletedAt: props.deletedAt || null,
     });
   }
 
@@ -66,6 +70,7 @@ export class User {
       profile: null,
       roles: [],
       permissions: [],
+      deletedAt: null,
     });
   }
 
@@ -88,6 +93,20 @@ export class User {
 
   get getPermissions(): string[] {
     return this._permissions;
+  }
+
+  get deletedAt(): Date | null {
+    return this._deletedAt;
+  }
+
+  isDeleted(): boolean {
+    return this._deletedAt !== null;
+  }
+
+  restore(): void {
+    if (this._deletedAt) {
+      this._deletedAt = null;
+    }
   }
 
   assignProfile(profile: UserProfile) {

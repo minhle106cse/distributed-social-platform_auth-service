@@ -29,6 +29,8 @@ model User {
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at") // Soft delete
+
 
   authIdentities AuthIdentity[]
   refreshTokens  RefreshToken[]
@@ -75,7 +77,7 @@ model AuthIdentity {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  user         User     @relation(fields: [userId], references: [id])
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // 1 user có thể có nhiều auth methods
   @@unique([userId, provider])
@@ -106,7 +108,7 @@ model RefreshToken {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@map("refresh_tokens")
@@ -122,8 +124,11 @@ model Role {
   name        String   // VD: "Super Administrator"
   description String?
 
+  isActive    Boolean  @default(true) @map("is_active")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at") // Soft delete
+
 
   permissions RolePermission[]
   users       UserRole[]
@@ -137,8 +142,11 @@ model Permission {
   module      String   // Phân loại nhóm quyền
   description String?
 
+  isActive    Boolean  @default(true) @map("is_active")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at") // Soft delete
+
 
   roles       RolePermission[]
 

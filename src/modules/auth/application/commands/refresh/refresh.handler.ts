@@ -3,6 +3,7 @@ import {
   RefreshTokenNotFoundError,
   RefreshTokenUsedError,
 } from '@/common/errors/auth.error'
+import { UserNotFoundError } from '@/common/errors/user.error'
 import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
 import type { TokenService } from '@/modules/auth/domain/services/token.service'
 import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
@@ -51,8 +52,10 @@ export class RefreshHandler implements ICommandHandler<RefreshCommand> {
     // Fetch user to get latest roles
     const user = await this.userRepository.findByEmail(decoded.email)
     if (!user) {
-      throw new Error('User not found during refresh')
+      throw new UserNotFoundError()
     }
+
+    user.ensureCanLogin()
 
     const accessToken = this.tokenService.signAccessToken({
       sub: user.id,

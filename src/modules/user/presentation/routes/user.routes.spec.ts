@@ -46,8 +46,8 @@ describe('User Routes (Unit)', () => {
       const response = await app.inject({
         method: 'GET',
         url: '/api/v1/users/me',
-        headers: {
-          authorization: `Bearer ${token}`
+        cookies: {
+          accessToken: token
         }
       })
       if (response.statusCode !== 200) {

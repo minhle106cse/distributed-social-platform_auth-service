@@ -13,4 +13,4 @@ Content-Type: application/json
 
 ### Get Current User Profile (GetMe)
 GET {{baseUrl}}/users/me
-Authorization: Bearer {{accessToken}}
+Cookie: accessToken={{accessToken}}

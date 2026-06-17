@@ -1,5 +1,6 @@
 import type { ICommandHandler } from '@/common/cqrs';
 import { AssignRoleCommand } from './assign-role.command';
+import { RoleNotFoundError } from '@/common/errors/rbac.error';
 import { RoleRepository } from '../../../domain/repositories/role.repository';
 
 export class AssignRoleHandler implements ICommandHandler<AssignRoleCommand> {
@@ -10,8 +11,10 @@ export class AssignRoleHandler implements ICommandHandler<AssignRoleCommand> {
   async execute(command: AssignRoleCommand) {
     const role = await this.roleRepo.findRoleByCode(command.roleCode);
     if (!role) {
-      throw new Error(`Role ${command.roleCode} not found`);
+      throw new RoleNotFoundError();
     }
+
+    role.ensureIsActive();
 
     await this.roleRepo.assignRoleToUser(command.userId, role.id);
 

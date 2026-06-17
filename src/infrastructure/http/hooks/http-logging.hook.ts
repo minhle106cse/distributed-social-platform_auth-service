@@ -4,6 +4,9 @@ export function httpLoggingHook(
   req: FastifyRequest,
   reply: FastifyReply,
 ) {
+  if (req.url === '/health' || req.url === '/metrics') {
+    return
+  }
   const startTime = process.hrtime.bigint()
 
   const durationMs =

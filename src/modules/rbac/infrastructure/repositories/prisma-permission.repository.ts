@@ -14,6 +14,12 @@ export class PrismaPermissionRepository implements PermissionRepository {
     return PermissionMapper.toDomain(record)
   }
 
+  async findPermissionsByCodes(codes: string[]): Promise<Permission[]> {
+    const db = (getTx() ?? this.prisma) as PrismaClient;
+    const records = await db.permission.findMany({ where: { code: { in: codes } } })
+    return records.map(PermissionMapper.toDomain)
+  }
+
   async getAllPermissions(): Promise<Permission[]> {
     const db = (getTx() ?? this.prisma) as PrismaClient;
     const records = await db.permission.findMany()

@@ -7,10 +7,16 @@ import { getTx } from '@/common/database/transaction.context'
 export class PrismaUserRepository implements UserRepository {
   constructor(private readonly prisma: PrismaClient) { }
 
-  async findById(id: string): Promise<User | null> {
+  async findById(id: string, includeDeleted = false): Promise<User | null> {
     const db = (getTx() ?? this.prisma) as PrismaClient;
+    
+    const where: any = { id };
+    if (includeDeleted) {
+      where.deletedAt = undefined;
+    }
+
     const record = await db.user.findUnique({
-      where: { id },
+      where,
       include: {
         authIdentities: true,
         profile: true,
@@ -33,10 +39,16 @@ export class PrismaUserRepository implements UserRepository {
     return UserMapper.toDomain(record)
   }
 
-  async findByEmail(email: string): Promise<User | null> {
+  async findByEmail(email: string, includeDeleted = false): Promise<User | null> {
     const db = (getTx() ?? this.prisma) as PrismaClient;
+    
+    const where: any = { email };
+    if (includeDeleted) {
+      where.deletedAt = undefined;
+    }
+
     const record = await db.user.findUnique({
-      where: { email },
+      where,
       include: {
         authIdentities: true,
         profile: true,

@@ -151,8 +151,8 @@ describe('Auth Routes (Unit)', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/api/v1/auth/logout',
-        headers: {
-          authorization: `Bearer ${token}`
+        cookies: {
+          accessToken: token
         }
       })
 

@@ -1,0 +1,14 @@
+@baseUrl = http://localhost:4001/api/v1
+# Thay thế accessToken bằng JWT hợp lệ (có quyền RBAC:*)
+@accessToken = YOUR_JWT_TOKEN_HERE
+
+### CreatePermissionCommand
+POST {{baseUrl}}/permissions
+Content-Type: application/json
+Cookie: accessToken={{accessToken}}
+
+{
+  "code": "POST:CREATE",
+  "moduleName": "Post",
+  "description": "Allow user to create new posts"
+}

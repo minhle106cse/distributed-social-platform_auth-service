@@ -8,6 +8,7 @@ export class PermissionMapper {
       code: record.code,
       module: record.module,
       description: record.description,
+      isActive: record.isActive,
     })
   }
 
@@ -17,6 +18,7 @@ export class PermissionMapper {
       code: permission.code,
       module: permission.module,
       description: permission.description,
+      isActive: permission.isActive,
     }
   }
 }

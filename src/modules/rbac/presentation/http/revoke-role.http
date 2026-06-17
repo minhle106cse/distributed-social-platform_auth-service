@@ -1,0 +1,13 @@
+@baseUrl = http://localhost:4001/api/v1
+# Thay thế accessToken bằng JWT hợp lệ (có quyền RBAC:*)
+@accessToken = YOUR_JWT_TOKEN_HERE
+@targetUserId = YOUR_USER_ID_HERE
+
+### RevokeRoleCommand
+POST {{baseUrl}}/roles/CONTENT_CREATOR/revoke
+Content-Type: application/json
+Cookie: accessToken={{accessToken}}
+
+{
+  "userId": "{{targetUserId}}"
+}

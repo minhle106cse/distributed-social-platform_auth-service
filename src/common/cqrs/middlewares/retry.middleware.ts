@@ -1,5 +1,5 @@
 import { ICommandMiddleware, NextFn, ICommand } from '@/common/cqrs';
-import { ILogger } from '@distributed-social-platform/shared-kernel';
+import { ILogger, UnreachableError } from '@distributed-social-platform/shared-kernel';
 
 /**
  * Retries transient command failures with exponential backoff.
@@ -40,6 +40,6 @@ export class RetryMiddleware implements ICommandMiddleware {
       }
     }
 
-    throw new Error('Unreachable');
+    throw new UnreachableError();
   }
 }

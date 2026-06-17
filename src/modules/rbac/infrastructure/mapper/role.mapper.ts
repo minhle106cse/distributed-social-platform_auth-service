@@ -15,6 +15,7 @@ export class RoleMapper {
       code: record.code,
       name: record.name,
       description: record.description,
+      isActive: record.isActive,
       permissions: record.permissions ? record.permissions.map(p => p.permission.code) : [],
     })
   }
@@ -25,6 +26,7 @@ export class RoleMapper {
       code: role.code,
       name: role.name,
       description: role.description,
+      isActive: role.isActive,
     }
   }
 }

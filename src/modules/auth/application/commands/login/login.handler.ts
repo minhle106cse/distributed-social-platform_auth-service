@@ -18,7 +18,8 @@ export class LoginHandler {
   async execute(command: LoginCommand) {
     const { email, password, ipAddress, userAgent } = command
 
-    const user = await this.userRepo.findByEmail(email)
+    // Fetch user, including soft-deleted ones (so they can be told they are deleted, or recover)
+    const user = await this.userRepo.findByEmail(email, true)
 
     if (!user) {
       throw new InvalidCredentialsError()
@@ -27,8 +28,13 @@ export class LoginHandler {
     user.ensureCanLogin()
 
     const authIdentity = user.getAuthIdentity(AuthProvider.LOCAL)
-
     await authIdentity.localAuthenticate(password, this.passwordService)
+
+    // Khôi phục tài khoản nếu đang ở trạng thái Soft Delete (trong vòng 30 ngày)
+    if (user.isDeleted()) {
+      user.restore()
+      await this.userRepo.save(user)
+    }
 
     const { refreshToken, refreshTokenEntity } = RefreshToken.createForLogin(
       {

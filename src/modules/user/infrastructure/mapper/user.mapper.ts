@@ -47,6 +47,7 @@ export class UserMapper {
       permissions: record.roles 
         ? Array.from(new Set(record.roles.flatMap(r => (r.role as any).permissions?.map((p: any) => p.permission.code) || [])))
         : [],
+      deletedAt: record.deletedAt,
     })
   }
 
@@ -55,6 +56,7 @@ export class UserMapper {
       email: user.email,
       isActive: user.isActive,
       emailVerified: user.emailVerified,
+      deletedAt: user.deletedAt,
     }
   }
 

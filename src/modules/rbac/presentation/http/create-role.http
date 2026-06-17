@@ -1,0 +1,14 @@
+@baseUrl = http://localhost:4001/api/v1
+# Thay thế accessToken bằng JWT hợp lệ (có quyền RBAC:*)
+@accessToken = YOUR_JWT_TOKEN_HERE
+
+### CreateRoleCommand
+POST {{baseUrl}}/roles
+Content-Type: application/json
+Cookie: accessToken={{accessToken}}
+
+{
+  "code": "CONTENT_CREATOR",
+  "name": "Content Creator",
+  "description": "Role for users who can create and manage content"
+}

@@ -1,7 +1,7 @@
 import type { GetMeQuery } from './get-me.query'
 import type { IQueryHandler } from '@/common/cqrs'
 import type { UserQueryRepository } from '@/modules/user/application/repositories/user.query-repository'
-import { UserNotFoundError } from '@/common/errors/user.error'
+import { UserNotFoundError, UserCannotLoginError } from '@/common/errors/user.error'
 
 export class GetMeHandler implements IQueryHandler<GetMeQuery> {
   constructor(private readonly userQueryRepository: UserQueryRepository) {}
@@ -11,6 +11,10 @@ export class GetMeHandler implements IQueryHandler<GetMeQuery> {
     
     if (!user) {
       throw new UserNotFoundError()
+    }
+
+    if (!user.isActive) {
+      throw new UserCannotLoginError()
     }
 
     return user

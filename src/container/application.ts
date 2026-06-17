@@ -56,7 +56,7 @@ export function buildApplication(infra: InfraDeps) {
   const createRoleHandler = new CreateRoleHandler(roleRepo)
   const assignRoleHandler = new AssignRoleHandler(roleRepo)
   const createPermissionHandler = new CreatePermissionHandler(permissionRepo)
-  const assignPermissionsHandler = new AssignPermissionsHandler(roleRepo)
+  const assignPermissionsHandler = new AssignPermissionsHandler(roleRepo, permissionRepo)
   const revokeRoleHandler = new RevokeRoleHandler(roleRepo)
   const revokePermissionsHandler = new RevokePermissionsHandler(roleRepo)
   const deleteRoleHandler = new DeleteRoleHandler(roleRepo)

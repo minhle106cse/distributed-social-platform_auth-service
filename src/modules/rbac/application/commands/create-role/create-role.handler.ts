@@ -1,7 +1,8 @@
 import type { ICommandHandler } from '@/common/cqrs';
 import { CreateRoleCommand } from './create-role.command';
 import { RoleRepository } from '../../../domain/repositories/role.repository';
-import { Role } from '../../../domain/entities/role.entity';
+import { Role } from '@/modules/rbac/domain/entities/role.entity';
+import { RoleAlreadyExistsError } from '@/common/errors/rbac.error';
 
 export class CreateRoleHandler implements ICommandHandler<CreateRoleCommand> {
   constructor(
@@ -11,7 +12,7 @@ export class CreateRoleHandler implements ICommandHandler<CreateRoleCommand> {
   async execute(command: CreateRoleCommand) {
     const existing = await this.roleRepo.findRoleByCode(command.code);
     if (existing) {
-      throw new Error(`Role with code ${command.code} already exists`);
+      throw new RoleAlreadyExistsError();
     }
 
     const role = Role.create({
