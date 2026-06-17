@@ -40,9 +40,9 @@ export class RefreshHandler implements ICommandHandler<RefreshCommand> {
       RefreshToken.createForLogin(
         {
           userId: decoded.sub,
-          email: decoded.email,
-          ipAddress,
-          userAgent,
+          email: decoded.email ?? null,
+          ipAddress: ipAddress ?? null,
+          userAgent: userAgent ?? null,
         },
         this.tokenService,
       )

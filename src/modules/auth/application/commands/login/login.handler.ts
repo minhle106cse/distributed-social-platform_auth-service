@@ -40,8 +40,8 @@ export class LoginHandler {
       {
         userId: user.id,
         email,
-        ipAddress,
-        userAgent,
+        ipAddress: ipAddress ?? null,
+        userAgent: userAgent ?? null,
       },
       this.tokenService,
     )

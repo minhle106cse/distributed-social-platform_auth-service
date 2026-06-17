@@ -5,10 +5,10 @@ export class UpdateProfileCommand implements ICommand {
 
   constructor(
     public readonly userId: string,
-    public readonly firstName?: string,
-    public readonly lastName?: string,
-    public readonly displayName?: string,
-    public readonly avatarUrl?: string,
-    public readonly phoneNumber?: string,
+    public readonly firstName?: string | null,
+    public readonly lastName?: string | null,
+    public readonly displayName?: string | null,
+    public readonly avatarUrl?: string | null,
+    public readonly phoneNumber?: string | null,
   ) {}
 }

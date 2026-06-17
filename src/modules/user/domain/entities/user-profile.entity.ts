@@ -31,15 +31,23 @@ export class UserProfile {
     return new UserProfile(props);
   }
 
-  static create(props: Omit<UserProfileProps, 'id' | 'firstName' | 'lastName' | 'displayName' | 'avatarUrl' | 'phoneNumber'> & { id?: string }): UserProfile {
+  static create(props: {
+    id?: string;
+    userId: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    displayName?: string | null;
+    avatarUrl?: string | null;
+    phoneNumber?: string | null;
+  }): UserProfile {
     return new UserProfile({
       id: props.id || '', // Replaced by DB or mapped id
       userId: props.userId,
-      firstName: null,
-      lastName: null,
-      displayName: null,
-      avatarUrl: null,
-      phoneNumber: null,
+      firstName: props.firstName ?? null,
+      lastName: props.lastName ?? null,
+      displayName: props.displayName ?? null,
+      avatarUrl: props.avatarUrl ?? null,
+      phoneNumber: props.phoneNumber ?? null,
     });
   }
 
@@ -52,11 +60,11 @@ export class UserProfile {
   get phoneNumber(): string | null { return this._phoneNumber; }
 
   update(props: {
-    firstName?: string;
-    lastName?: string;
-    displayName?: string;
-    avatarUrl?: string;
-    phoneNumber?: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    displayName?: string | null;
+    avatarUrl?: string | null;
+    phoneNumber?: string | null;
   }) {
     if (props.firstName !== undefined) this._firstName = props.firstName;
     if (props.lastName !== undefined) this._lastName = props.lastName;

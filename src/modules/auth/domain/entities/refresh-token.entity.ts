@@ -10,10 +10,10 @@ export interface RefreshTokenProps {
   userId: string
   tokenHash: string
   expiredAt: Date
-  usedAt?: Date
-  revokedAt?: Date
-  ipAddress?: string
-  userAgent?: string
+  usedAt: Date | null
+  revokedAt: Date | null
+  ipAddress: string | null
+  userAgent: string | null
 }
 
 export class RefreshToken {
@@ -21,18 +21,18 @@ export class RefreshToken {
   private _userId: string;
   private _tokenHash: string;
   private _expiredAt: Date;
-  private _usedAt?: Date;
-  private _revokedAt?: Date;
-  private _ipAddress?: string;
-  private _userAgent?: string;
+  private _usedAt: Date | null;
+  private _revokedAt: Date | null;
+  private _ipAddress: string | null;
+  private _userAgent: string | null;
 
   private constructor(props: RefreshTokenProps) {
     this._id = props.id;
     this._userId = props.userId;
     this._tokenHash = props.tokenHash;
     this._expiredAt = new Date(props.expiredAt.getTime());
-    this._usedAt = props.usedAt ? new Date(props.usedAt.getTime()) : undefined;
-    this._revokedAt = props.revokedAt ? new Date(props.revokedAt.getTime()) : undefined;
+    this._usedAt = props.usedAt ? new Date(props.usedAt.getTime()) : null;
+    this._revokedAt = props.revokedAt ? new Date(props.revokedAt.getTime()) : null;
     this._ipAddress = props.ipAddress;
     this._userAgent = props.userAgent;
   }
@@ -41,8 +41,8 @@ export class RefreshToken {
   get userId(): string { return this._userId }
   get tokenHash(): string { return this._tokenHash }
   get expiredAt(): Date { return this._expiredAt }
-  get ipAddress(): string | undefined { return this._ipAddress }
-  get userAgent(): string | undefined { return this._userAgent }
+  get ipAddress(): string | null { return this._ipAddress }
+  get userAgent(): string | null { return this._userAgent }
 
   get usedAt() {
     return this._usedAt
@@ -67,19 +67,19 @@ export class RefreshToken {
       userId: props.userId,
       tokenHash: props.tokenHash,
       expiredAt: props.expiredAt,
-      usedAt: props.usedAt ?? undefined,
-      revokedAt: props.revokedAt ?? undefined,
-      ipAddress: props.ipAddress ?? undefined,
-      userAgent: props.userAgent ?? undefined,
+      usedAt: props.usedAt,
+      revokedAt: props.revokedAt,
+      ipAddress: props.ipAddress,
+      userAgent: props.userAgent,
     })
   }
 
   static createForLogin(
     props: {
       userId: string
-      email?: string
-      ipAddress?: string
-      userAgent?: string
+      email: string | null
+      ipAddress: string | null
+      userAgent: string | null
     },
     tokenService: TokenService,
   ): {
@@ -96,6 +96,8 @@ export class RefreshToken {
       userId: props.userId,
       tokenHash: signed.tokenHash,
       expiredAt: signed.expiredAt,
+      usedAt: null,
+      revokedAt: null,
       ipAddress: props.ipAddress,
       userAgent: props.userAgent,
     })

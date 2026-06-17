@@ -3,11 +3,11 @@ import { ErrorResponseSchema, createSuccessResponseSchema } from '@distributed-s
 
 export const updateProfileSchema = {
   body: z.object({
-    firstName: z.string().optional(),
-    lastName: z.string().optional(),
-    displayName: z.string().optional(),
-    avatarUrl: z.string().url().optional(),
-    phoneNumber: z.string().optional(),
+    firstName: z.string().nullable().optional(),
+    lastName: z.string().nullable().optional(),
+    displayName: z.string().nullable().optional(),
+    avatarUrl: z.string().url().nullable().optional(),
+    phoneNumber: z.string().nullable().optional(),
   }),
   response: {
     200: createSuccessResponseSchema(
