@@ -11,7 +11,8 @@ const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000 // 30 days
 
 export class ImpTokenService implements TokenService {
   signAccessToken(payload: object) {
-    const token = jwt.sign(payload, config.jwt.accessSecret, {
+    const token = jwt.sign(payload, config.jwt.privateKey, {
+      algorithm: 'RS256',
       expiresIn: ACCESS_TOKEN_TTL,
     })
 
@@ -22,7 +23,9 @@ export class ImpTokenService implements TokenService {
   }
 
   signRefreshToken(payload: object) {
+    // Refresh token dùng HS256 (symmetric) — chỉ auth-service verify, không cần asymmetric
     const token = jwt.sign(payload, config.jwt.refreshSecret, {
+      algorithm: 'HS256',
       expiresIn: REFRESH_TOKEN_TTL,
     })
 

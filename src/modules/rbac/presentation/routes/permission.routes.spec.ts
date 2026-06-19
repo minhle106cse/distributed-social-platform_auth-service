@@ -9,14 +9,14 @@ describe('Permission Routes (Unit)', () => {
   
   const mockCommandBus = {
     execute: jest.fn()
-  } as unknown as Application['CommandBusService']
+  } as unknown as Application['CommandBus']
 
   const mockQueryBus = {
     execute: jest.fn()
-  } as unknown as Application['QueryBusService']
+  } as unknown as Application['QueryBus']
 
   beforeAll(async () => {
-    app = await buildServer({ CommandBusService: mockCommandBus, QueryBusService: mockQueryBus })
+    app = await buildServer({ CommandBus: mockCommandBus, QueryBus: mockQueryBus })
     await app.ready()
   })
 

@@ -36,11 +36,16 @@ export async function setupFastify(fastify: FastifyInstance) {
   })
 
   await fastify.register(fastifyJwt, {
-    secret: config.jwt.accessSecret,
+    secret: {
+      private: config.jwt.privateKey,
+      public: config.jwt.publicKey,
+    },
+    sign: { algorithm: 'RS256' },
+    verify: { algorithms: ['RS256'] },
     cookie: {
       cookieName: 'accessToken',
-      signed: false
-    }
+      signed: false,
+    },
   })
 
   fastify.decorate('authenticate', authenticate)

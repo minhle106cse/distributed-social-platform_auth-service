@@ -8,7 +8,8 @@ export const envSchema = z.object({
 
   AUTH_DATABASE_URL: z.string().url(),
 
-  JWT_ACCESS_SECRET: z.string().min(32),
+  JWT_PRIVATE_KEY: z.string().min(200),
+  JWT_PUBLIC_KEY: z.string().min(100),
   JWT_REFRESH_SECRET: z.string().min(32),
 
   // Comma-separated allowed origins, e.g. "http://localhost:3000,https://app.example.com"

@@ -7,7 +7,8 @@ export const config = {
   databaseUrl: env.AUTH_DATABASE_URL,
 
   jwt: {
-    accessSecret: env.JWT_ACCESS_SECRET,
+    privateKey: Buffer.from(env.JWT_PRIVATE_KEY, 'base64').toString('utf-8'),
+    publicKey: Buffer.from(env.JWT_PUBLIC_KEY, 'base64').toString('utf-8'),
     refreshSecret: env.JWT_REFRESH_SECRET,
   },
 

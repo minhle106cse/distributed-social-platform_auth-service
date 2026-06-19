@@ -6,12 +6,12 @@ import { GetPermissionsQuery } from '@/modules/rbac/application/queries/get-perm
 import { createPermissionSchema, getPermissionsSchema, type CreatePermissionBody } from '@/modules/rbac/presentation/schemas/permission.schema'
 
 interface PermissionRouteOptions extends FastifyPluginOptions {
-  CommandBusService: Application['CommandBusService']
-  QueryBusService: Application['QueryBusService']
+  CommandBus: Application['CommandBus']
+  QueryBus: Application['QueryBus']
 }
 
 export function permissionRoutes(fastify: FastifyInstance, options: PermissionRouteOptions) {
-  const { CommandBusService, QueryBusService } = options
+  const { CommandBus, QueryBus } = options
 
   fastify.post<{ Body: CreatePermissionBody }>(
     '/',
@@ -27,7 +27,7 @@ export function permissionRoutes(fastify: FastifyInstance, options: PermissionRo
     async (req, _reply) => {
       const body = req.body
       const command = new CreatePermissionCommand(body.code, body.moduleName, body.description)
-      const data = await CommandBusService.execute(command)
+      const data = await CommandBus.execute(command)
       return new HttpResponseBuilder(data, 'Permission created successfully', 201)
     },
   )
@@ -44,7 +44,7 @@ export function permissionRoutes(fastify: FastifyInstance, options: PermissionRo
       preHandler: [fastify.authenticate, fastify.requirePermissions(['RBAC:*'])],
     },
     async (_req, _reply) => {
-      const data = await QueryBusService.execute(new GetPermissionsQuery())
+      const data = await QueryBus.execute(new GetPermissionsQuery())
       return new HttpResponseBuilder(data, 'Permissions retrieved successfully', 200)
     },
   )
