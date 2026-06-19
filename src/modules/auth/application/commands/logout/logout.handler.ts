@@ -1,5 +1,5 @@
 import type { LogoutCommand } from './logout.command'
-import type { ICommandHandler } from '@/common/cqrs'
+import type { ICommandHandler } from '@distributed-social-platform/shared-kernel'
 import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
 import type { TokenService } from '@/modules/auth/domain/services/token.service'
 

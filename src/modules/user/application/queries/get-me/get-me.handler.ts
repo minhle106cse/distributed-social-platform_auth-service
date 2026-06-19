@@ -1,5 +1,5 @@
 import type { GetMeQuery } from './get-me.query'
-import type { IQueryHandler } from '@/common/cqrs'
+import type { IQueryHandler } from '@distributed-social-platform/shared-kernel'
 import type { UserQueryRepository } from '@/modules/user/application/repositories/user.query-repository'
 import { UserNotFoundError, UserCannotLoginError } from '@/common/errors/user.error'
 

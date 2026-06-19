@@ -7,12 +7,12 @@ import { getMeSchema } from '@/modules/user/presentation/schemas/get-me.schema'
 import { updateProfileSchema, type UpdateProfileBody } from '@/modules/user/presentation/schemas/update-profile.schema'
 
 interface UserRouteOptions extends FastifyPluginOptions {
-  queryBus: Application['queryBus']
-  commandBus: Application['commandBus']
+  QueryBusService: Application['QueryBusService']
+  CommandBusService: Application['CommandBusService']
 }
 
 export function userRoutes(fastify: FastifyInstance, options: UserRouteOptions) {
-  const { queryBus, commandBus } = options
+  const { QueryBusService, CommandBusService } = options
 
   fastify.get(
     '/me',
@@ -28,7 +28,7 @@ export function userRoutes(fastify: FastifyInstance, options: UserRouteOptions) 
     async (req, _reply) => {
       const user = req.user
       const query = new GetMeQuery(user.id)
-      const data = await queryBus.execute(query)
+      const data = await QueryBusService.execute(query)
       return new HttpResponseBuilder(data, 'User profile retrieved successfully', 200)
     },
   )
@@ -55,7 +55,7 @@ export function userRoutes(fastify: FastifyInstance, options: UserRouteOptions) 
         body.avatarUrl,
         body.phoneNumber
       )
-      const result = await commandBus.execute(command)
+      const result = await CommandBusService.execute(command)
       return new HttpResponseBuilder(result, 'User profile updated successfully', 200)
     },
   )

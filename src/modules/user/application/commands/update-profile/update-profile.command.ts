@@ -1,4 +1,4 @@
-import { ICommand } from '@/common/cqrs/interfaces/command.interface';
+import { ICommand } from '@distributed-social-platform/shared-kernel';
 
 export class UpdateProfileCommand implements ICommand {
   readonly name = UpdateProfileCommand.name;

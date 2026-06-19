@@ -1,5 +1,5 @@
 import type { GetPermissionsQuery } from './get-permissions.query'
-import type { IQueryHandler } from '@/common/cqrs'
+import type { IQueryHandler } from '@distributed-social-platform/shared-kernel'
 import type { PermissionQueryRepository } from '@/modules/rbac/application/repositories/permission.query-repository'
 
 export class GetPermissionsHandler implements IQueryHandler<GetPermissionsQuery> {

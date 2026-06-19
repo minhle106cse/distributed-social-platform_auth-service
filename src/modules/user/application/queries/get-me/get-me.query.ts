@@ -1,4 +1,4 @@
-import { IQuery } from '@/common/cqrs'
+import { IQuery } from '@distributed-social-platform/shared-kernel'
 
 export class GetMeQuery implements IQuery {
   public readonly name = GetMeQuery.name

@@ -10,14 +10,14 @@ describe('Auth Routes (Unit)', () => {
   // Mock the UseCases
   const mockCommandBus = {
     execute: jest.fn()
-  } as unknown as Application['commandBus']
+  } as unknown as Application['CommandBusService']
 
   const mockQueryBus = {
     execute: jest.fn()
-  } as unknown as Application['queryBus']
+  } as unknown as Application['QueryBusService']
 
   beforeAll(async () => {
-    app = await buildServer({ commandBus: mockCommandBus, queryBus: mockQueryBus })
+    app = await buildServer({ CommandBusService: mockCommandBus, QueryBusService: mockQueryBus })
     await app.ready()
   })
 

@@ -1,4 +1,4 @@
-import { ICommand } from '@/common/cqrs'
+import { ICommand } from '@distributed-social-platform/shared-kernel'
 
 export class LogoutCommand implements ICommand {
   public readonly name = LogoutCommand.name

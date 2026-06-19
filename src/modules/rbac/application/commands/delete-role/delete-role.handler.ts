@@ -1,5 +1,5 @@
 import type { DeleteRoleCommand } from './delete-role.command'
-import type { ICommandHandler } from '@/common/cqrs'
+import type { ICommandHandler } from '@distributed-social-platform/shared-kernel'
 import type { RoleRepository } from '@/modules/rbac/domain/repositories/role.repository'
 import { RoleNotFoundError } from '@/common/errors/rbac.error'
 

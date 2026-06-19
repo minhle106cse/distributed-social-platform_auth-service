@@ -1,4 +1,4 @@
-import type { ICommandHandler } from '@/common/cqrs';
+import type { ICommandHandler } from '@distributed-social-platform/shared-kernel';
 import { CreateRoleCommand } from './create-role.command';
 import { RoleRepository } from '../../../domain/repositories/role.repository';
 import { Role } from '@/modules/rbac/domain/entities/role.entity';

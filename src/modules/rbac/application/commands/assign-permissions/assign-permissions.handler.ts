@@ -1,4 +1,4 @@
-import type { ICommandHandler } from '@/common/cqrs';
+import type { ICommandHandler } from '@distributed-social-platform/shared-kernel';
 import { AssignPermissionsCommand } from './assign-permissions.command';
 import { RoleNotFoundError } from '@/common/errors/rbac.error';
 import { RoleRepository } from '../../../domain/repositories/role.repository';

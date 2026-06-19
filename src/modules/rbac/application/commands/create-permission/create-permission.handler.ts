@@ -1,4 +1,4 @@
-import type { ICommandHandler } from '@/common/cqrs';
+import type { ICommandHandler } from '@distributed-social-platform/shared-kernel';
 import { CreatePermissionCommand } from './create-permission.command';
 import { PermissionRepository } from '../../../domain/repositories/permission.repository';
 import { Permission } from '@/modules/rbac/domain/entities/permission.entity';

@@ -1,4 +1,4 @@
-import type { ICommandHandler } from '@/common/cqrs';
+import type { ICommandHandler } from '@distributed-social-platform/shared-kernel';
 import { UpdateProfileCommand } from './update-profile.command';
 import { UserRepository } from '../../../domain/repositories/user.repository';
 import { UserProfile } from '../../../domain/entities/user-profile.entity';

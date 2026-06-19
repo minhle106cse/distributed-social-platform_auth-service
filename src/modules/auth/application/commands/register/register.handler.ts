@@ -3,7 +3,7 @@ import { User } from '@/modules/user/domain/entities/user.entity'
 import type { UserRepository } from '@/modules/user/domain/repositories/user.repository'
 import type { PasswordService } from '@/modules/auth/domain/services/password.service'
 import type { RegisterCommand } from './register.command'
-import { ICommandHandler } from '@/common/cqrs'
+import { ICommandHandler } from '@distributed-social-platform/shared-kernel'
 
 export class RegisterHandler implements ICommandHandler<RegisterCommand> {
   constructor(

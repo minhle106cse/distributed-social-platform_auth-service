@@ -17,12 +17,12 @@ import {
 } from '@/modules/rbac/presentation/schemas/role.schema'
 
 interface RoleRouteOptions extends FastifyPluginOptions {
-  commandBus: Application['commandBus']
-  queryBus: Application['queryBus']
+  CommandBusService: Application['CommandBusService']
+  QueryBusService: Application['QueryBusService']
 }
 
 export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) {
-  const { commandBus, queryBus } = options
+  const { CommandBusService, QueryBusService } = options
 
   fastify.post<{ Body: CreateRoleBody }>(
     '/',
@@ -38,7 +38,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
     async (req, _reply) => {
       const body = req.body
       const command = new CreateRoleCommand(body.code, body.nameRole, body.description)
-      const data = await commandBus.execute(command)
+      const data = await CommandBusService.execute(command)
       return new HttpResponseBuilder(data, 'Role created successfully', 201)
     },
   )
@@ -57,7 +57,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
     async (req, _reply) => {
       const body = req.body
       const command = new AssignRoleCommand(body.userId, body.roleCode)
-      const data = await commandBus.execute(command)
+      const data = await CommandBusService.execute(command)
       return new HttpResponseBuilder(data, 'Role assigned successfully', 200)
     },
   )
@@ -77,7 +77,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
       const body = req.body
       const params = req.params
       const command = new AssignPermissionsCommand(params.code, body.permissionCodes)
-      const data = await commandBus.execute(command)
+      const data = await CommandBusService.execute(command)
       return new HttpResponseBuilder(data, 'Permissions assigned successfully', 200)
     },
   )
@@ -94,7 +94,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
       preHandler: [fastify.authenticate, fastify.requirePermissions(['RBAC:*'])],
     },
     async (_req, _reply) => {
-      const data = await queryBus.execute(new GetRolesQuery())
+      const data = await QueryBusService.execute(new GetRolesQuery())
       return new HttpResponseBuilder(data, 'Roles retrieved successfully', 200)
     },
   )
@@ -111,7 +111,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
       preHandler: [fastify.authenticate, fastify.requirePermissions(['RBAC:*'])],
     },
     async (req, _reply) => {
-      const data = await queryBus.execute(new GetRoleQuery(req.params.code))
+      const data = await QueryBusService.execute(new GetRoleQuery(req.params.code))
       return new HttpResponseBuilder(data, 'Role retrieved successfully', 200)
     },
   )
@@ -128,7 +128,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
       preHandler: [fastify.authenticate, fastify.requirePermissions(['RBAC:*'])],
     },
     async (req, _reply) => {
-      await commandBus.execute(new DeleteRoleCommand(req.params.code))
+      await CommandBusService.execute(new DeleteRoleCommand(req.params.code))
       return new HttpResponseBuilder({ success: true }, 'Role deleted successfully', 200)
     },
   )
@@ -145,7 +145,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
       preHandler: [fastify.authenticate, fastify.requirePermissions(['RBAC:*'])],
     },
     async (req, _reply) => {
-      await commandBus.execute(new RevokeRoleCommand(req.body.userId, req.body.roleCode))
+      await CommandBusService.execute(new RevokeRoleCommand(req.body.userId, req.body.roleCode))
       return new HttpResponseBuilder({ success: true }, 'Role revoked successfully', 200)
     },
   )
@@ -162,7 +162,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
       preHandler: [fastify.authenticate, fastify.requirePermissions(['RBAC:*'])],
     },
     async (req, _reply) => {
-      await commandBus.execute(new RevokePermissionsCommand(req.params.code, req.body.permissionCodes))
+      await CommandBusService.execute(new RevokePermissionsCommand(req.params.code, req.body.permissionCodes))
       return new HttpResponseBuilder({ success: true }, 'Permissions revoked successfully', 200)
     },
   )

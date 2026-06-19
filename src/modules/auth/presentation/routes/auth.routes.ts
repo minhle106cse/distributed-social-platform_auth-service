@@ -15,8 +15,8 @@ import { logoutSchema } from '@/modules/auth/presentation/schemas/logout.schema'
 import { UnauthorizedError } from '@/common/errors/auth.error'
 
 interface AuthRouteOptions extends FastifyPluginOptions {
-  commandBus: Application['commandBus']
-  queryBus: Application['queryBus']
+  CommandBusService: Application['CommandBusService']
+  QueryBusService: Application['QueryBusService']
 }
 
 interface TokenResponse {
@@ -26,7 +26,7 @@ interface TokenResponse {
 }
 
 export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) {
-  const { commandBus, queryBus } = options
+  const { CommandBusService, QueryBusService } = options
 
   fastify.post<{
     Body: LoginBody
@@ -48,7 +48,7 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
     async (req, reply) => {
       const { email, password } = req.body
       const command = new LoginCommand(email, password)
-      const data = (await commandBus.execute(command)) as TokenResponse
+      const data = (await CommandBusService.execute(command)) as TokenResponse
 
       reply.setCookie('accessToken', data.accessToken.token, {
         path: '/',
@@ -90,7 +90,7 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
     async (req, _reply) => {
       const { email, password, username } = req.body
       const command = new RegisterCommand(email, password, username)
-      await commandBus.execute(command)
+      await CommandBusService.execute(command)
       return new HttpResponseBuilder(null, 'Registration successful', 201)
     },
   )
@@ -125,7 +125,7 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
       }
 
       const command = new RefreshCommand(refreshToken, decoded, req.body?.ipAddress, req.body?.userAgent)
-      const data = (await commandBus.execute(command)) as TokenResponse
+      const data = (await CommandBusService.execute(command)) as TokenResponse
 
       reply.setCookie('accessToken', data.accessToken.token, {
         path: '/',
@@ -163,7 +163,7 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
       const user = req.user
 
       const command = new LogoutCommand(user.id, refreshToken)
-      await commandBus.execute(command)
+      await CommandBusService.execute(command)
 
       reply.clearCookie('accessToken', { path: '/' })
       reply.clearCookie('refreshToken', { path: '/' })

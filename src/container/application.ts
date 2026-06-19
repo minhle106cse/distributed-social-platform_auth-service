@@ -1,4 +1,4 @@
-import { CommandBus, EventBus, QueryBus } from '@/common/cqrs'
+import { CommandBusService, EventBusService, QueryBusService } from '@distributed-social-platform/shared-kernel'
 import { LoginHandler } from '@/modules/auth/application/commands/login/login.handler'
 import { RefreshHandler } from '@/modules/auth/application/commands/refresh/refresh.handler'
 import { RegisterHandler } from '@/modules/auth/application/commands/register/register.handler'
@@ -20,25 +20,25 @@ import { PrismaUserQueryRepository } from '@/modules/user/infrastructure/reposit
 import { PrismaRoleRepository } from '@/modules/rbac/infrastructure/repositories/prisma-role.repository'
 import { PrismaPermissionRepository } from '@/modules/rbac/infrastructure/repositories/prisma-permission.repository'
 import { type InfraDeps } from './infra'
-import { LoggingMiddleware } from '@/common/cqrs/middlewares/logging.middleware'
-import { TransactionMiddleware } from '@/common/cqrs/middlewares/transaction.middleware'
-import { RetryMiddleware } from '@/common/cqrs/middlewares/retry.middleware'
+import { LoggingMiddleware } from '@distributed-social-platform/shared-kernel'
+import { TransactionMiddleware } from '@distributed-social-platform/shared-kernel'
+import { RetryMiddleware } from '@distributed-social-platform/shared-kernel'
 import { PrismaTransactionManager } from '@/infrastructure/database/prisma/prisma-transaction-manager'
 import { isPrismaTransientError } from '@/infrastructure/database/prisma/prisma-transient-error'
 
 export function buildApplication(infra: InfraDeps) {
-  const commandBus = new CommandBus()
-  const eventBus = new EventBus()
-  const queryBus = new QueryBus()
+  const commandBusService = new CommandBusService()
+  const eventBusService = new EventBusService()
+  const queryBusService = new QueryBusService()
 
   // Wiring Infra implementations into framework-agnostic Middlewares.
   // This is the ONLY place that knows about Prisma-specific details.
   const transactionManager = new PrismaTransactionManager(infra.prisma)
 
   // Middlewares are executed in order: Logging -> Retry -> Transaction
-  commandBus.use(new LoggingMiddleware(infra.logger))
-  commandBus.use(new RetryMiddleware(infra.logger, isPrismaTransientError))
-  commandBus.use(new TransactionMiddleware(transactionManager, infra.logger))
+  commandBusService.use(new LoggingMiddleware(infra.logger))
+  commandBusService.use(new RetryMiddleware(infra.logger, isPrismaTransientError))
+  commandBusService.use(new TransactionMiddleware(transactionManager, infra.logger))
 
   const loginHandler = new LoginHandler(
     infra.userRepository,
@@ -61,33 +61,33 @@ export function buildApplication(infra: InfraDeps) {
   const revokePermissionsHandler = new RevokePermissionsHandler(roleRepo)
   const deleteRoleHandler = new DeleteRoleHandler(roleRepo)
 
-  commandBus.register('LoginCommand', loginHandler)
-  commandBus.register('RegisterCommand', registerHandler)
-  commandBus.register('RefreshCommand', refreshHandler)
-  commandBus.register('UpdateProfileCommand', updateProfileHandler)
-  commandBus.register('CreateRoleCommand', createRoleHandler)
-  commandBus.register('AssignRoleCommand', assignRoleHandler)
-  commandBus.register('CreatePermissionCommand', createPermissionHandler)
-  commandBus.register('AssignPermissionsCommand', assignPermissionsHandler)
-  commandBus.register('RevokeRoleCommand', revokeRoleHandler)
-  commandBus.register('RevokePermissionsCommand', revokePermissionsHandler)
-  commandBus.register('DeleteRoleCommand', deleteRoleHandler)
+  commandBusService.register('LoginCommand', loginHandler)
+  commandBusService.register('RegisterCommand', registerHandler)
+  commandBusService.register('RefreshCommand', refreshHandler)
+  commandBusService.register('UpdateProfileCommand', updateProfileHandler)
+  commandBusService.register('CreateRoleCommand', createRoleHandler)
+  commandBusService.register('AssignRoleCommand', assignRoleHandler)
+  commandBusService.register('CreatePermissionCommand', createPermissionHandler)
+  commandBusService.register('AssignPermissionsCommand', assignPermissionsHandler)
+  commandBusService.register('RevokeRoleCommand', revokeRoleHandler)
+  commandBusService.register('RevokePermissionsCommand', revokePermissionsHandler)
+  commandBusService.register('DeleteRoleCommand', deleteRoleHandler)
 
   const userQueryRepository = new PrismaUserQueryRepository(infra.prisma)
   const getMeHandler = new GetMeHandler(userQueryRepository)
-  queryBus.register('GetMeQuery', getMeHandler)
+  queryBusService.register('GetMeQuery', getMeHandler)
   
   const roleQueryRepository = new PrismaRoleQueryRepository(infra.prisma)
   const permissionQueryRepository = new PrismaPermissionQueryRepository(infra.prisma)
   
-  queryBus.register('GetRolesQuery', new GetRolesHandler(roleQueryRepository))
-  queryBus.register('GetRoleQuery', new GetRoleHandler(roleQueryRepository))
-  queryBus.register('GetPermissionsQuery', new GetPermissionsHandler(permissionQueryRepository))
+  queryBusService.register('GetRolesQuery', new GetRolesHandler(roleQueryRepository))
+  queryBusService.register('GetRoleQuery', new GetRoleHandler(roleQueryRepository))
+  queryBusService.register('GetPermissionsQuery', new GetPermissionsHandler(permissionQueryRepository))
   
   return {
-    commandBus,
-    eventBus,
-    queryBus,
+    CommandBusService: commandBusService,
+    EventBusService: eventBusService,
+    QueryBusService: queryBusService,
   }
 }
 

@@ -1,4 +1,4 @@
-import { ICommand } from '@/common/cqrs/interfaces/command.interface';
+import { ICommand } from '@distributed-social-platform/shared-kernel';
 
 export class CreateRoleCommand implements ICommand {
   readonly name = CreateRoleCommand.name;

@@ -1,4 +1,4 @@
-import { ICommand, CommandOptions } from '@/common/cqrs'
+import { ICommand, CommandOptions } from '@distributed-social-platform/shared-kernel'
 
 export class RevokeRoleCommand implements ICommand {
   public readonly name = RevokeRoleCommand.name

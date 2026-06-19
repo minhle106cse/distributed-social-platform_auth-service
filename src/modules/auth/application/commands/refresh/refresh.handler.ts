@@ -7,7 +7,7 @@ import { UserNotFoundError } from '@/common/errors/user.error'
 import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
 import type { TokenService } from '@/modules/auth/domain/services/token.service'
 import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
-import type { ICommandHandler } from '@/common/cqrs'
+import type { ICommandHandler } from '@distributed-social-platform/shared-kernel'
 import type { UserRepository } from '@/modules/user/domain/repositories/user.repository'
 
 export class RefreshHandler implements ICommandHandler<RefreshCommand> {
