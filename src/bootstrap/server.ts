@@ -4,6 +4,7 @@ import { createLogger, type ILogger } from '@distributed-social-platform/shared-
 import { setupFastify } from './fastify'
 import { setupSwagger } from './swagger'
 import { config } from '@/config'
+import { prisma } from '@/infrastructure/database/prisma/prisma.client'
 import { type Application } from '@/container/application'
 import { authRoutes } from '@/modules/auth/presentation/routes/auth.routes'
 import { userRoutes } from '@/modules/user/presentation/routes/user.routes'
@@ -19,8 +20,7 @@ interface ServerDeps {
 export async function buildServer(deps: ServerDeps, logger: ILogger = createLogger('auth-service')) {
   const isTest = process.env.NODE_ENV === 'test'
   const fastify = Fastify({
-    logger: isTest ? false : undefined,
-    loggerInstance: logger as unknown as FastifyBaseLogger,
+    ...(isTest ? { logger: false } : { loggerInstance: logger as unknown as FastifyBaseLogger }),
     genReqId: (req) => {
       return Array.isArray(req.headers['x-request-id'])
         ? req.headers['x-request-id'][0]
@@ -33,8 +33,19 @@ export async function buildServer(deps: ServerDeps, logger: ILogger = createLogg
   await setupFastify(fastify)
   await setupSwagger(fastify)
 
-  fastify.get('/health', () => {
-    return { status: 'ok' }
+  fastify.get('/health', { config: { skipResponseWrapper: true } }, async (_req, reply) => {
+    let dbOk = false
+    try {
+      await prisma.$queryRaw`SELECT 1`
+      dbOk = true
+    } catch {}
+    reply.code(dbOk ? 200 : 503).send({
+      status: dbOk ? 'ok' : 'degraded',
+      service: 'auth-service',
+      uptime: Math.floor(process.uptime()),
+      timestamp: new Date().toISOString(),
+      checks: { database: dbOk ? 'ok' : 'error' },
+    })
   })
 
   fastify.get('/.well-known/jwks.json', () => {
@@ -49,9 +60,9 @@ export async function buildServer(deps: ServerDeps, logger: ILogger = createLogg
   const client = await import('prom-client')
   client.collectDefaultMetrics()
 
-  fastify.get('/metrics', async (req, reply) => {
+  fastify.get('/metrics', { config: { skipResponseWrapper: true } }, async (_req, reply) => {
     reply.header('Content-Type', client.register.contentType)
-    return await client.register.metrics()
+    reply.send(await client.register.metrics())
   })
 
   await fastify.register(async (api) => {
@@ -71,7 +82,7 @@ export async function buildServer(deps: ServerDeps, logger: ILogger = createLogg
       CommandBus: deps.CommandBus
     })
     await api.register(permissionRoutes, {
-      prefix: '/permissions', // NOTE: we might also mount them under /rbac or no prefix since the route has /permissions already, but wait, permissionRoutes has '/permissions', if we prefix it, it becomes /api/v1/permissions/permissions. Let's check what prefix is used.
+      prefix: '/permissions',
       QueryBus: deps.QueryBus,
       CommandBus: deps.CommandBus
     })

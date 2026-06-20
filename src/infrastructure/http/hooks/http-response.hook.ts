@@ -1,37 +1,19 @@
 import { Readable } from 'node:stream'
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { HttpResponseBuilder, HttpResponseError } from '@distributed-social-platform/shared-kernel'
+import { ApiResponse, ResponseFormatError, buildSuccessBody } from '@distributed-social-platform/shared-kernel'
 
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function httpResponseHook(req: FastifyRequest, reply: FastifyReply, payload: unknown) {
   const routeConfig = req.routeOptions.config as { skipResponseWrapper?: boolean } | undefined
 
-  if (reply.statusCode >= 400) {
-    return payload
-  }
+  if (reply.statusCode >= 400) return payload
+  if (routeConfig?.skipResponseWrapper) return payload
+  if (Buffer.isBuffer(payload) || payload instanceof Uint8Array || payload instanceof Readable) return payload
 
-  if (routeConfig?.skipResponseWrapper) {
-    return payload
-  }
-
-  if (Buffer.isBuffer(payload) || payload instanceof Uint8Array || payload instanceof Readable) {
-    return payload
-  }
-
-  if (payload instanceof HttpResponseBuilder) {
+  if (payload instanceof ApiResponse) {
     reply.code(payload.statusCode)
-
-    return {
-      success: payload.success,
-      data: payload.data,
-      message: payload.message,
-      meta: {
-        requestId: req.id,
-        timestamp: new Date().toISOString(),
-        version: '1.0.0'
-      },
-    }
+    return buildSuccessBody({ data: payload.data, message: payload.message, requestId: req.id })
   }
 
-  throw new HttpResponseError()
+  throw new ResponseFormatError()
 }

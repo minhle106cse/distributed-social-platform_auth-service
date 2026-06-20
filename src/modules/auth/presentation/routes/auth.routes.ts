@@ -1,5 +1,5 @@
 import { type FastifyInstance, type FastifyPluginOptions } from 'fastify'
-import { HttpResponseBuilder } from '@distributed-social-platform/shared-kernel'
+import { ApiResponse } from '@distributed-social-platform/shared-kernel'
 import { type Application } from '@/container/application'
 import type { LoginBody } from '@/modules/auth/presentation/schemas/login.schema'
 import { loginSchema } from '@/modules/auth/presentation/schemas/login.schema'
@@ -66,7 +66,7 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
         expires: new Date(data.refreshToken.expiredAt)
       })
 
-      return new HttpResponseBuilder(null, 'Login successful', 200)
+      return new ApiResponse(null, 'Login successful', 200)
     },
   )
 
@@ -91,7 +91,7 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
       const { email, password, username } = req.body
       const command = new RegisterCommand(email, password, username)
       await CommandBus.execute(command)
-      return new HttpResponseBuilder(null, 'Registration successful', 201)
+      return new ApiResponse(null, 'Registration successful', 201)
     },
   )
 
@@ -143,7 +143,7 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
         expires: new Date(data.refreshToken.expiredAt)
       })
 
-      return new HttpResponseBuilder(null, 'Token refreshed successfully', 200)
+      return new ApiResponse(null, 'Token refreshed successfully', 200)
     },
   )
 
@@ -167,7 +167,7 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
 
       reply.clearCookie('accessToken', { path: '/' })
       reply.clearCookie('refreshToken', { path: '/' })
-      return new HttpResponseBuilder(null, 'Logout successful', 200)
+      return new ApiResponse(null, 'Logout successful', 200)
     },
   )
 }

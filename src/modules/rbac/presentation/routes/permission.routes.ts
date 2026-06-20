@@ -1,5 +1,5 @@
 import { type FastifyInstance, type FastifyPluginOptions } from 'fastify'
-import { HttpResponseBuilder } from '@distributed-social-platform/shared-kernel'
+import { ApiResponse } from '@distributed-social-platform/shared-kernel'
 import { type Application } from '@/container/application'
 import { CreatePermissionCommand } from '@/modules/rbac/application/commands/create-permission/create-permission.command'
 import { GetPermissionsQuery } from '@/modules/rbac/application/queries/get-permissions/get-permissions.query'
@@ -28,7 +28,7 @@ export function permissionRoutes(fastify: FastifyInstance, options: PermissionRo
       const body = req.body
       const command = new CreatePermissionCommand(body.code, body.moduleName, body.description)
       const data = await CommandBus.execute(command)
-      return new HttpResponseBuilder(data, 'Permission created successfully', 201)
+      return new ApiResponse(data, 'Permission created successfully', 201)
     },
   )
 
@@ -45,7 +45,7 @@ export function permissionRoutes(fastify: FastifyInstance, options: PermissionRo
     },
     async (_req, _reply) => {
       const data = await QueryBus.execute(new GetPermissionsQuery())
-      return new HttpResponseBuilder(data, 'Permissions retrieved successfully', 200)
+      return new ApiResponse(data, 'Permissions retrieved successfully', 200)
     },
   )
 }

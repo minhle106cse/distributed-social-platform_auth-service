@@ -1,5 +1,5 @@
 import { type FastifyInstance, type FastifyPluginOptions } from 'fastify'
-import { HttpResponseBuilder } from '@distributed-social-platform/shared-kernel'
+import { ApiResponse } from '@distributed-social-platform/shared-kernel'
 import { type Application } from '@/container/application'
 import { GetMeQuery } from '@/modules/user/application/queries/get-me/get-me.query'
 import { UpdateProfileCommand } from '@/modules/user/application/commands/update-profile/update-profile.command'
@@ -29,7 +29,7 @@ export function userRoutes(fastify: FastifyInstance, options: UserRouteOptions) 
       const user = req.user
       const query = new GetMeQuery(user.id)
       const data = await QueryBus.execute(query)
-      return new HttpResponseBuilder(data, 'User profile retrieved successfully', 200)
+      return new ApiResponse(data, 'User profile retrieved successfully', 200)
     },
   )
 
@@ -56,7 +56,7 @@ export function userRoutes(fastify: FastifyInstance, options: UserRouteOptions) 
         body.phoneNumber
       )
       const result = await CommandBus.execute(command)
-      return new HttpResponseBuilder(result, 'User profile updated successfully', 200)
+      return new ApiResponse(result, 'User profile updated successfully', 200)
     },
   )
 }

@@ -4,20 +4,26 @@ import {
   UserProfile as PrismaUserProfile,
   UserRole as PrismaUserRole,
   Role as PrismaRole,
+  RolePermission as PrismaRolePermission,
+  Permission as PrismaPermission,
 } from '@/generated'
 import { User } from '@/modules/user/domain/entities/user.entity'
 import { UserProfile } from '@/modules/user/domain/entities/user-profile.entity'
 import { AuthIdentity } from '@/modules/auth/domain/value-objects/auth-identity.vo'
 import { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
 
+type PrismaRoleWithPermissions = PrismaRole & {
+  permissions?: (PrismaRolePermission & { permission: PrismaPermission })[]
+}
+
+type PrismaUserWithRelations = PrismaUser & {
+  authIdentities?: PrismaAuthIdentity[]
+  profile?: PrismaUserProfile | null
+  roles?: (PrismaUserRole & { role: PrismaRoleWithPermissions })[]
+}
+
 export class UserMapper {
-  static toDomain(
-    record: PrismaUser & { 
-      authIdentities?: PrismaAuthIdentity[];
-      profile?: PrismaUserProfile | null;
-      roles?: (PrismaUserRole & { role: PrismaRole })[];
-    },
-  ): User {
+  static toDomain(record: PrismaUserWithRelations): User {
     return User.rehydrate({
       id: record.id,
       email: record.email,
@@ -44,8 +50,8 @@ export class UserMapper {
           })
         : null,
       roles: record.roles ? record.roles.map((r) => r.role.code) : [],
-      permissions: record.roles 
-        ? Array.from(new Set(record.roles.flatMap(r => (r.role as any).permissions?.map((p: any) => p.permission.code) || [])))
+      permissions: record.roles
+        ? Array.from(new Set(record.roles.flatMap(r => r.role.permissions?.map(p => p.permission.code) ?? [])))
         : [],
       deletedAt: record.deletedAt,
     })

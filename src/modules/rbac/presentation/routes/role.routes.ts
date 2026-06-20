@@ -1,5 +1,5 @@
 import { type FastifyInstance, type FastifyPluginOptions } from 'fastify'
-import { HttpResponseBuilder } from '@distributed-social-platform/shared-kernel'
+import { ApiResponse } from '@distributed-social-platform/shared-kernel'
 import { type Application } from '@/container/application'
 import { CreateRoleCommand } from '@/modules/rbac/application/commands/create-role/create-role.command'
 import { AssignRoleCommand } from '@/modules/rbac/application/commands/assign-role/assign-role.command'
@@ -39,7 +39,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
       const body = req.body
       const command = new CreateRoleCommand(body.code, body.nameRole, body.description)
       const data = await CommandBus.execute(command)
-      return new HttpResponseBuilder(data, 'Role created successfully', 201)
+      return new ApiResponse(data, 'Role created successfully', 201)
     },
   )
 
@@ -58,7 +58,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
       const body = req.body
       const command = new AssignRoleCommand(body.userId, body.roleCode)
       const data = await CommandBus.execute(command)
-      return new HttpResponseBuilder(data, 'Role assigned successfully', 200)
+      return new ApiResponse(data, 'Role assigned successfully', 200)
     },
   )
 
@@ -78,7 +78,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
       const params = req.params
       const command = new AssignPermissionsCommand(params.code, body.permissionCodes)
       const data = await CommandBus.execute(command)
-      return new HttpResponseBuilder(data, 'Permissions assigned successfully', 200)
+      return new ApiResponse(data, 'Permissions assigned successfully', 200)
     },
   )
 
@@ -95,7 +95,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
     },
     async (_req, _reply) => {
       const data = await QueryBus.execute(new GetRolesQuery())
-      return new HttpResponseBuilder(data, 'Roles retrieved successfully', 200)
+      return new ApiResponse(data, 'Roles retrieved successfully', 200)
     },
   )
 
@@ -112,7 +112,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
     },
     async (req, _reply) => {
       const data = await QueryBus.execute(new GetRoleQuery(req.params.code))
-      return new HttpResponseBuilder(data, 'Role retrieved successfully', 200)
+      return new ApiResponse(data, 'Role retrieved successfully', 200)
     },
   )
 
@@ -129,7 +129,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
     },
     async (req, _reply) => {
       await CommandBus.execute(new DeleteRoleCommand(req.params.code))
-      return new HttpResponseBuilder({ success: true }, 'Role deleted successfully', 200)
+      return new ApiResponse({ success: true }, 'Role deleted successfully', 200)
     },
   )
 
@@ -146,7 +146,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
     },
     async (req, _reply) => {
       await CommandBus.execute(new RevokeRoleCommand(req.body.userId, req.body.roleCode))
-      return new HttpResponseBuilder({ success: true }, 'Role revoked successfully', 200)
+      return new ApiResponse({ success: true }, 'Role revoked successfully', 200)
     },
   )
 
@@ -163,7 +163,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
     },
     async (req, _reply) => {
       await CommandBus.execute(new RevokePermissionsCommand(req.params.code, req.body.permissionCodes))
-      return new HttpResponseBuilder({ success: true }, 'Permissions revoked successfully', 200)
+      return new ApiResponse({ success: true }, 'Permissions revoked successfully', 200)
     },
   )
 }

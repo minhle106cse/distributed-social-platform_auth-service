@@ -1,16 +1,11 @@
 import type { FastifyRequest, FastifyReply } from 'fastify'
 
-export function httpLoggingHook(
-  req: FastifyRequest,
-  reply: FastifyReply,
-) {
+export function httpLoggingHook(req: FastifyRequest, reply: FastifyReply) {
   if (req.url === '/health' || req.url === '/metrics') {
     return
   }
-  const startTime = process.hrtime.bigint()
 
-  const durationMs =
-    Number(process.hrtime.bigint() - startTime) / 1_000_000
+  const durationMs = Number(process.hrtime.bigint() - req.startTime) / 1_000_000
 
   const payload = {
     requestId: req.id,
