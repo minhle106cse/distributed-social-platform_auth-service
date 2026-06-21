@@ -34,7 +34,7 @@ describe('Role Routes (Unit)', () => {
     it('should return 201 on successful creation', async () => {
       ;(mockCommandBus.execute as jest.Mock).mockResolvedValue({ id: 'r1', code: 'ADMIN' })
       
-      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: ['RBAC:*'] })
+      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: ['rbac:*'] })
       const response = await app.inject({
         method: 'POST',
         url: '/api/v1/roles',
@@ -51,7 +51,7 @@ describe('Role Routes (Unit)', () => {
     it('should return 200 on successful assignment', async () => {
       ;(mockCommandBus.execute as jest.Mock).mockResolvedValue({ success: true })
       
-      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: ['RBAC:*'] })
+      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: ['rbac:*'] })
       const response = await app.inject({
         method: 'POST',
         url: '/api/v1/roles/assign',
@@ -67,7 +67,7 @@ describe('Role Routes (Unit)', () => {
     it('should return 200 on successful permission assignment', async () => {
       ;(mockCommandBus.execute as jest.Mock).mockResolvedValue({ id: 'r1', code: 'ADMIN', permissions: ['READ'] })
       
-      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: ['RBAC:*'] })
+      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: ['rbac:*'] })
       const response = await app.inject({
         method: 'POST',
         url: '/api/v1/roles/ADMIN/permissions',
@@ -83,7 +83,7 @@ describe('Role Routes (Unit)', () => {
     it('should return 200 on successful fetch', async () => {
       ;(mockQueryBus.execute as jest.Mock).mockResolvedValue([{ code: 'ADMIN', nameRole: 'Admin', description: null, createdAt: new Date().toISOString(), permissions: [] }])
       
-      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: ['RBAC:*'] })
+      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: ['rbac:*'] })
       const response = await app.inject({
         method: 'GET',
         url: '/api/v1/roles',
@@ -98,7 +98,7 @@ describe('Role Routes (Unit)', () => {
     it('should return 200 on successful fetch', async () => {
       ;(mockQueryBus.execute as jest.Mock).mockResolvedValue({ code: 'ADMIN', nameRole: 'Admin', description: null, createdAt: new Date().toISOString(), permissions: [] })
       
-      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: ['RBAC:*'] })
+      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: ['rbac:*'] })
       const response = await app.inject({
         method: 'GET',
         url: '/api/v1/roles/ADMIN',
@@ -113,7 +113,7 @@ describe('Role Routes (Unit)', () => {
     it('should return 200 on successful delete', async () => {
       ;(mockCommandBus.execute as jest.Mock).mockResolvedValue(undefined)
       
-      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: ['RBAC:*'] })
+      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: ['rbac:*'] })
       const response = await app.inject({
         method: 'DELETE',
         url: '/api/v1/roles/ADMIN',
@@ -128,7 +128,7 @@ describe('Role Routes (Unit)', () => {
     it('should return 200 on successful revoke', async () => {
       ;(mockCommandBus.execute as jest.Mock).mockResolvedValue(undefined)
       
-      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: ['RBAC:*'] })
+      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: ['rbac:*'] })
       const response = await app.inject({
         method: 'DELETE',
         url: '/api/v1/roles/assign',
@@ -144,7 +144,7 @@ describe('Role Routes (Unit)', () => {
     it('should return 200 on successful permission revoke', async () => {
       ;(mockCommandBus.execute as jest.Mock).mockResolvedValue(undefined)
       
-      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: ['RBAC:*'] })
+      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: ['rbac:*'] })
       const response = await app.inject({
         method: 'DELETE',
         url: '/api/v1/roles/ADMIN/permissions',

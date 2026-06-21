@@ -120,7 +120,7 @@ model RefreshToken {
 
 model Role {
   id          String   @id @default(uuid())
-  code        String   @unique // VD: "SUPER_ADMIN", "CONTENT_MODERATOR"
+  code        String   @unique // VD: "SUPER_ADMIN", "CONTENT_MODERATOR" — xem SystemRole trong system-permissions.ts
   name        String   // VD: "Super Administrator"
   description String?
 
@@ -138,7 +138,7 @@ model Role {
 
 model Permission {
   id          String   @id @default(uuid())
-  code        String   @unique // VD: "USER:BAN", "POST:DELETE"
+  code        String   @unique // VD: "user:ban", "report:read" — format 'resource:action' lowercase, xem SystemPermission trong system-permissions.ts
   module      String   // Phân loại nhóm quyền
   description String?
 

@@ -33,7 +33,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
         security: [{ cookieAuth: [] }],
         ...createRoleSchema,
       },
-      preHandler: [fastify.authenticate, fastify.requirePermissions(['RBAC:*'])],
+      preHandler: [fastify.authenticate, fastify.requirePermissions(['rbac:*'])],
     },
     async (req, _reply) => {
       const body = req.body
@@ -52,7 +52,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
         security: [{ cookieAuth: [] }],
         ...assignRoleSchema,
       },
-      preHandler: [fastify.authenticate, fastify.requirePermissions(['RBAC:*'])],
+      preHandler: [fastify.authenticate, fastify.requirePermissions(['rbac:*'])],
     },
     async (req, _reply) => {
       const body = req.body
@@ -71,7 +71,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
         security: [{ cookieAuth: [] }],
         ...assignPermissionsSchema,
       },
-      preHandler: [fastify.authenticate, fastify.requirePermissions(['RBAC:*'])],
+      preHandler: [fastify.authenticate, fastify.requirePermissions(['rbac:*'])],
     },
     async (req, _reply) => {
       const body = req.body
@@ -91,7 +91,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
         security: [{ cookieAuth: [] }],
         ...getRolesSchema,
       },
-      preHandler: [fastify.authenticate, fastify.requirePermissions(['RBAC:*'])],
+      preHandler: [fastify.authenticate, fastify.requirePermissions(['rbac:*'])],
     },
     async (_req, _reply) => {
       const data = await QueryBus.execute(new GetRolesQuery())
@@ -108,7 +108,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
         security: [{ cookieAuth: [] }],
         ...getRoleSchema,
       },
-      preHandler: [fastify.authenticate, fastify.requirePermissions(['RBAC:*'])],
+      preHandler: [fastify.authenticate, fastify.requirePermissions(['rbac:*'])],
     },
     async (req, _reply) => {
       const data = await QueryBus.execute(new GetRoleQuery(req.params.code))
@@ -125,7 +125,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
         security: [{ cookieAuth: [] }],
         ...deleteRoleSchema,
       },
-      preHandler: [fastify.authenticate, fastify.requirePermissions(['RBAC:*'])],
+      preHandler: [fastify.authenticate, fastify.requirePermissions(['rbac:*'])],
     },
     async (req, _reply) => {
       await CommandBus.execute(new DeleteRoleCommand(req.params.code))
@@ -142,7 +142,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
         security: [{ cookieAuth: [] }],
         ...revokeRoleSchema,
       },
-      preHandler: [fastify.authenticate, fastify.requirePermissions(['RBAC:*'])],
+      preHandler: [fastify.authenticate, fastify.requirePermissions(['rbac:*'])],
     },
     async (req, _reply) => {
       await CommandBus.execute(new RevokeRoleCommand(req.body.userId, req.body.roleCode))
@@ -159,7 +159,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
         security: [{ cookieAuth: [] }],
         ...revokePermissionsSchema,
       },
-      preHandler: [fastify.authenticate, fastify.requirePermissions(['RBAC:*'])],
+      preHandler: [fastify.authenticate, fastify.requirePermissions(['rbac:*'])],
     },
     async (req, _reply) => {
       await CommandBus.execute(new RevokePermissionsCommand(req.params.code, req.body.permissionCodes))

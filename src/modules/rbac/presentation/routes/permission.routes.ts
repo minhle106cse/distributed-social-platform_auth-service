@@ -22,7 +22,7 @@ export function permissionRoutes(fastify: FastifyInstance, options: PermissionRo
         security: [{ cookieAuth: [] }],
         ...createPermissionSchema,
       },
-      preHandler: [fastify.authenticate, fastify.requirePermissions(['RBAC:*'])],
+      preHandler: [fastify.authenticate, fastify.requirePermissions(['rbac:*'])],
     },
     async (req, _reply) => {
       const body = req.body
@@ -41,7 +41,7 @@ export function permissionRoutes(fastify: FastifyInstance, options: PermissionRo
         security: [{ cookieAuth: [] }],
         ...getPermissionsSchema,
       },
-      preHandler: [fastify.authenticate, fastify.requirePermissions(['RBAC:*'])],
+      preHandler: [fastify.authenticate, fastify.requirePermissions(['rbac:*'])],
     },
     async (_req, _reply) => {
       const data = await QueryBus.execute(new GetPermissionsQuery())

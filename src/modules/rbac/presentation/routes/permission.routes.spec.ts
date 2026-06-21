@@ -34,7 +34,7 @@ describe('Permission Routes (Unit)', () => {
     it('should return 201 on successful creation', async () => {
       ;(mockCommandBus.execute as jest.Mock).mockResolvedValue({ id: 'p1', code: 'READ' })
       
-      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: ['RBAC:*'] })
+      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: ['rbac:*'] })
       const response = await app.inject({
         method: 'POST',
         url: '/api/v1/permissions',
@@ -51,7 +51,7 @@ describe('Permission Routes (Unit)', () => {
     it('should return 200 on successful fetch', async () => {
       ;(mockQueryBus.execute as jest.Mock).mockResolvedValue([])
       
-      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: ['RBAC:*'] })
+      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: ['rbac:*'] })
       const response = await app.inject({
         method: 'GET',
         url: '/api/v1/permissions',
