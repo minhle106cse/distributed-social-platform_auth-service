@@ -11,8 +11,10 @@ function matchesPermission(granted: string, required: string): boolean {
 
   const colonIdx = granted.indexOf(':')
   if (colonIdx !== -1 && granted.endsWith(':*')) {
+    const requiredColonIdx = required.indexOf(':')
+    if (requiredColonIdx === -1) return false
     const grantedResource = granted.slice(0, colonIdx)
-    const requiredResource = required.slice(0, required.indexOf(':'))
+    const requiredResource = required.slice(0, requiredColonIdx)
     return grantedResource === requiredResource
   }
 
