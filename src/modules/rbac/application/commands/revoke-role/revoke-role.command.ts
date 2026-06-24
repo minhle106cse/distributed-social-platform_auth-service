@@ -2,6 +2,7 @@ import { ICommand, CommandOptions } from '@distributed-social-platform/shared-ke
 
 export class RevokeRoleCommand implements ICommand {
   public readonly name = RevokeRoleCommand.name
-  public readonly options: CommandOptions = { transactional: true, retryable: true }
+  // 1 lệnh delete idempotent (userRole) → không cần transaction, không cần retry.
+  public readonly options: CommandOptions = { transactional: false, retryable: false }
   constructor(public readonly userId: string, public readonly roleCode: string) {}
 }

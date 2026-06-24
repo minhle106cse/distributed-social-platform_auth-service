@@ -1,8 +1,11 @@
 import { config as dotenvConfig } from 'dotenv'
 import { join } from 'path'
 dotenvConfig({ path: join(process.cwd(), '../../.env') })
+import { collectDefaultMetrics } from 'prom-client'
 import { createApp } from './app'
 import { config } from './config'
+
+collectDefaultMetrics()
 
 async function bootstrap() {
   const app = await createApp()

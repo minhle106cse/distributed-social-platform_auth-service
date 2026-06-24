@@ -1,7 +1,8 @@
-import { ICommand } from '@distributed-social-platform/shared-kernel';
+import { ICommand, CommandOptions } from '@distributed-social-platform/shared-kernel';
 
 export class AssignRoleCommand implements ICommand {
   readonly name = AssignRoleCommand.name;
+  readonly options: CommandOptions = { transactional: false, retryable: false }
 
   constructor(
     public readonly userId: string,

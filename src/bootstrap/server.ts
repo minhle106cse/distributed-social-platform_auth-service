@@ -1,5 +1,6 @@
 import { createPublicKey, createHash } from 'crypto'
 import Fastify, { type FastifyBaseLogger } from 'fastify'
+import { register } from 'prom-client'
 import { createLogger, type ILogger } from '@distributed-social-platform/shared-kernel'
 import { setupFastify } from './fastify'
 import { setupSwagger } from './swagger'
@@ -57,12 +58,9 @@ export async function buildServer(deps: ServerDeps, logger: ILogger = createLogg
     }
   })
 
-  const client = await import('prom-client')
-  client.collectDefaultMetrics()
-
   fastify.get('/metrics', { config: { skipResponseWrapper: true } }, async (_req, reply) => {
-    reply.header('Content-Type', client.register.contentType)
-    reply.send(await client.register.metrics())
+    reply.header('Content-Type', register.contentType)
+    reply.send(await register.metrics())
   })
 
   await fastify.register(async (api) => {
