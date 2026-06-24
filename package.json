@@ -16,6 +16,7 @@
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier . --write",
+    "format:check": "prettier . --check",
     "clean": "tsc -b --clean",
     "build": "tsc -b && tsc-alias",
     "dev": "tsx watch src/main.ts",
