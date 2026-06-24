@@ -1,12 +1,12 @@
-import { AssignRoleHandler } from './assign-role.handler';
-import { AssignRoleCommand } from './assign-role.command';
-import { RoleRepository } from '../../../domain/repositories/role.repository';
-import { RoleNotFoundError, RoleInactiveError } from '@/common/errors/rbac.error';
-import { Role } from '@/modules/rbac/domain/entities/role.entity';
+import type { RoleRepository } from '../../../domain/repositories/role.repository'
+import { AssignRoleHandler } from './assign-role.handler'
+import { AssignRoleCommand } from './assign-role.command'
+import { RoleNotFoundError, RoleInactiveError } from '@/common/errors/rbac.error'
+import { Role } from '@/modules/rbac/domain/entities/role.entity'
 
 describe('AssignRoleHandler', () => {
-  let handler: AssignRoleHandler;
-  let mockRoleRepo: jest.Mocked<RoleRepository>;
+  let handler: AssignRoleHandler
+  let mockRoleRepo: jest.Mocked<RoleRepository>
 
   beforeEach(() => {
     mockRoleRepo = {
@@ -17,41 +17,55 @@ describe('AssignRoleHandler', () => {
       updateRole: jest.fn(),
       deleteRole: jest.fn(),
       assignRoleToUser: jest.fn(),
-    } as unknown as jest.Mocked<RoleRepository>;
+    } as unknown as jest.Mocked<RoleRepository>
 
-    handler = new AssignRoleHandler(mockRoleRepo);
-  });
+    handler = new AssignRoleHandler(mockRoleRepo)
+  })
 
   it('should successfully assign a role to a user', async () => {
-    const command = new AssignRoleCommand('user-1', 'ADMIN');
-    const role = Role.rehydrate({ id: 'role-1', code: 'ADMIN', name: 'Admin', description: null, isActive: true, permissions: [] });
+    const command = new AssignRoleCommand('user-1', 'ADMIN')
+    const role = Role.rehydrate({
+      id: 'role-1',
+      code: 'ADMIN',
+      name: 'Admin',
+      description: null,
+      isActive: true,
+      permissions: [],
+    })
 
-    mockRoleRepo.findRoleByCode.mockResolvedValueOnce(role);
-    mockRoleRepo.assignRoleToUser.mockResolvedValueOnce(undefined);
+    mockRoleRepo.findRoleByCode.mockResolvedValueOnce(role)
+    mockRoleRepo.assignRoleToUser.mockResolvedValueOnce(undefined)
 
-    const result = await handler.execute(command);
+    const result = await handler.execute(command)
 
-    expect(mockRoleRepo.findRoleByCode).toHaveBeenCalledWith('ADMIN');
-    expect(mockRoleRepo.assignRoleToUser).toHaveBeenCalledWith('user-1', 'role-1');
-    expect(result.success).toBe(true);
-  });
+    expect(mockRoleRepo.findRoleByCode).toHaveBeenCalledWith('ADMIN')
+    expect(mockRoleRepo.assignRoleToUser).toHaveBeenCalledWith('user-1', 'role-1')
+    expect(result.success).toBe(true)
+  })
 
   it('should throw RoleNotFoundError if role does not exist', async () => {
-    const command = new AssignRoleCommand('user-1', 'ADMIN');
+    const command = new AssignRoleCommand('user-1', 'ADMIN')
 
-    mockRoleRepo.findRoleByCode.mockResolvedValueOnce(null);
+    mockRoleRepo.findRoleByCode.mockResolvedValueOnce(null)
 
-    await expect(handler.execute(command)).rejects.toThrow(RoleNotFoundError);
-    expect(mockRoleRepo.assignRoleToUser).not.toHaveBeenCalled();
-  });
+    await expect(handler.execute(command)).rejects.toThrow(RoleNotFoundError)
+    expect(mockRoleRepo.assignRoleToUser).not.toHaveBeenCalled()
+  })
 
   it('should throw RoleInactiveError if role is inactive', async () => {
-    const command = new AssignRoleCommand('user-1', 'ADMIN');
-    const role = Role.rehydrate({ id: 'role-1', code: 'ADMIN', name: 'Admin', description: null, isActive: false, permissions: [] });
+    const command = new AssignRoleCommand('user-1', 'ADMIN')
+    const role = Role.rehydrate({
+      id: 'role-1',
+      code: 'ADMIN',
+      name: 'Admin',
+      description: null,
+      isActive: false,
+      permissions: [],
+    })
 
-    mockRoleRepo.findRoleByCode.mockResolvedValueOnce(role);
+    mockRoleRepo.findRoleByCode.mockResolvedValueOnce(role)
 
-    await expect(handler.execute(command)).rejects.toThrow(RoleInactiveError);
-    expect(mockRoleRepo.assignRoleToUser).not.toHaveBeenCalled();
-  });
-});
+    await expect(handler.execute(command)).rejects.toThrow(RoleInactiveError)
+    expect(mockRoleRepo.assignRoleToUser).not.toHaveBeenCalled()
+  })
+})

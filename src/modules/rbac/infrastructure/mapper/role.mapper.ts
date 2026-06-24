@@ -1,14 +1,15 @@
-import {
+import { Role } from '../../domain/entities/role.entity'
+import type {
   Role as PrismaRole,
   Permission as PrismaPermission,
   RolePermission as PrismaRolePermission,
 } from '@/generated'
-import { Role } from '../../domain/entities/role.entity'
-import { Permission } from '../../domain/entities/permission.entity'
 
 export class RoleMapper {
   static toDomain(
-    record: PrismaRole & { permissions?: (PrismaRolePermission & { permission: PrismaPermission })[] }
+    record: PrismaRole & {
+      permissions?: (PrismaRolePermission & { permission: PrismaPermission })[]
+    },
   ): Role {
     return Role.rehydrate({
       id: record.id,
@@ -16,7 +17,7 @@ export class RoleMapper {
       name: record.name,
       description: record.description,
       isActive: record.isActive,
-      permissions: record.permissions ? record.permissions.map(p => p.permission.code) : [],
+      permissions: record.permissions ? record.permissions.map((p) => p.permission.code) : [],
     })
   }
 

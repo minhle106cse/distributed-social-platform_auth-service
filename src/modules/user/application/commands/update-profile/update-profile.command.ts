@@ -1,7 +1,7 @@
-import { ICommand, CommandOptions } from '@distributed-social-platform/shared-kernel';
+import type { ICommand, CommandOptions } from '@distributed-social-platform/shared-kernel'
 
 export class UpdateProfileCommand implements ICommand {
-  readonly name = UpdateProfileCommand.name;
+  readonly name = UpdateProfileCommand.name
   // save() ghi 2 bảng (user + user_profile) → cần atomic, tránh partial write.
   readonly options: CommandOptions = { transactional: true, retryable: false }
 

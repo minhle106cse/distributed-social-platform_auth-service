@@ -1,7 +1,7 @@
 import { RefreshHandler } from './refresh.handler'
+import { RefreshCommand } from './refresh.command'
 import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
 import type { TokenService } from '@/modules/auth/domain/services/token.service'
-import { RefreshCommand } from './refresh.command'
 import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
 import {
   RefreshTokenNotFoundError,
@@ -22,7 +22,7 @@ describe('RefreshHandler', () => {
       findByTokenHash: jest.fn(),
       update: jest.fn(),
       revokeAllByUserId: jest.fn(),
-    } as any
+    }
 
     mockTokenService = {
       generateAccessToken: jest.fn(),

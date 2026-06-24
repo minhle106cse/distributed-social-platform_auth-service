@@ -1,4 +1,4 @@
-import { ICommand, CommandOptions } from '@distributed-social-platform/shared-kernel'
+import type { ICommand, CommandOptions } from '@distributed-social-platform/shared-kernel'
 
 export class LoginCommand implements ICommand {
   readonly name = LoginCommand.name

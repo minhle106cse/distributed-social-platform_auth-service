@@ -1,5 +1,5 @@
-import { config as dotenvConfig } from 'dotenv'
 import { join } from 'path'
+import { config as dotenvConfig } from 'dotenv'
 dotenvConfig({ path: join(process.cwd(), '../../.env') })
 import { collectDefaultMetrics } from 'prom-client'
 import { createApp } from './app'

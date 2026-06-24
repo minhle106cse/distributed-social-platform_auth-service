@@ -1,3 +1,4 @@
+import type { LoginCommand } from './login.command'
 import { InvalidCredentialsError } from '@/common/errors/auth.error'
 import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
 import type { UserRepository } from '@/modules/user/domain/repositories/user.repository'
@@ -5,7 +6,6 @@ import type { PasswordService } from '@/modules/auth/domain/services/password.se
 import type { TokenService } from '@/modules/auth/domain/services/token.service'
 import { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
 import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
-import type { LoginCommand } from './login.command'
 
 export class LoginHandler {
   constructor(

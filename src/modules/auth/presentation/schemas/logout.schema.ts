@@ -1,5 +1,8 @@
 import { z } from 'zod'
-import { ErrorResponseSchema, createSuccessResponseSchema } from '@distributed-social-platform/shared-kernel'
+import {
+  ErrorResponseSchema,
+  createSuccessResponseSchema,
+} from '@distributed-social-platform/shared-kernel'
 
 export const logoutSchema = {
   response: {

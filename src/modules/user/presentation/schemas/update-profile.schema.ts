@@ -1,5 +1,8 @@
 import { z } from 'zod'
-import { ErrorResponseSchema, createSuccessResponseSchema } from '@distributed-social-platform/shared-kernel'
+import {
+  ErrorResponseSchema,
+  createSuccessResponseSchema,
+} from '@distributed-social-platform/shared-kernel'
 
 export const updateProfileSchema = {
   body: z.object({
@@ -13,7 +16,7 @@ export const updateProfileSchema = {
     200: createSuccessResponseSchema(
       z.object({
         success: z.boolean(),
-      })
+      }),
     ),
     400: ErrorResponseSchema,
     401: ErrorResponseSchema,

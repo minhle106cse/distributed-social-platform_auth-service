@@ -1,38 +1,44 @@
-import { GetRoleHandler } from './get-role.handler';
-import { GetRoleQuery } from './get-role.query';
-import { RoleQueryRepository } from '@/modules/rbac/application/repositories/role.query-repository';
-import { RoleNotFoundError } from '@/common/errors/rbac.error';
+import { GetRoleHandler } from './get-role.handler'
+import { GetRoleQuery } from './get-role.query'
+import type { RoleQueryRepository } from '@/modules/rbac/application/repositories/role.query-repository'
+import { RoleNotFoundError } from '@/common/errors/rbac.error'
 
 describe('GetRoleHandler', () => {
-  let handler: GetRoleHandler;
-  let mockRoleQueryRepo: jest.Mocked<RoleQueryRepository>;
+  let handler: GetRoleHandler
+  let mockRoleQueryRepo: jest.Mocked<RoleQueryRepository>
 
   beforeEach(() => {
     mockRoleQueryRepo = {
       getRoles: jest.fn(),
       getRoleByCode: jest.fn(),
-    } as unknown as jest.Mocked<RoleQueryRepository>;
+    }
 
-    handler = new GetRoleHandler(mockRoleQueryRepo);
-  });
+    handler = new GetRoleHandler(mockRoleQueryRepo)
+  })
 
   it('should return a role by code', async () => {
-    const query = new GetRoleQuery('ADMIN');
-    const role = { code: 'ADMIN', nameRole: 'Admin', description: null, createdAt: new Date(), permissions: [] };
+    const query = new GetRoleQuery('ADMIN')
+    const role = {
+      code: 'ADMIN',
+      nameRole: 'Admin',
+      description: null,
+      createdAt: new Date(),
+      permissions: [],
+    }
 
-    mockRoleQueryRepo.getRoleByCode.mockResolvedValueOnce(role);
+    mockRoleQueryRepo.getRoleByCode.mockResolvedValueOnce(role)
 
-    const result = await handler.execute(query);
+    const result = await handler.execute(query)
 
-    expect(mockRoleQueryRepo.getRoleByCode).toHaveBeenCalledWith('ADMIN');
-    expect(result).toEqual(role);
-  });
+    expect(mockRoleQueryRepo.getRoleByCode).toHaveBeenCalledWith('ADMIN')
+    expect(result).toEqual(role)
+  })
 
   it('should throw RoleNotFoundError if role does not exist', async () => {
-    const query = new GetRoleQuery('UNKNOWN');
+    const query = new GetRoleQuery('UNKNOWN')
 
-    mockRoleQueryRepo.getRoleByCode.mockResolvedValueOnce(null);
+    mockRoleQueryRepo.getRoleByCode.mockResolvedValueOnce(null)
 
-    await expect(handler.execute(query)).rejects.toThrow(RoleNotFoundError);
-  });
-});
+    await expect(handler.execute(query)).rejects.toThrow(RoleNotFoundError)
+  })
+})

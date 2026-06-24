@@ -1,18 +1,18 @@
-import { FastifyInstance } from 'fastify'
+import type { FastifyInstance } from 'fastify'
 import { buildServer } from '@/bootstrap/server'
-import { Application } from '@/container/application'
+import type { Application } from '@/container/application'
 
 jest.setTimeout(30000)
 
 describe('User Routes (Unit)', () => {
   let app: FastifyInstance
-  
+
   const mockCommandBus = {
-    execute: jest.fn()
+    execute: jest.fn(),
   } as unknown as Application['CommandBus']
 
   const mockQueryBus = {
-    execute: jest.fn()
+    execute: jest.fn(),
   } as unknown as Application['QueryBus']
 
   beforeAll(async () => {
@@ -39,16 +39,21 @@ describe('User Routes (Unit)', () => {
         emailVerified: true,
         createdAt: new Date().toISOString(),
         roles: [],
-        profile: null
+        profile: null,
       })
-      
-      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: [] })
+
+      const token = app.jwt.sign({
+        sub: 'user123',
+        email: 'test@example.com',
+        roles: [],
+        permissions: [],
+      })
       const response = await app.inject({
         method: 'GET',
         url: '/api/v1/users/me',
         cookies: {
-          accessToken: token
-        }
+          accessToken: token,
+        },
       })
       if (response.statusCode !== 200) {
         console.log(response.body)
@@ -63,18 +68,23 @@ describe('User Routes (Unit)', () => {
   describe('PUT /users/me/profile', () => {
     it('should return 200 on successful update', async () => {
       ;(mockCommandBus.execute as jest.Mock).mockResolvedValue({ success: true })
-      
-      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: [] })
+
+      const token = app.jwt.sign({
+        sub: 'user123',
+        email: 'test@example.com',
+        roles: [],
+        permissions: [],
+      })
       const response = await app.inject({
         method: 'PUT',
         url: '/api/v1/users/me/profile',
         cookies: {
-          accessToken: token
+          accessToken: token,
         },
         payload: {
           firstName: 'John',
-          lastName: 'Doe'
-        }
+          lastName: 'Doe',
+        },
       })
       if (response.statusCode !== 200) {
         console.log(response.body)

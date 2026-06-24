@@ -1,13 +1,12 @@
 import { LoginHandler } from './login.handler'
-import { UserRepository } from '@/modules/user/domain/repositories/user.repository'
-import { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
-import { PasswordService } from '@/modules/auth/domain/services/password.service'
-import { TokenService } from '@/modules/auth/domain/services/token.service'
+import type { UserRepository } from '@/modules/user/domain/repositories/user.repository'
+import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
+import type { PasswordService } from '@/modules/auth/domain/services/password.service'
+import type { TokenService } from '@/modules/auth/domain/services/token.service'
 import { InvalidCredentialsError } from '@/common/errors/auth.error'
 import { UserCannotLoginError } from '@/common/errors/user.error'
 import { User } from '@/modules/user/domain/entities/user.entity'
 import { AuthIdentity } from '@/modules/auth/domain/value-objects/auth-identity.vo'
-import { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
 import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
 
 jest.mock('uuid', () => ({
@@ -28,7 +27,7 @@ describe('LoginHandler', () => {
       create: jest.fn(),
       findById: jest.fn(),
       save: jest.fn(),
-    } as unknown as jest.Mocked<UserRepository>
+    }
 
     mockRefreshTokenRepo = {
       create: jest.fn(),
@@ -40,7 +39,7 @@ describe('LoginHandler', () => {
     mockPasswordService = {
       hash: jest.fn(),
       verify: jest.fn(),
-    } as unknown as jest.Mocked<PasswordService>
+    }
 
     mockTokenService = {
       signAccessToken: jest.fn(),

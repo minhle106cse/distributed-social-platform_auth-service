@@ -1,5 +1,8 @@
 import type { PrismaClient } from '@/generated'
-import type { RoleQueryRepository, RoleDto } from '@/modules/rbac/application/repositories/role.query-repository'
+import type {
+  RoleQueryRepository,
+  RoleDto,
+} from '@/modules/rbac/application/repositories/role.query-repository'
 
 export class PrismaRoleQueryRepository implements RoleQueryRepository {
   constructor(private readonly prisma: PrismaClient) {}
@@ -8,18 +11,18 @@ export class PrismaRoleQueryRepository implements RoleQueryRepository {
     const roles = await this.prisma.role.findMany({
       include: {
         permissions: {
-          include: { permission: true }
-        }
+          include: { permission: true },
+        },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     })
 
-    return roles.map(role => ({
+    return roles.map((role) => ({
       code: role.code,
       nameRole: role.name,
       description: role.description,
       createdAt: role.createdAt,
-      permissions: role.permissions.map(rp => rp.permission.code)
+      permissions: role.permissions.map((rp) => rp.permission.code),
     }))
   }
 
@@ -28,9 +31,9 @@ export class PrismaRoleQueryRepository implements RoleQueryRepository {
       where: { code },
       include: {
         permissions: {
-          include: { permission: true }
-        }
-      }
+          include: { permission: true },
+        },
+      },
     })
 
     if (!role) return null
@@ -40,7 +43,7 @@ export class PrismaRoleQueryRepository implements RoleQueryRepository {
       nameRole: role.name,
       description: role.description,
       createdAt: role.createdAt,
-      permissions: role.permissions.map(rp => rp.permission.code)
+      permissions: role.permissions.map((rp) => rp.permission.code),
     }
   }
 }

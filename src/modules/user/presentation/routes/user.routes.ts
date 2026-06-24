@@ -4,7 +4,10 @@ import { type Application } from '@/container/application'
 import { GetMeQuery } from '@/modules/user/application/queries/get-me/get-me.query'
 import { UpdateProfileCommand } from '@/modules/user/application/commands/update-profile/update-profile.command'
 import { getMeSchema } from '@/modules/user/presentation/schemas/get-me.schema'
-import { updateProfileSchema, type UpdateProfileBody } from '@/modules/user/presentation/schemas/update-profile.schema'
+import {
+  updateProfileSchema,
+  type UpdateProfileBody,
+} from '@/modules/user/presentation/schemas/update-profile.schema'
 
 interface UserRouteOptions extends FastifyPluginOptions {
   QueryBus: Application['QueryBus']
@@ -53,7 +56,7 @@ export function userRoutes(fastify: FastifyInstance, options: UserRouteOptions) 
         body.lastName,
         body.displayName,
         body.avatarUrl,
-        body.phoneNumber
+        body.phoneNumber,
       )
       const result = await CommandBus.execute(command)
       return new ApiResponse(result, 'User profile updated successfully', 200)

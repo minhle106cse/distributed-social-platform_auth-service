@@ -3,7 +3,11 @@ import { ApiResponse } from '@distributed-social-platform/shared-kernel'
 import { type Application } from '@/container/application'
 import { CreatePermissionCommand } from '@/modules/rbac/application/commands/create-permission/create-permission.command'
 import { GetPermissionsQuery } from '@/modules/rbac/application/queries/get-permissions/get-permissions.query'
-import { createPermissionSchema, getPermissionsSchema, type CreatePermissionBody } from '@/modules/rbac/presentation/schemas/permission.schema'
+import {
+  createPermissionSchema,
+  getPermissionsSchema,
+  type CreatePermissionBody,
+} from '@/modules/rbac/presentation/schemas/permission.schema'
 
 interface PermissionRouteOptions extends FastifyPluginOptions {
   CommandBus: Application['CommandBus']

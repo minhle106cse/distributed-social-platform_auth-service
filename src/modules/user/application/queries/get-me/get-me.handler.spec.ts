@@ -1,6 +1,6 @@
 import { GetMeHandler } from './get-me.handler'
-import type { UserQueryRepository } from '@/modules/user/application/repositories/user.query-repository'
 import { GetMeQuery } from './get-me.query'
+import type { UserQueryRepository } from '@/modules/user/application/repositories/user.query-repository'
 import { UserNotFoundError } from '@/common/errors/user.error'
 
 describe('GetMeHandler', () => {
@@ -10,7 +10,7 @@ describe('GetMeHandler', () => {
   beforeEach(() => {
     mockUserQueryRepository = {
       getMe: jest.fn(),
-    } as any
+    }
 
     handler = new GetMeHandler(mockUserQueryRepository)
   })
@@ -36,7 +36,9 @@ describe('GetMeHandler', () => {
       profile: null,
     })
 
-    await expect(handler.execute(query)).rejects.toThrow(require('@/common/errors/user.error').UserCannotLoginError)
+    await expect(handler.execute(query)).rejects.toThrow(
+      require('@/common/errors/user.error').UserCannotLoginError,
+    )
   })
 
   it('should return user dto if found', async () => {

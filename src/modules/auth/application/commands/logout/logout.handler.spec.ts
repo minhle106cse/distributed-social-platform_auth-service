@@ -1,7 +1,7 @@
 import { LogoutHandler } from './logout.handler'
+import { LogoutCommand } from './logout.command'
 import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
 import type { TokenService } from '@/modules/auth/domain/services/token.service'
-import { LogoutCommand } from './logout.command'
 import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
 import { RefreshTokenNotFoundError, ForbiddenError } from '@/common/errors/auth.error'
 

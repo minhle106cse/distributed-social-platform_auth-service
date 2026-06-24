@@ -1,5 +1,8 @@
 import { z } from 'zod'
-import { ErrorResponseSchema, createSuccessResponseSchema } from '@distributed-social-platform/shared-kernel'
+import {
+  ErrorResponseSchema,
+  createSuccessResponseSchema,
+} from '@distributed-social-platform/shared-kernel'
 
 export const registerBodySchema = z.object({
   email: z.string().email(),
@@ -15,6 +18,6 @@ export const registerSchema = {
     201: createSuccessResponseSchema(z.null()),
     400: ErrorResponseSchema,
     409: ErrorResponseSchema,
-    500: ErrorResponseSchema
-  }
+    500: ErrorResponseSchema,
+  },
 }

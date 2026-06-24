@@ -9,11 +9,24 @@ import { RevokePermissionsCommand } from '@/modules/rbac/application/commands/re
 import { DeleteRoleCommand } from '@/modules/rbac/application/commands/delete-role/delete-role.command'
 import { GetRolesQuery } from '@/modules/rbac/application/queries/get-roles/get-roles.query'
 import { GetRoleQuery } from '@/modules/rbac/application/queries/get-role/get-role.query'
-import { 
-  createRoleSchema, assignRoleSchema, assignPermissionsSchema, 
-  getRolesSchema, getRoleSchema, deleteRoleSchema, revokeRoleSchema, revokePermissionsSchema,
-  type CreateRoleBody, type AssignRoleBody, type AssignPermissionsBody, type AssignPermissionsParams,
-  type GetRoleParams, type DeleteRoleParams, type RevokeRoleBody, type RevokePermissionsBody, type RevokePermissionsParams
+import {
+  createRoleSchema,
+  assignRoleSchema,
+  assignPermissionsSchema,
+  getRolesSchema,
+  getRoleSchema,
+  deleteRoleSchema,
+  revokeRoleSchema,
+  revokePermissionsSchema,
+  type CreateRoleBody,
+  type AssignRoleBody,
+  type AssignPermissionsBody,
+  type AssignPermissionsParams,
+  type GetRoleParams,
+  type DeleteRoleParams,
+  type RevokeRoleBody,
+  type RevokePermissionsBody,
+  type RevokePermissionsParams,
 } from '@/modules/rbac/presentation/schemas/role.schema'
 
 interface RoleRouteOptions extends FastifyPluginOptions {
@@ -62,7 +75,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
     },
   )
 
-  fastify.post<{ Body: AssignPermissionsBody, Params: AssignPermissionsParams }>(
+  fastify.post<{ Body: AssignPermissionsBody; Params: AssignPermissionsParams }>(
     '/:code/permissions',
     {
       schema: {
@@ -150,7 +163,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
     },
   )
 
-  fastify.delete<{ Body: RevokePermissionsBody, Params: RevokePermissionsParams }>(
+  fastify.delete<{ Body: RevokePermissionsBody; Params: RevokePermissionsParams }>(
     '/:code/permissions',
     {
       schema: {
@@ -162,7 +175,9 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
       preHandler: [fastify.authenticate, fastify.requirePermissions(['rbac:*'])],
     },
     async (req, _reply) => {
-      await CommandBus.execute(new RevokePermissionsCommand(req.params.code, req.body.permissionCodes))
+      await CommandBus.execute(
+        new RevokePermissionsCommand(req.params.code, req.body.permissionCodes),
+      )
       return new ApiResponse({ success: true }, 'Permissions revoked successfully', 200)
     },
   )

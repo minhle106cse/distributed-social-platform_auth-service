@@ -1,19 +1,19 @@
-import { FastifyInstance } from 'fastify'
+import type { FastifyInstance } from 'fastify'
 import { buildServer } from '@/bootstrap/server'
-import { Application } from '@/container/application'
+import type { Application } from '@/container/application'
 
 jest.setTimeout(30000)
 
 describe('Auth Routes (Unit)', () => {
   let app: FastifyInstance
-  
+
   // Mock the UseCases
   const mockCommandBus = {
-    execute: jest.fn()
+    execute: jest.fn(),
   } as unknown as Application['CommandBus']
 
   const mockQueryBus = {
-    execute: jest.fn()
+    execute: jest.fn(),
   } as unknown as Application['QueryBus']
 
   beforeAll(async () => {
@@ -41,8 +41,8 @@ describe('Auth Routes (Unit)', () => {
         payload: {
           email: 'test@example.com',
           password: 'password123',
-          username: 'testuser'
-        }
+          username: 'testuser',
+        },
       })
 
       expect(response.statusCode).toBe(201)
@@ -59,8 +59,8 @@ describe('Auth Routes (Unit)', () => {
         payload: {
           email: 'test@example.com',
           password: '123', // < 6 chars
-          username: 'testuser'
-        }
+          username: 'testuser',
+        },
       })
 
       expect(response.statusCode).toBe(400)
@@ -72,7 +72,7 @@ describe('Auth Routes (Unit)', () => {
     it('should return 200 and tokens on successful login', async () => {
       const mockTokens = {
         accessToken: { token: 'access', expiredAt: new Date().toISOString() },
-        refreshToken: { token: 'refresh', expiredAt: new Date().toISOString() }
+        refreshToken: { token: 'refresh', expiredAt: new Date().toISOString() },
       }
       ;(mockCommandBus.execute as jest.Mock).mockResolvedValue(mockTokens)
 
@@ -81,8 +81,8 @@ describe('Auth Routes (Unit)', () => {
         url: '/api/v1/auth/login',
         payload: {
           email: 'test@example.com',
-          password: 'password123'
-        }
+          password: 'password123',
+        },
       })
 
       if (response.statusCode !== 200) {
@@ -100,10 +100,10 @@ describe('Auth Routes (Unit)', () => {
     it('should return 200 on successful refresh', async () => {
       // Decode mock to bypass JWT check in handler
       app.jwt.decode = jest.fn().mockReturnValue({ sub: 'user1', email: 'test@example.com' })
-      
+
       const mockTokens = {
         accessToken: { token: 'new-access', expiredAt: new Date().toISOString() },
-        refreshToken: { token: 'new-refresh', expiredAt: new Date().toISOString() }
+        refreshToken: { token: 'new-refresh', expiredAt: new Date().toISOString() },
       }
       ;(mockCommandBus.execute as jest.Mock).mockResolvedValue(mockTokens)
 
@@ -111,8 +111,8 @@ describe('Auth Routes (Unit)', () => {
         method: 'POST',
         url: '/api/v1/auth/refresh',
         payload: {
-          refreshToken: 'valid-refresh-token'
-        }
+          refreshToken: 'valid-refresh-token',
+        },
       })
 
       expect(response.statusCode).toBe(200)
@@ -125,7 +125,7 @@ describe('Auth Routes (Unit)', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/api/v1/auth/refresh',
-        payload: {}
+        payload: {},
       })
       expect(response.statusCode).toBe(401)
     })
@@ -136,8 +136,8 @@ describe('Auth Routes (Unit)', () => {
         method: 'POST',
         url: '/api/v1/auth/refresh',
         payload: {
-          refreshToken: 'valid-refresh-token'
-        }
+          refreshToken: 'valid-refresh-token',
+        },
       })
       expect(response.statusCode).toBe(401)
     })
@@ -146,20 +146,23 @@ describe('Auth Routes (Unit)', () => {
   describe('POST /auth/logout', () => {
     it('should return 200 on successful logout', async () => {
       ;(mockCommandBus.execute as jest.Mock).mockResolvedValue(undefined)
-      
-      const token = app.jwt.sign({ sub: 'user123', email: 'test@example.com', roles: [], permissions: [] })
+
+      const token = app.jwt.sign({
+        sub: 'user123',
+        email: 'test@example.com',
+        roles: [],
+        permissions: [],
+      })
       const response = await app.inject({
         method: 'POST',
         url: '/api/v1/auth/logout',
         cookies: {
-          accessToken: token
-        }
+          accessToken: token,
+        },
       })
 
       expect(response.statusCode).toBe(200)
       expect(mockCommandBus.execute).toHaveBeenCalledTimes(1)
     })
   })
-
-
 })

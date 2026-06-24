@@ -1,5 +1,5 @@
-import { Permission as PrismaPermission } from '@/generated'
 import { Permission } from '../../domain/entities/permission.entity'
+import type { Permission as PrismaPermission } from '@/generated'
 
 export class PermissionMapper {
   static toDomain(record: PrismaPermission): Permission {

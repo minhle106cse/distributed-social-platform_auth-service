@@ -1,5 +1,8 @@
 import { z } from 'zod'
-import { ErrorResponseSchema, createSuccessResponseSchema } from '@distributed-social-platform/shared-kernel'
+import {
+  ErrorResponseSchema,
+  createSuccessResponseSchema,
+} from '@distributed-social-platform/shared-kernel'
 
 export const createRoleSchema = {
   body: z.object({
@@ -12,7 +15,7 @@ export const createRoleSchema = {
       z.object({
         id: z.string(),
         code: z.string(),
-      })
+      }),
     ),
     400: ErrorResponseSchema,
     401: ErrorResponseSchema,
@@ -29,7 +32,7 @@ export const assignRoleSchema = {
     200: createSuccessResponseSchema(
       z.object({
         success: z.boolean(),
-      })
+      }),
     ),
     400: ErrorResponseSchema,
     401: ErrorResponseSchema,
@@ -50,7 +53,7 @@ export const assignPermissionsSchema = {
         id: z.string(),
         code: z.string(),
         permissions: z.array(z.string()),
-      })
+      }),
     ),
     400: ErrorResponseSchema,
     401: ErrorResponseSchema,
@@ -69,7 +72,7 @@ const roleDtoSchema = z.object({
   description: z.string().nullable(),
   createdAt: z.date().or(z.string()),
   permissions: z.array(z.string()),
-});
+})
 
 export const getRolesSchema = {
   response: {

@@ -1,6 +1,6 @@
 import { RegisterHandler } from './register.handler'
-import { UserRepository } from '@/modules/user/domain/repositories/user.repository'
-import { PasswordService } from '@/modules/auth/domain/services/password.service'
+import type { UserRepository } from '@/modules/user/domain/repositories/user.repository'
+import type { PasswordService } from '@/modules/auth/domain/services/password.service'
 import { UserAlreadyExistsError } from '@/common/errors/user.error'
 import { User } from '@/modules/user/domain/entities/user.entity'
 
@@ -24,7 +24,7 @@ describe('RegisterHandler', () => {
     mockPasswordService = {
       hash: jest.fn(),
       verify: jest.fn(),
-    } as unknown as jest.Mocked<PasswordService>
+    }
 
     handler = new RegisterHandler(mockUserRepo, mockPasswordService)
   })

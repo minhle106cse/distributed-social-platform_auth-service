@@ -1,4 +1,4 @@
-import {
+import type {
   User as PrismaUser,
   AuthIdentity as PrismaAuthIdentity,
   UserProfile as PrismaUserProfile,
@@ -10,7 +10,7 @@ import {
 import { User } from '@/modules/user/domain/entities/user.entity'
 import { UserProfile } from '@/modules/user/domain/entities/user-profile.entity'
 import { AuthIdentity } from '@/modules/auth/domain/value-objects/auth-identity.vo'
-import { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
+import type { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
 
 type PrismaRoleWithPermissions = PrismaRole & {
   permissions?: (PrismaRolePermission & { permission: PrismaPermission })[]
@@ -51,7 +51,11 @@ export class UserMapper {
         : null,
       roles: record.roles ? record.roles.map((r) => r.role.code) : [],
       permissions: record.roles
-        ? Array.from(new Set(record.roles.flatMap(r => r.role.permissions?.map(p => p.permission.code) ?? [])))
+        ? Array.from(
+            new Set(
+              record.roles.flatMap((r) => r.role.permissions?.map((p) => p.permission.code) ?? []),
+            ),
+          )
         : [],
       deletedAt: record.deletedAt,
     })

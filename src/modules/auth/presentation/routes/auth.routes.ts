@@ -41,21 +41,21 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
       config: {
         rateLimit: {
           max: 5,
-          timeWindow: '5 minutes'
-        }
-      }
+          timeWindow: '5 minutes',
+        },
+      },
     },
     async (req, reply) => {
       const { email, password } = req.body
       const command = new LoginCommand(email, password)
-      const data = (await CommandBus.execute(command)) as TokenResponse
+      const data = await CommandBus.execute(command)
 
       reply.setCookie('accessToken', data.accessToken.token, {
         path: '/',
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        expires: new Date(data.accessToken.expiredAt)
+        expires: new Date(data.accessToken.expiredAt),
       })
 
       reply.setCookie('refreshToken', data.refreshToken.token, {
@@ -63,7 +63,7 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        expires: new Date(data.refreshToken.expiredAt)
+        expires: new Date(data.refreshToken.expiredAt),
       })
 
       return new ApiResponse(null, 'Login successful', 200)
@@ -83,9 +83,9 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
       config: {
         rateLimit: {
           max: 5,
-          timeWindow: '5 minutes'
-        }
-      }
+          timeWindow: '5 minutes',
+        },
+      },
     },
     async (req, _reply) => {
       const { email, password, username } = req.body
@@ -108,9 +108,9 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
       config: {
         rateLimit: {
           max: 10,
-          timeWindow: '1 minute'
-        }
-      }
+          timeWindow: '1 minute',
+        },
+      },
     },
     async (req, reply) => {
       // Prioritize HTTP-Only cookie, fallback to body
@@ -119,20 +119,25 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
         throw new UnauthorizedError()
       }
 
-      const decoded = fastify.jwt.decode(refreshToken) as { sub: string; email: string } | null
+      const decoded = fastify.jwt.decode(refreshToken)
       if (!decoded?.sub) {
         throw new UnauthorizedError()
       }
 
-      const command = new RefreshCommand(refreshToken, decoded, req.body?.ipAddress, req.body?.userAgent)
-      const data = (await CommandBus.execute(command)) as TokenResponse
+      const command = new RefreshCommand(
+        refreshToken,
+        decoded,
+        req.body?.ipAddress,
+        req.body?.userAgent,
+      )
+      const data = await CommandBus.execute(command)
 
       reply.setCookie('accessToken', data.accessToken.token, {
         path: '/',
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        expires: new Date(data.accessToken.expiredAt)
+        expires: new Date(data.accessToken.expiredAt),
       })
 
       reply.setCookie('refreshToken', data.refreshToken.token, {
@@ -140,7 +145,7 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        expires: new Date(data.refreshToken.expiredAt)
+        expires: new Date(data.refreshToken.expiredAt),
       })
 
       return new ApiResponse(null, 'Token refreshed successfully', 200)

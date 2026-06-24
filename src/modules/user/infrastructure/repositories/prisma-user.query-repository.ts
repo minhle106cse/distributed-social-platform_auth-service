@@ -15,14 +15,14 @@ export class PrismaUserQueryRepository implements UserQueryRepository {
         emailVerified: true,
         createdAt: true,
         roles: {
-          include: { 
+          include: {
             role: {
               include: {
                 permissions: {
-                  include: { permission: true }
-                }
-              }
-            }
+                  include: { permission: true },
+                },
+              },
+            },
           },
         },
         profile: true,
@@ -31,12 +31,12 @@ export class PrismaUserQueryRepository implements UserQueryRepository {
 
     if (!user) return null
 
-    const permissions = new Set<string>();
-    user.roles.forEach(ur => {
-      ur.role.permissions.forEach(rp => {
-        permissions.add(rp.permission.code);
-      });
-    });
+    const permissions = new Set<string>()
+    user.roles.forEach((ur) => {
+      ur.role.permissions.forEach((rp) => {
+        permissions.add(rp.permission.code)
+      })
+    })
 
     return {
       id: user.id,
@@ -44,15 +44,17 @@ export class PrismaUserQueryRepository implements UserQueryRepository {
       isActive: user.isActive,
       emailVerified: user.emailVerified,
       createdAt: user.createdAt,
-      roles: user.roles.map(r => r.role.code),
+      roles: user.roles.map((r) => r.role.code),
       permissions: Array.from(permissions),
-      profile: user.profile ? {
-        firstName: user.profile.firstName,
-        lastName: user.profile.lastName,
-        displayName: user.profile.displayName,
-        avatarUrl: user.profile.avatarUrl,
-        phoneNumber: user.profile.phoneNumber,
-      } : null,
+      profile: user.profile
+        ? {
+            firstName: user.profile.firstName,
+            lastName: user.profile.lastName,
+            displayName: user.profile.displayName,
+            avatarUrl: user.profile.avatarUrl,
+            phoneNumber: user.profile.phoneNumber,
+          }
+        : null,
     }
   }
 }

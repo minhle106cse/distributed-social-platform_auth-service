@@ -1,5 +1,8 @@
 import { z } from 'zod'
-import { ErrorResponseSchema, createSuccessResponseSchema } from '@distributed-social-platform/shared-kernel'
+import {
+  ErrorResponseSchema,
+  createSuccessResponseSchema,
+} from '@distributed-social-platform/shared-kernel'
 
 export const refreshBodySchema = z.object({
   refreshToken: z.string().optional(),
@@ -14,6 +17,6 @@ export const refreshSchema = {
   response: {
     200: createSuccessResponseSchema(z.null()),
     401: ErrorResponseSchema,
-    500: ErrorResponseSchema
-  }
+    500: ErrorResponseSchema,
+  },
 }

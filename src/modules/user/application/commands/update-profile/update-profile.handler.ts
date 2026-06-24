@@ -1,33 +1,31 @@
-import type { ICommandHandler } from '@distributed-social-platform/shared-kernel';
-import { UpdateProfileCommand } from './update-profile.command';
-import { UserRepository } from '../../../domain/repositories/user.repository';
-import { UserProfile } from '../../../domain/entities/user-profile.entity';
-import { UserNotFoundError } from '@/common/errors/user.error';
+import type { ICommandHandler } from '@distributed-social-platform/shared-kernel'
+import type { UserRepository } from '../../../domain/repositories/user.repository'
+import { UserProfile } from '../../../domain/entities/user-profile.entity'
+import type { UpdateProfileCommand } from './update-profile.command'
+import { UserNotFoundError } from '@/common/errors/user.error'
 
 export class UpdateProfileHandler implements ICommandHandler<UpdateProfileCommand> {
-  constructor(
-    private readonly userRepo: UserRepository,
-  ) { }
+  constructor(private readonly userRepo: UserRepository) {}
 
   async execute(command: UpdateProfileCommand) {
-    const { userId, ...profileData } = command;
+    const { userId, ...profileData } = command
 
-    const user = await this.userRepo.findById(userId);
+    const user = await this.userRepo.findById(userId)
     if (!user) {
-      throw new UserNotFoundError();
+      throw new UserNotFoundError()
     }
 
-    let profile = user.getProfile;
+    let profile = user.getProfile
     if (!profile) {
-      profile = UserProfile.create({ 
+      profile = UserProfile.create({
         userId,
         firstName: profileData.firstName,
         lastName: profileData.lastName,
         displayName: profileData.displayName,
         avatarUrl: profileData.avatarUrl,
         phoneNumber: profileData.phoneNumber,
-      });
-      user.assignProfile(profile);
+      })
+      user.assignProfile(profile)
     } else {
       profile.update({
         firstName: profileData.firstName,
@@ -35,11 +33,11 @@ export class UpdateProfileHandler implements ICommandHandler<UpdateProfileComman
         displayName: profileData.displayName,
         avatarUrl: profileData.avatarUrl,
         phoneNumber: profileData.phoneNumber,
-      });
+      })
     }
 
-    await this.userRepo.save(user);
+    await this.userRepo.save(user)
 
-    return { success: true };
+    return { success: true }
   }
 }

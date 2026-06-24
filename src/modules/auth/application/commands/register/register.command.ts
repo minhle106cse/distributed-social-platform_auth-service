@@ -1,4 +1,4 @@
-import { ICommand, CommandOptions } from '@distributed-social-platform/shared-kernel'
+import type { ICommand, CommandOptions } from '@distributed-social-platform/shared-kernel'
 
 export class RegisterCommand implements ICommand {
   readonly name = RegisterCommand.name

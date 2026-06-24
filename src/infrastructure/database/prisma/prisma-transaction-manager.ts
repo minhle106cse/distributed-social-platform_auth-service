@@ -1,5 +1,5 @@
 import type { PrismaClient } from '@/generated'
-import { ITransactionManager } from '@/common/database/transaction-manager.interface'
+import type { ITransactionManager } from '@/common/database/transaction-manager.interface'
 import { runInTransaction } from '@/common/database/transaction.context'
 
 export class PrismaTransactionManager implements ITransactionManager {
