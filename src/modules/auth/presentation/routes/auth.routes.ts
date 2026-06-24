@@ -26,7 +26,7 @@ interface TokenResponse {
 }
 
 export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) {
-  const { CommandBus, QueryBus } = options
+  const { CommandBus } = options
 
   fastify.post<{
     Body: LoginBody
@@ -48,7 +48,7 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
     async (req, reply) => {
       const { email, password } = req.body
       const command = new LoginCommand(email, password)
-      const data = await CommandBus.execute(command)
+      const data = await CommandBus.execute<LoginCommand, TokenResponse>(command)
 
       reply.setCookie('accessToken', data.accessToken.token, {
         path: '/',
@@ -130,7 +130,7 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
         req.body?.ipAddress,
         req.body?.userAgent,
       )
-      const data = await CommandBus.execute(command)
+      const data = await CommandBus.execute<typeof command, TokenResponse>(command)
 
       reply.setCookie('accessToken', data.accessToken.token, {
         path: '/',

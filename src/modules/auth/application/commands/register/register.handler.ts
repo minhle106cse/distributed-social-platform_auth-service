@@ -12,7 +12,7 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand> {
   ) {}
 
   async execute(command: RegisterCommand) {
-    const { email, password, username } = command
+    const { email, password } = command
 
     const existingUser = await this.userRepository.findByEmail(email)
 

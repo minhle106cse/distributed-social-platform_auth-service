@@ -32,10 +32,11 @@ export class PrismaService {
               modelsWithSoftDelete.includes(model) &&
               ['findUnique', 'findFirst', 'findMany', 'count'].includes(operation)
             ) {
-              const where = (args as any).where || {}
+              const typedArgs = args as { where?: Record<string, unknown> }
+              const where = typedArgs.where ?? {}
               // If a query explicitly includes 'deletedAt' key (even if undefined), don't override it
               if (!('deletedAt' in where)) {
-                ;(args as any).where = { ...where, deletedAt: null }
+                typedArgs.where = { ...where, deletedAt: null }
               }
             }
             return query(args)

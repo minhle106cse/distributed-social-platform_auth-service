@@ -8,7 +8,7 @@ export class PrismaRoleRepository implements RoleRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
   async findRoleByCode(code: string): Promise<Role | null> {
-    const db = getTx() ?? this.prisma
+    const db = getTx<PrismaClient>() ?? this.prisma
     const record = await db.role.findUnique({
       where: { code },
       include: { permissions: { include: { permission: true } } },
@@ -20,32 +20,32 @@ export class PrismaRoleRepository implements RoleRepository {
   }
 
   async findRolesByCodes(codes: string[]): Promise<Role[]> {
-    const db = getTx() ?? this.prisma
+    const db = getTx<PrismaClient>() ?? this.prisma
     const records = await db.role.findMany({
       where: { code: { in: codes } },
       include: { permissions: { include: { permission: true } } },
     })
 
-    return records.map(RoleMapper.toDomain)
+    return records.map((r) => RoleMapper.toDomain(r))
   }
 
   async getAllRoles(): Promise<Role[]> {
-    const db = getTx() ?? this.prisma
+    const db = getTx<PrismaClient>() ?? this.prisma
     const records = await db.role.findMany({
       include: { permissions: { include: { permission: true } } },
     })
-    return records.map(RoleMapper.toDomain)
+    return records.map((r) => RoleMapper.toDomain(r))
   }
 
   async createRole(role: Role): Promise<void> {
     const data = RoleMapper.toPersistence(role)
-    const db = getTx() ?? this.prisma
+    const db = getTx<PrismaClient>() ?? this.prisma
     await db.role.create({ data })
   }
 
   async updateRole(role: Role): Promise<void> {
     const data = RoleMapper.toPersistence(role)
-    const db = getTx() ?? this.prisma
+    const db = getTx<PrismaClient>() ?? this.prisma
 
     const permissionCodes = role.getPermissions
     const permissions = await db.permission.findMany({
@@ -68,14 +68,14 @@ export class PrismaRoleRepository implements RoleRepository {
   }
 
   async deleteRole(id: string): Promise<void> {
-    const db = getTx() ?? this.prisma
+    const db = getTx<PrismaClient>() ?? this.prisma
     await db.userRole.deleteMany({ where: { roleId: id } })
     await db.rolePermission.deleteMany({ where: { roleId: id } })
     await db.role.delete({ where: { id } })
   }
 
   async assignRoleToUser(userId: string, roleId: string): Promise<void> {
-    const db = getTx() ?? this.prisma
+    const db = getTx<PrismaClient>() ?? this.prisma
     await db.userRole.upsert({
       where: { userId_roleId: { userId, roleId } },
       create: { userId, roleId },
@@ -84,7 +84,7 @@ export class PrismaRoleRepository implements RoleRepository {
   }
 
   async revokeRoleFromUser(userId: string, roleId: string): Promise<void> {
-    const db = getTx() ?? this.prisma
+    const db = getTx<PrismaClient>() ?? this.prisma
     await db.userRole
       .delete({
         where: { userId_roleId: { userId, roleId } },

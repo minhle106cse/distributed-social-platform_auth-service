@@ -20,7 +20,7 @@ export class PrismaUserRepository implements UserRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
   async findById(id: string, includeDeleted = false): Promise<User | null> {
-    const db = getTx() ?? this.prisma
+    const db = getTx<PrismaClient>() ?? this.prisma
     const record = await db.user.findFirst({
       where: { id, ...(includeDeleted ? {} : { deletedAt: null }) },
       include: { authIdentities: true, profile: true, ...rolesInclude },
@@ -30,7 +30,7 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async findByEmail(email: string, includeDeleted = false): Promise<User | null> {
-    const db = getTx() ?? this.prisma
+    const db = getTx<PrismaClient>() ?? this.prisma
     const record = await db.user.findFirst({
       where: { email, ...(includeDeleted ? {} : { deletedAt: null }) },
       include: { authIdentities: true, profile: true, ...rolesInclude },
@@ -40,12 +40,12 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async create(user: User): Promise<void> {
-    const db = getTx() ?? this.prisma
+    const db = getTx<PrismaClient>() ?? this.prisma
     await db.user.create({ data: UserMapper.toPersistence(user) })
   }
 
   async save(user: User): Promise<void> {
-    const db = getTx() ?? this.prisma
+    const db = getTx<PrismaClient>() ?? this.prisma
 
     await db.user.update({
       where: { id: user.id },

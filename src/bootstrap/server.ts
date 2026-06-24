@@ -41,7 +41,9 @@ export async function buildServer(
     try {
       await prisma.$queryRaw`SELECT 1`
       dbOk = true
-    } catch {}
+    } catch {
+      // health endpoint: db failure expected during cold start
+    }
     reply.code(dbOk ? 200 : 503).send({
       status: dbOk ? 'ok' : 'degraded',
       service: 'auth-service',

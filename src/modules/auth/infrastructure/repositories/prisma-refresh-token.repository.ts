@@ -8,7 +8,7 @@ export class PrismaRefreshTokenRepository implements RefreshTokenRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
   async findByTokenHash(tokenHash: string) {
-    const db = getTx() ?? this.prisma
+    const db = getTx<PrismaClient>() ?? this.prisma
     const record = await db.refreshToken.findUnique({
       where: {
         tokenHash,
@@ -22,13 +22,13 @@ export class PrismaRefreshTokenRepository implements RefreshTokenRepository {
 
   async create(refreshToken: RefreshToken) {
     const data = RefreshTokenMapper.toCreatePersistence(refreshToken)
-    const db = getTx() ?? this.prisma
+    const db = getTx<PrismaClient>() ?? this.prisma
     await db.refreshToken.create({ data })
   }
 
   async update(refreshToken: RefreshToken) {
     const data = RefreshTokenMapper.toUpdatePersistence(refreshToken)
-    const db = getTx() ?? this.prisma
+    const db = getTx<PrismaClient>() ?? this.prisma
     await db.refreshToken.update({
       where: { id: refreshToken.id },
       data,
@@ -36,7 +36,7 @@ export class PrismaRefreshTokenRepository implements RefreshTokenRepository {
   }
 
   async revokeAllByUserId(userId: string): Promise<void> {
-    const db = getTx() ?? this.prisma
+    const db = getTx<PrismaClient>() ?? this.prisma
     await db.refreshToken.updateMany({
       where: { userId },
       data: { revokedAt: new Date() },
