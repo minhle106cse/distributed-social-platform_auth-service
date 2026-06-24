@@ -10,5 +10,5 @@ export default defineConfig({
   },
   datasource: {
     url: process.env.AUTH_DIRECT_URL || process.env.AUTH_DATABASE_URL!,
-  }
+  },
 })

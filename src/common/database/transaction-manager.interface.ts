@@ -4,5 +4,5 @@
  * Implementations are wired in the Infra layer (e.g. PrismaTransactionManager).
  */
 export interface ITransactionManager {
-  run<R>(callback: () => Promise<R>): Promise<R>;
+  run<R>(callback: () => Promise<R>): Promise<R>
 }

@@ -7,13 +7,7 @@ import importPlugin from 'eslint-plugin-import'
 export default [
   // 1️⃣ Ignore
   {
-    ignores: [
-      'dist/**',
-      'node_modules/**',
-      '*.cjs',
-      '*.js',
-      'eslint.config.mjs',
-    ],
+    ignores: ['dist/**', 'node_modules/**', '*.cjs', '*.js', 'eslint.config.mjs'],
   },
 
   // 2️⃣ Base JS rules
@@ -39,30 +33,17 @@ export default [
       // === TypeScript ===
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-floating-promises': 'error',
-      '@typescript-eslint/consistent-type-imports': [
-        'error',
-        { prefer: 'type-imports' },
-      ],
+      '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
 
       // === Unused imports ===
       'unused-imports/no-unused-imports': 'error',
-      'unused-imports/no-unused-vars': [
-        'warn',
-        { argsIgnorePattern: '^_' },
-      ],
+      'unused-imports/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
 
       // === Import hygiene ===
       'import/order': [
         'error',
         {
-          groups: [
-            'builtin',
-            'external',
-            'internal',
-            'parent',
-            'sibling',
-            'index',
-          ],
+          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
           'newlines-between': 'never',
         },
       ],

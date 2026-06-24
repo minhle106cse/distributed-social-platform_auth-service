@@ -1,8 +1,5 @@
 import type { RefreshCommand } from './refresh.command'
-import {
-  RefreshTokenNotFoundError,
-  RefreshTokenUsedError,
-} from '@/common/errors/auth.error'
+import { RefreshTokenNotFoundError, RefreshTokenUsedError } from '@/common/errors/auth.error'
 import { UserNotFoundError } from '@/common/errors/user.error'
 import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
 import type { TokenService } from '@/modules/auth/domain/services/token.service'
@@ -15,7 +12,7 @@ export class RefreshHandler implements ICommandHandler<RefreshCommand> {
     public readonly refreshTokenRepository: RefreshTokenRepository,
     public readonly tokenService: TokenService,
     public readonly userRepository: UserRepository,
-  ) { }
+  ) {}
 
   async execute(command: RefreshCommand) {
     const { refreshToken, decoded, ipAddress, userAgent } = command

@@ -1,16 +1,16 @@
-import 'fastify';
-import '@fastify/jwt';
-import '@fastify/cookie';
+import 'fastify'
+import '@fastify/jwt'
+import '@fastify/cookie'
 
 declare module 'fastify' {
   interface FastifyRequest {
-    startTime: bigint;
+    startTime: bigint
   }
 
   interface FastifyInstance {
-    authenticate: any;
-    requirePermissions: (permissions: string[]) => any;
+    authenticate: any
+    requirePermissions: (permissions: string[]) => any
   }
 }
 
-export {};
+export {}

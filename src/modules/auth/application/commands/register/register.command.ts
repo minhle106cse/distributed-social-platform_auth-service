@@ -7,5 +7,5 @@ export class RegisterCommand implements ICommand {
     public email: string,
     public password: string,
     public username: string,
-  ) { }
+  ) {}
 }

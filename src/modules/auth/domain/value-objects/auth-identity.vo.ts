@@ -1,7 +1,4 @@
-import {
-  InvalidAuthProviderError,
-  InvalidCredentialsError,
-} from '@/common/errors/auth.error'
+import { InvalidAuthProviderError, InvalidCredentialsError } from '@/common/errors/auth.error'
 import { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
 import { type PasswordService } from '@/modules/auth/domain/services/password.service'
 

@@ -1,8 +1,5 @@
 import { v7 } from 'uuid'
-import {
-  RefreshTokenExpiredError,
-  RefreshTokenRevokedError,
-} from '@/common/errors/auth.error'
+import { RefreshTokenExpiredError, RefreshTokenRevokedError } from '@/common/errors/auth.error'
 import { type TokenService } from '@/modules/auth/domain/services/token.service'
 
 export interface RefreshTokenProps {
@@ -17,32 +14,44 @@ export interface RefreshTokenProps {
 }
 
 export class RefreshToken {
-  private _id: string;
-  private _userId: string;
-  private _tokenHash: string;
-  private _expiredAt: Date;
-  private _usedAt: Date | null;
-  private _revokedAt: Date | null;
-  private _ipAddress: string | null;
-  private _userAgent: string | null;
+  private _id: string
+  private _userId: string
+  private _tokenHash: string
+  private _expiredAt: Date
+  private _usedAt: Date | null
+  private _revokedAt: Date | null
+  private _ipAddress: string | null
+  private _userAgent: string | null
 
   private constructor(props: RefreshTokenProps) {
-    this._id = props.id;
-    this._userId = props.userId;
-    this._tokenHash = props.tokenHash;
-    this._expiredAt = new Date(props.expiredAt.getTime());
-    this._usedAt = props.usedAt ? new Date(props.usedAt.getTime()) : null;
-    this._revokedAt = props.revokedAt ? new Date(props.revokedAt.getTime()) : null;
-    this._ipAddress = props.ipAddress;
-    this._userAgent = props.userAgent;
+    this._id = props.id
+    this._userId = props.userId
+    this._tokenHash = props.tokenHash
+    this._expiredAt = new Date(props.expiredAt.getTime())
+    this._usedAt = props.usedAt ? new Date(props.usedAt.getTime()) : null
+    this._revokedAt = props.revokedAt ? new Date(props.revokedAt.getTime()) : null
+    this._ipAddress = props.ipAddress
+    this._userAgent = props.userAgent
   }
 
-  get id(): string { return this._id }
-  get userId(): string { return this._userId }
-  get tokenHash(): string { return this._tokenHash }
-  get expiredAt(): Date { return this._expiredAt }
-  get ipAddress(): string | null { return this._ipAddress }
-  get userAgent(): string | null { return this._userAgent }
+  get id(): string {
+    return this._id
+  }
+  get userId(): string {
+    return this._userId
+  }
+  get tokenHash(): string {
+    return this._tokenHash
+  }
+  get expiredAt(): Date {
+    return this._expiredAt
+  }
+  get ipAddress(): string | null {
+    return this._ipAddress
+  }
+  get userAgent(): string | null {
+    return this._userAgent
+  }
 
   get usedAt() {
     return this._usedAt

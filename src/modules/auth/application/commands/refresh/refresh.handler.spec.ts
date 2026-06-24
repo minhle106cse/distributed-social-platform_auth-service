@@ -3,7 +3,11 @@ import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/
 import type { TokenService } from '@/modules/auth/domain/services/token.service'
 import { RefreshCommand } from './refresh.command'
 import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
-import { RefreshTokenNotFoundError, RefreshTokenUsedError, RefreshTokenExpiredError } from '@/common/errors/auth.error'
+import {
+  RefreshTokenNotFoundError,
+  RefreshTokenUsedError,
+  RefreshTokenExpiredError,
+} from '@/common/errors/auth.error'
 import { UserNotFoundError } from '@/common/errors/user.error'
 import { User } from '@/modules/user/domain/entities/user.entity'
 
@@ -34,10 +38,10 @@ describe('RefreshHandler', () => {
       emailVerified: true,
       authIdentities: [],
     })
-    
-    handler = new RefreshHandler(mockRefreshTokenRepository, mockTokenService, { 
-      findById: jest.fn().mockResolvedValue(mockUser), 
-      findByEmail: jest.fn().mockResolvedValue(mockUser) 
+
+    handler = new RefreshHandler(mockRefreshTokenRepository, mockTokenService, {
+      findById: jest.fn().mockResolvedValue(mockUser),
+      findByEmail: jest.fn().mockResolvedValue(mockUser),
     } as any)
   })
 
@@ -106,9 +110,16 @@ describe('RefreshHandler', () => {
     })
 
     mockRefreshTokenRepository.findByTokenHash.mockResolvedValueOnce(tokenEntity)
-    
-    mockTokenService.signRefreshToken.mockReturnValue({ token: 'new-token', tokenHash: 'new-hash', expiredAt: new Date() })
-    mockTokenService.signAccessToken.mockReturnValue({ token: 'access-token', expiredAt: new Date() })
+
+    mockTokenService.signRefreshToken.mockReturnValue({
+      token: 'new-token',
+      tokenHash: 'new-hash',
+      expiredAt: new Date(),
+    })
+    mockTokenService.signAccessToken.mockReturnValue({
+      token: 'access-token',
+      expiredAt: new Date(),
+    })
 
     const result = await handler.execute(command)
 
@@ -118,7 +129,12 @@ describe('RefreshHandler', () => {
 
     // New token should be created
     expect(mockRefreshTokenRepository.create).toHaveBeenCalled()
-    expect(mockTokenService.signAccessToken).toHaveBeenCalledWith({ sub: 'u1', email: 'e@e.com', roles: [], permissions: [] })
+    expect(mockTokenService.signAccessToken).toHaveBeenCalledWith({
+      sub: 'u1',
+      email: 'e@e.com',
+      roles: [],
+      permissions: [],
+    })
 
     expect(result.accessToken.token).toBe('access-token')
     expect(result.refreshToken.token).toBe('new-token')
@@ -140,11 +156,15 @@ describe('RefreshHandler', () => {
     })
 
     mockRefreshTokenRepository.findByTokenHash.mockResolvedValueOnce(tokenEntity)
-    
-    mockTokenService.signRefreshToken.mockReturnValue({ token: 'new-token', tokenHash: 'new-hash', expiredAt: new Date() })
 
-    const mockUserRepo = handler.userRepository as any;
-    mockUserRepo.findByEmail.mockResolvedValueOnce(null);
+    mockTokenService.signRefreshToken.mockReturnValue({
+      token: 'new-token',
+      tokenHash: 'new-hash',
+      expiredAt: new Date(),
+    })
+
+    const mockUserRepo = handler.userRepository as any
+    mockUserRepo.findByEmail.mockResolvedValueOnce(null)
 
     await expect(handler.execute(command)).rejects.toThrow(UserNotFoundError)
   })

@@ -47,9 +47,9 @@ describe('LogoutHandler', () => {
   it('should throw RefreshTokenNotFoundError if token entity not found', async () => {
     const command = new LogoutCommand('user-1', 'valid-token')
     mockTokenService.verifyRefreshToken.mockReturnValue('hash')
-    
+
     mockRefreshTokenRepository.findByTokenHash.mockResolvedValueOnce(null)
-    
+
     await expect(handler.execute(command)).rejects.toThrow(RefreshTokenNotFoundError)
     expect(mockRefreshTokenRepository.update).not.toHaveBeenCalled()
   })
@@ -57,7 +57,7 @@ describe('LogoutHandler', () => {
   it('should throw ForbiddenError if token belongs to another user', async () => {
     const command = new LogoutCommand('user-1', 'valid-token')
     mockTokenService.verifyRefreshToken.mockReturnValue('hash')
-    
+
     const tokenEntity = RefreshToken.rehydrate({
       id: 'token-1',
       userId: 'user-2',
@@ -69,7 +69,7 @@ describe('LogoutHandler', () => {
       userAgent: null,
     })
     mockRefreshTokenRepository.findByTokenHash.mockResolvedValueOnce(tokenEntity)
-    
+
     await expect(handler.execute(command)).rejects.toThrow(ForbiddenError)
     expect(mockRefreshTokenRepository.update).not.toHaveBeenCalled()
   })
@@ -77,7 +77,7 @@ describe('LogoutHandler', () => {
   it('should revoke token if valid and belongs to the user', async () => {
     const command = new LogoutCommand('user-1', 'valid-token')
     mockTokenService.verifyRefreshToken.mockReturnValue('hash')
-    
+
     const tokenEntity = RefreshToken.rehydrate({
       id: 'token-2',
       userId: 'user-1',
@@ -88,7 +88,7 @@ describe('LogoutHandler', () => {
       ipAddress: null,
       userAgent: null,
     })
-    
+
     // Spy on revoke method
     const revokeSpy = jest.spyOn(tokenEntity, 'revoke')
     mockRefreshTokenRepository.findByTokenHash.mockResolvedValue(tokenEntity)

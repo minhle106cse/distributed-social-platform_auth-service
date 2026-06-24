@@ -6,5 +6,5 @@ export class LogoutCommand implements ICommand {
   constructor(
     public readonly userId: string,
     public readonly refreshToken?: string,
-  ) { }
+  ) {}
 }

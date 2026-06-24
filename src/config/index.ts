@@ -1,4 +1,4 @@
-import { env } from './env';
+import { env } from './env'
 
 export const config = {
   nodeEnv: env.NODE_ENV,
@@ -21,4 +21,4 @@ export const config = {
   }, */
 
   logLevel: env.LOG_LEVEL,
-};
+}

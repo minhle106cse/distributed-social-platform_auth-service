@@ -45,11 +45,11 @@ describe('RefreshToken Entity', () => {
 
     const result = RefreshToken.createForLogin(
       { userId: 'user-1', email: 'test@example.com', ipAddress: '127.0.0.1', userAgent: 'Jest' },
-      mockTokenService
+      mockTokenService,
     )
 
     expect(result.refreshToken).toBe('jwt-token')
-    
+
     const entity = result.refreshTokenEntity
     expect(entity.userId).toBe('user-1')
     expect(entity.tokenHash).toBe('hashed-jwt')
@@ -62,8 +62,14 @@ describe('RefreshToken Entity', () => {
 
   it('should throw RefreshTokenRevokedError if revoked and asserted', () => {
     const token = RefreshToken.rehydrate({
-      id: '1', userId: '1', tokenHash: 'hash', expiredAt: new Date(Date.now() + 100000),
-      usedAt: null, revokedAt: new Date(), ipAddress: null, userAgent: null
+      id: '1',
+      userId: '1',
+      tokenHash: 'hash',
+      expiredAt: new Date(Date.now() + 100000),
+      usedAt: null,
+      revokedAt: new Date(),
+      ipAddress: null,
+      userAgent: null,
     })
 
     expect(() => token.assertUsable()).toThrow(RefreshTokenRevokedError)
@@ -71,8 +77,14 @@ describe('RefreshToken Entity', () => {
 
   it('should throw RefreshTokenExpiredError if expired and asserted', () => {
     const token = RefreshToken.rehydrate({
-      id: '1', userId: '1', tokenHash: 'hash', expiredAt: new Date(Date.now() - 100000), // past
-      usedAt: null, revokedAt: null, ipAddress: null, userAgent: null
+      id: '1',
+      userId: '1',
+      tokenHash: 'hash',
+      expiredAt: new Date(Date.now() - 100000), // past
+      usedAt: null,
+      revokedAt: null,
+      ipAddress: null,
+      userAgent: null,
     })
 
     expect(() => token.assertUsable()).toThrow(RefreshTokenExpiredError)
@@ -80,8 +92,14 @@ describe('RefreshToken Entity', () => {
 
   it('should pass assertUsable if valid', () => {
     const token = RefreshToken.rehydrate({
-      id: '1', userId: '1', tokenHash: 'hash', expiredAt: new Date(Date.now() + 100000), // future
-      usedAt: null, revokedAt: null, ipAddress: null, userAgent: null
+      id: '1',
+      userId: '1',
+      tokenHash: 'hash',
+      expiredAt: new Date(Date.now() + 100000), // future
+      usedAt: null,
+      revokedAt: null,
+      ipAddress: null,
+      userAgent: null,
     })
 
     expect(() => token.assertUsable()).not.toThrow()
@@ -89,8 +107,14 @@ describe('RefreshToken Entity', () => {
 
   it('should mark as used', () => {
     const token = RefreshToken.rehydrate({
-      id: '1', userId: '1', tokenHash: 'hash', expiredAt: new Date(Date.now() + 100000), // future
-      usedAt: null, revokedAt: null, ipAddress: null, userAgent: null
+      id: '1',
+      userId: '1',
+      tokenHash: 'hash',
+      expiredAt: new Date(Date.now() + 100000), // future
+      usedAt: null,
+      revokedAt: null,
+      ipAddress: null,
+      userAgent: null,
     })
 
     expect(token.usedAt).toBeUndefined()
@@ -100,8 +124,14 @@ describe('RefreshToken Entity', () => {
 
   it('should revoke token', () => {
     const token = RefreshToken.rehydrate({
-      id: '1', userId: '1', tokenHash: 'hash', expiredAt: new Date(Date.now() + 100000), // future
-      usedAt: null, revokedAt: null, ipAddress: null, userAgent: null
+      id: '1',
+      userId: '1',
+      tokenHash: 'hash',
+      expiredAt: new Date(Date.now() + 100000), // future
+      usedAt: null,
+      revokedAt: null,
+      ipAddress: null,
+      userAgent: null,
     })
 
     expect(token.revokedAt).toBeUndefined()

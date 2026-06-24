@@ -17,7 +17,7 @@ describe('AuthIdentity Value Object', () => {
       const identity = AuthIdentity.rehydrate({
         provider: AuthProvider.GOOGLE,
         passwordHash: null,
-        providerId: 'google-123'
+        providerId: 'google-123',
       })
       expect(identity.provider).toBe(AuthProvider.GOOGLE)
       expect(identity.passwordHash).toBeUndefined()
@@ -28,7 +28,7 @@ describe('AuthIdentity Value Object', () => {
       const identity = AuthIdentity.rehydrate({
         provider: AuthProvider.LOCAL,
         passwordHash: 'hashed-pass',
-        providerId: null
+        providerId: null,
       })
       expect(identity.provider).toBe(AuthProvider.LOCAL)
       expect(identity.passwordHash).toBe('hashed-pass')
@@ -59,9 +59,9 @@ describe('AuthIdentity Value Object', () => {
       const authIdentity = Object.create(AuthIdentity.prototype)
       Object.assign(authIdentity, { provider: AuthProvider.GOOGLE })
 
-      await expect(
-        authIdentity.localAuthenticate('pass', mockPasswordService),
-      ).rejects.toThrow(InvalidAuthProviderError)
+      await expect(authIdentity.localAuthenticate('pass', mockPasswordService)).rejects.toThrow(
+        InvalidAuthProviderError,
+      )
     })
   })
 })

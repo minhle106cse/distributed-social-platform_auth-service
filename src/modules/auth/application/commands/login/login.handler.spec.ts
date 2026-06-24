@@ -11,7 +11,7 @@ import { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
 import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
 
 jest.mock('uuid', () => ({
-  v7: jest.fn(() => 'mock-uuid-v7')
+  v7: jest.fn(() => 'mock-uuid-v7'),
 }))
 jest.mock('@/modules/auth/domain/entities/refresh-token.entity')
 
@@ -49,7 +49,12 @@ describe('LoginHandler', () => {
       verifyRefreshToken: jest.fn(),
     } as unknown as jest.Mocked<TokenService>
 
-    handler = new LoginHandler(mockUserRepo, mockRefreshTokenRepo, mockPasswordService, mockTokenService)
+    handler = new LoginHandler(
+      mockUserRepo,
+      mockRefreshTokenRepo,
+      mockPasswordService,
+      mockTokenService,
+    )
   })
 
   it('should successfully login and return tokens', async () => {
@@ -71,29 +76,34 @@ describe('LoginHandler', () => {
 
     // Mock RefreshToken creation
     const mockRefreshTokenEntity = { expiredAt: new Date(Date.now() + 10000) } as RefreshToken
-      ; (RefreshToken.createForLogin as jest.Mock).mockReturnValue({
-        refreshToken: 'mock-refresh-token',
-        refreshTokenEntity: mockRefreshTokenEntity
-      })
+    ;(RefreshToken.createForLogin as jest.Mock).mockReturnValue({
+      refreshToken: 'mock-refresh-token',
+      refreshTokenEntity: mockRefreshTokenEntity,
+    })
 
     // Mock AccessToken generation
     mockTokenService.signAccessToken.mockReturnValue({
       token: 'mock-access-token',
-      expiredAt: new Date(Date.now() + 5000)
+      expiredAt: new Date(Date.now() + 5000),
     })
 
     const result = await handler.execute({
       email: 'test@example.com',
       password: 'plain-pass',
       ipAddress: '127.0.0.1',
-      userAgent: 'jest'
+      userAgent: 'jest',
     } as any)
 
     // Assertions
     expect(mockUserRepo.findByEmail).toHaveBeenCalledWith('test@example.com', true)
     expect(mockPasswordService.verify).toHaveBeenCalledWith('plain-pass', 'hashed-pass')
     expect(mockRefreshTokenRepo.create).toHaveBeenCalledWith(mockRefreshTokenEntity)
-    expect(mockTokenService.signAccessToken).toHaveBeenCalledWith({ sub: 'user-id', email: 'test@example.com', roles: [], permissions: [] })
+    expect(mockTokenService.signAccessToken).toHaveBeenCalledWith({
+      sub: 'user-id',
+      email: 'test@example.com',
+      roles: [],
+      permissions: [],
+    })
 
     expect(result.accessToken.token).toBe('mock-access-token')
     expect(result.refreshToken.token).toBe('mock-refresh-token')
@@ -105,8 +115,8 @@ describe('LoginHandler', () => {
     await expect(
       handler.execute({
         email: 'notfound@example.com',
-        password: 'pass'
-      } as any)
+        password: 'pass',
+      } as any),
     ).rejects.toThrow(InvalidCredentialsError)
   })
 
@@ -124,8 +134,8 @@ describe('LoginHandler', () => {
     await expect(
       handler.execute({
         email: 'test@example.com',
-        password: 'pass'
-      } as any)
+        password: 'pass',
+      } as any),
     ).rejects.toThrow(UserCannotLoginError)
   })
 
@@ -143,10 +153,9 @@ describe('LoginHandler', () => {
     mockUserRepo.findByEmail.mockResolvedValue(user)
     mockPasswordService.verify.mockResolvedValue(true)
     mockUserRepo.save.mockResolvedValue()
-    
     ;(RefreshToken.createForLogin as jest.Mock).mockReturnValue({
       refreshToken: 'mock-refresh-token',
-      refreshTokenEntity: { expiredAt: new Date() } as RefreshToken
+      refreshTokenEntity: { expiredAt: new Date() } as RefreshToken,
     })
 
     mockTokenService.signAccessToken.mockReturnValue({ token: 'access', expiredAt: new Date() })
@@ -155,7 +164,7 @@ describe('LoginHandler', () => {
       email: 'test@example.com',
       password: 'plain-pass',
       ipAddress: '127.0.0.1',
-      userAgent: 'jest'
+      userAgent: 'jest',
     } as any)
 
     expect(user.isDeleted()).toBe(false)

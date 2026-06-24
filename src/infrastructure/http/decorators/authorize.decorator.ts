@@ -28,7 +28,7 @@ export function requirePermissions(required: string[]) {
     }
 
     const granted = request.user.permissions ?? []
-    const hasAll = required.every(req => granted.some(g => matchesPermission(g, req)))
+    const hasAll = required.every((req) => granted.some((g) => matchesPermission(g, req)))
     if (!hasAll) {
       return done(new ForbiddenError())
     }

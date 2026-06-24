@@ -13,7 +13,7 @@ export class LoginHandler {
     private readonly refreshTokenRepo: RefreshTokenRepository,
     private readonly passwordService: PasswordService,
     private readonly tokenService: TokenService,
-  ) { }
+  ) {}
 
   async execute(command: LoginCommand) {
     const { email, password, ipAddress, userAgent } = command

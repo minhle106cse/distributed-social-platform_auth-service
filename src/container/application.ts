@@ -47,9 +47,13 @@ export function buildApplication(infra: InfraDeps) {
     infra.tokenService,
   )
   const registerHandler = new RegisterHandler(infra.userRepository, infra.passwordService)
-  const refreshHandler = new RefreshHandler(infra.refreshTokenRepository, infra.tokenService, infra.userRepository)
+  const refreshHandler = new RefreshHandler(
+    infra.refreshTokenRepository,
+    infra.tokenService,
+    infra.userRepository,
+  )
   const updateProfileHandler = new UpdateProfileHandler(infra.userRepository)
-  
+
   const roleRepo = new PrismaRoleRepository(infra.prisma)
   const permissionRepo = new PrismaPermissionRepository(infra.prisma)
 
@@ -76,14 +80,14 @@ export function buildApplication(infra: InfraDeps) {
   const userQueryRepository = new PrismaUserQueryRepository(infra.prisma)
   const getMeHandler = new GetMeHandler(userQueryRepository)
   queryBus.register('GetMeQuery', getMeHandler)
-  
+
   const roleQueryRepository = new PrismaRoleQueryRepository(infra.prisma)
   const permissionQueryRepository = new PrismaPermissionQueryRepository(infra.prisma)
-  
+
   queryBus.register('GetRolesQuery', new GetRolesHandler(roleQueryRepository))
   queryBus.register('GetRoleQuery', new GetRoleHandler(roleQueryRepository))
   queryBus.register('GetPermissionsQuery', new GetPermissionsHandler(permissionQueryRepository))
-  
+
   return {
     CommandBus: commandBus,
     EventBus: eventBus,
@@ -92,4 +96,3 @@ export function buildApplication(infra: InfraDeps) {
 }
 
 export type Application = ReturnType<typeof buildApplication>
-

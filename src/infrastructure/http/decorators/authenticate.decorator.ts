@@ -1,7 +1,7 @@
 import type { FastifyJWT } from '@fastify/jwt'
 import type { FastifyRequest, FastifyReply } from 'fastify'
 import { UnauthorizedError } from '@/common/errors/auth.error'
- 
+
 export async function authenticate(request: FastifyRequest, _reply: FastifyReply) {
   try {
     const jwtPayload: FastifyJWT['payload'] = await request.jwtVerify()

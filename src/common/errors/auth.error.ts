@@ -80,4 +80,3 @@ export class RefreshTokenUsedError extends ApplicationError {
     super('Refresh token has been used')
   }
 }
-

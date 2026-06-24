@@ -2,7 +2,11 @@ import type { FastifyError, FastifyReply, FastifyRequest } from 'fastify'
 import type { ErrorDetails } from '@distributed-social-platform/shared-kernel'
 import { ApplicationError, buildErrorBody } from '@distributed-social-platform/shared-kernel'
 
-export function globalErrorHandler(exception: FastifyError, req: FastifyRequest, reply: FastifyReply) {
+export function globalErrorHandler(
+  exception: FastifyError,
+  req: FastifyRequest,
+  reply: FastifyReply,
+) {
   let status = 500
   let code = 'INTERNAL_SERVER_ERROR'
   let message = 'Internal server error'

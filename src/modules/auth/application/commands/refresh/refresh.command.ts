@@ -12,5 +12,5 @@ export class RefreshCommand implements ICommand {
     public readonly decoded: { sub: string; email: string },
     public readonly ipAddress?: string,
     public readonly userAgent?: string,
-  ) { }
+  ) {}
 }

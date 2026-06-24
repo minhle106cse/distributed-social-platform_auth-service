@@ -5,7 +5,7 @@ import { UserAlreadyExistsError } from '@/common/errors/user.error'
 import { User } from '@/modules/user/domain/entities/user.entity'
 
 jest.mock('uuid', () => ({
-  v7: jest.fn(() => 'mock-uuid-v7')
+  v7: jest.fn(() => 'mock-uuid-v7'),
 }))
 jest.mock('@/modules/user/domain/entities/user.entity')
 
@@ -33,18 +33,18 @@ describe('RegisterHandler', () => {
     mockUserRepo.findByEmail.mockResolvedValue(null) // No existing user
 
     const mockUserEntity = { id: 'new-user-id', email: 'new@example.com' } as User
-      ; (User.createForRegister as jest.Mock).mockResolvedValue(mockUserEntity)
+    ;(User.createForRegister as jest.Mock).mockResolvedValue(mockUserEntity)
 
     const result = await handler.execute({
       email: 'new@example.com',
       password: 'password123',
-      username: 'testuser'
+      username: 'testuser',
     } as any)
 
     expect(mockUserRepo.findByEmail).toHaveBeenCalledWith('new@example.com')
     expect(User.createForRegister).toHaveBeenCalledWith(
       { email: 'new@example.com', password: 'password123' },
-      mockPasswordService
+      mockPasswordService,
     )
     expect(mockUserRepo.create).toHaveBeenCalledWith(mockUserEntity)
     expect(result).toBeUndefined()
@@ -58,8 +58,8 @@ describe('RegisterHandler', () => {
       handler.execute({
         email: 'taken@example.com',
         password: 'pass',
-        username: 'testuser'
-      } as any)
+        username: 'testuser',
+      } as any),
     ).rejects.toThrow(UserAlreadyExistsError)
 
     expect(mockUserRepo.create).not.toHaveBeenCalled()

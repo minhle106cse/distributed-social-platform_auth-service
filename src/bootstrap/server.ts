@@ -17,8 +17,10 @@ interface ServerDeps {
   QueryBus: Application['QueryBus']
 }
 
-
-export async function buildServer(deps: ServerDeps, logger: ILogger = createLogger('auth-service')) {
+export async function buildServer(
+  deps: ServerDeps,
+  logger: ILogger = createLogger('auth-service'),
+) {
   const isTest = process.env.NODE_ENV === 'test'
   const fastify = Fastify({
     ...(isTest ? { logger: false } : { loggerInstance: logger as unknown as FastifyBaseLogger }),
@@ -63,28 +65,31 @@ export async function buildServer(deps: ServerDeps, logger: ILogger = createLogg
     reply.send(await register.metrics())
   })
 
-  await fastify.register(async (api) => {
-    await api.register(authRoutes, {
-      prefix: '/auth',
-      CommandBus: deps.CommandBus,
-      QueryBus: deps.QueryBus
-    })
-    await api.register(userRoutes, {
-      prefix: '/users',
-      QueryBus: deps.QueryBus,
-      CommandBus: deps.CommandBus
-    })
-    await api.register(roleRoutes, {
-      prefix: '/roles',
-      QueryBus: deps.QueryBus,
-      CommandBus: deps.CommandBus
-    })
-    await api.register(permissionRoutes, {
-      prefix: '/permissions',
-      QueryBus: deps.QueryBus,
-      CommandBus: deps.CommandBus
-    })
-  }, { prefix: '/api/v1' })
+  await fastify.register(
+    async (api) => {
+      await api.register(authRoutes, {
+        prefix: '/auth',
+        CommandBus: deps.CommandBus,
+        QueryBus: deps.QueryBus,
+      })
+      await api.register(userRoutes, {
+        prefix: '/users',
+        QueryBus: deps.QueryBus,
+        CommandBus: deps.CommandBus,
+      })
+      await api.register(roleRoutes, {
+        prefix: '/roles',
+        QueryBus: deps.QueryBus,
+        CommandBus: deps.CommandBus,
+      })
+      await api.register(permissionRoutes, {
+        prefix: '/permissions',
+        QueryBus: deps.QueryBus,
+        CommandBus: deps.CommandBus,
+      })
+    },
+    { prefix: '/api/v1' },
+  )
 
   return fastify
 }

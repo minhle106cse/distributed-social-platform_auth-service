@@ -28,7 +28,7 @@ export class LogoutHandler implements ICommandHandler<LogoutCommand> {
     if (tokenEntity.userId !== userId) {
       throw new ForbiddenError()
     }
-    
+
     // Revoke the specific token
     tokenEntity.revoke()
     await this.refreshTokenRepository.update(tokenEntity)
