@@ -19,6 +19,7 @@
     "format:check": "prettier . --check",
     "clean": "tsc -b --clean",
     "build": "tsc -b && tsc-alias",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "dev": "tsx watch src/main.ts",
     "start": "node dist/main.js",
     "test": "jest",
