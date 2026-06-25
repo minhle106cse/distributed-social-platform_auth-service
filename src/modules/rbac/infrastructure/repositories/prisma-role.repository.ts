@@ -1,8 +1,8 @@
+import { getTx } from '@distributed-social-platform/shared-kernel'
 import type { Role } from '../../domain/entities/role.entity'
 import { RoleMapper } from '../mapper/role.mapper'
 import type { RoleRepository } from '../../domain/repositories/role.repository'
 import type { PrismaClient } from '@/generated'
-import { getTx } from '@/common/database/transaction.context'
 
 export class PrismaRoleRepository implements RoleRepository {
   constructor(private readonly prisma: PrismaClient) {}

@@ -1,6 +1,8 @@
+import {
+  runInTransaction,
+  type ITransactionManager,
+} from '@distributed-social-platform/shared-kernel'
 import type { PrismaClient } from '@/generated'
-import type { ITransactionManager } from '@/common/database/transaction-manager.interface'
-import { runInTransaction } from '@/common/database/transaction.context'
 
 export class PrismaTransactionManager implements ITransactionManager {
   constructor(private readonly prisma: PrismaClient) {}

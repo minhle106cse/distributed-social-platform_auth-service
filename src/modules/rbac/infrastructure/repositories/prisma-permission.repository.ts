@@ -1,8 +1,8 @@
+import { getTx } from '@distributed-social-platform/shared-kernel'
 import type { Permission } from '../../domain/entities/permission.entity'
 import type { PermissionRepository } from '../../domain/repositories/permission.repository'
 import { PermissionMapper } from '../mapper/permission.mapper'
 import type { PrismaClient } from '@/generated'
-import { getTx } from '@/common/database/transaction.context'
 
 export class PrismaPermissionRepository implements PermissionRepository {
   constructor(private readonly prisma: PrismaClient) {}

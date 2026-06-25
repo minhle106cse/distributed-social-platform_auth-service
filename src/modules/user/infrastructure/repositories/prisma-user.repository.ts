@@ -1,8 +1,8 @@
+import { getTx } from '@distributed-social-platform/shared-kernel'
 import type { PrismaClient } from '@/generated'
 import type { User } from '@/modules/user/domain/entities/user.entity'
 import type { UserRepository } from '@/modules/user/domain/repositories/user.repository'
 import { UserMapper } from '@/modules/user/infrastructure/mapper/user.mapper'
-import { getTx } from '@/common/database/transaction.context'
 
 const rolesInclude = {
   roles: {
