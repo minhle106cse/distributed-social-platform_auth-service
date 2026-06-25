@@ -119,7 +119,7 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
         throw new UnauthorizedError()
       }
 
-      const decoded = fastify.jwt.decode(refreshToken)
+      const decoded = fastify.jwt.decode<{ sub: string; email: string }>(refreshToken)
       if (!decoded?.sub) {
         throw new UnauthorizedError()
       }
