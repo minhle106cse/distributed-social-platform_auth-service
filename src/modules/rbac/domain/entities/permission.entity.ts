@@ -31,6 +31,8 @@ export class Permission {
   static create(
     props: Omit<PermissionProps, 'id' | 'description' | 'isActive'> & { description?: string },
   ): Permission {
+    if (!props.code.trim()) throw new Error('Permission code is required')
+    if (!props.module.trim()) throw new Error('Permission module is required')
     return new Permission({
       id: v7(),
       code: props.code,
