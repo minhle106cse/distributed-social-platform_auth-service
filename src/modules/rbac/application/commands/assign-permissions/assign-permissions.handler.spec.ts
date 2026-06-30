@@ -49,7 +49,7 @@ describe('AssignPermissionsHandler', () => {
       'READ_POSTS',
       'WRITE_POSTS',
     ])
-    expect(role.getPermissions).toEqual(['READ_POSTS', 'WRITE_POSTS'])
+    expect(role.permissions).toEqual(['READ_POSTS', 'WRITE_POSTS'])
     expect(mockRoleRepo.updateRole).toHaveBeenCalledWith(role)
     expect(result.permissions).toEqual(['READ_POSTS', 'WRITE_POSTS'])
   })

@@ -52,11 +52,12 @@ export class PrismaUserRepository implements UserRepository {
       data: UserMapper.toPersistenceUserData(user),
     })
 
-    if (user.getProfile) {
-      const profileData = UserMapper.toPersistenceProfileData(user.getProfile)
+    const profile = user.profile
+    if (profile) {
+      const profileData = UserMapper.toPersistenceProfileData(profile)
       await db.userProfile.upsert({
         where: { userId: user.id },
-        create: { userId: user.id, ...profileData },
+        create: { id: profile.id, userId: user.id, ...profileData },
         update: profileData,
       })
     }

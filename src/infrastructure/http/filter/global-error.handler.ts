@@ -1,6 +1,10 @@
 import type { FastifyError, FastifyReply, FastifyRequest } from 'fastify'
 import type { ErrorDetails } from '@distributed-social-platform/shared-kernel'
-import { ApplicationError, buildErrorBody } from '@distributed-social-platform/shared-kernel'
+import {
+  ApplicationError,
+  buildErrorBody,
+  LogContext,
+} from '@distributed-social-platform/shared-kernel'
 
 export function globalErrorHandler(
   exception: FastifyError,
@@ -26,7 +30,7 @@ export function globalErrorHandler(
     message = exception.message
     details = exception.details
   } else if (exception instanceof Error) {
-    req.log.error(exception)
+    req.log.error({ context: LogContext.EXCEPTION, err: exception }, 'Unhandled exception')
   }
 
   reply.status(status).send(buildErrorBody({ code, message, details, requestId: req.id }))

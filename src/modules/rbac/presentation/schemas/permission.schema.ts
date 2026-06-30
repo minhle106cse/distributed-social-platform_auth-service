@@ -6,9 +6,9 @@ import {
 
 export const createPermissionSchema = {
   body: z.object({
-    code: z.string(),
-    moduleName: z.string(),
-    description: z.string().optional(),
+    code: z.string().trim().min(1).max(100),
+    moduleName: z.string().trim().min(1).max(64),
+    description: z.string().trim().max(500).optional(),
   }),
   response: {
     201: createSuccessResponseSchema(

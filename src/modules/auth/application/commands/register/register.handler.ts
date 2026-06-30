@@ -21,7 +21,7 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand> {
     }
 
     // username is not saved here, it will be published via Kafka in a later phase.
-    const user = await User.createForRegister({ email, password }, this.passwordService)
+    const user = await User.create({ email, password }, this.passwordService)
     await this.userRepository.create(user)
   }
 }

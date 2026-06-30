@@ -33,7 +33,7 @@ describe('RegisterHandler', () => {
     mockUserRepo.findByEmail.mockResolvedValue(null) // No existing user
 
     const mockUserEntity = { id: 'new-user-id', email: 'new@example.com' } as User
-    ;(User.createForRegister as jest.Mock).mockResolvedValue(mockUserEntity)
+    ;(User.create as jest.Mock).mockResolvedValue(mockUserEntity)
 
     const result = await handler.execute({
       email: 'new@example.com',
@@ -42,7 +42,7 @@ describe('RegisterHandler', () => {
     } as any)
 
     expect(mockUserRepo.findByEmail).toHaveBeenCalledWith('new@example.com')
-    expect(User.createForRegister).toHaveBeenCalledWith(
+    expect(User.create).toHaveBeenCalledWith(
       { email: 'new@example.com', password: 'password123' },
       mockPasswordService,
     )

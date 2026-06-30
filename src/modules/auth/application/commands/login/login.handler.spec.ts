@@ -58,7 +58,7 @@ describe('LoginHandler', () => {
 
   it('should successfully login and return tokens', async () => {
     // Setup Mock User
-    const authIdentity = AuthIdentity.createForRegister('hashed-pass')
+    const authIdentity = AuthIdentity.create('hashed-pass')
     const user = User.rehydrate({
       id: 'user-id',
       email: 'test@example.com',
@@ -75,7 +75,7 @@ describe('LoginHandler', () => {
 
     // Mock RefreshToken creation
     const mockRefreshTokenEntity = { expiredAt: new Date(Date.now() + 10000) } as RefreshToken
-    ;(RefreshToken.createForLogin as jest.Mock).mockReturnValue({
+    ;(RefreshToken.create as jest.Mock).mockReturnValue({
       refreshToken: 'mock-refresh-token',
       refreshTokenEntity: mockRefreshTokenEntity,
     })
@@ -139,7 +139,7 @@ describe('LoginHandler', () => {
   })
 
   it('should auto-restore user if they were soft-deleted', async () => {
-    const authIdentity = AuthIdentity.createForRegister('hashed-pass')
+    const authIdentity = AuthIdentity.create('hashed-pass')
     const user = User.rehydrate({
       id: 'user-id',
       email: 'test@example.com',
@@ -152,7 +152,7 @@ describe('LoginHandler', () => {
     mockUserRepo.findByEmail.mockResolvedValue(user)
     mockPasswordService.verify.mockResolvedValue(true)
     mockUserRepo.save.mockResolvedValue()
-    ;(RefreshToken.createForLogin as jest.Mock).mockReturnValue({
+    ;(RefreshToken.create as jest.Mock).mockReturnValue({
       refreshToken: 'mock-refresh-token',
       refreshTokenEntity: { expiredAt: new Date() } as RefreshToken,
     })

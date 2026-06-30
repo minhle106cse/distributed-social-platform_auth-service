@@ -5,9 +5,9 @@ import {
 } from '@distributed-social-platform/shared-kernel'
 
 export const registerBodySchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-  username: z.string().min(2),
+  email: z.string().trim().email().max(254),
+  password: z.string().min(6).max(128),
+  username: z.string().trim().min(2).max(50),
 })
 
 export type RegisterBody = z.infer<typeof registerBodySchema>

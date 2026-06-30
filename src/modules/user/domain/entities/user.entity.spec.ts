@@ -24,18 +24,18 @@ describe('User Entity', () => {
         authIdentities: [],
       })
 
-      expect(user.getProfile).toBeNull()
-      expect(user.getRoles).toEqual([])
-      expect(user.getPermissions).toEqual([])
+      expect(user.profile).toBeNull()
+      expect(user.roles).toEqual([])
+      expect(user.permissions).toEqual([])
       expect(user.deletedAt).toBeNull()
     })
   })
 
-  describe('createForRegister', () => {
+  describe('create', () => {
     it('should create a new user with local auth identity', async () => {
       mockPasswordService.hash.mockResolvedValueOnce('hashed-password')
 
-      const user = await User.createForRegister(
+      const user = await User.create(
         { email: 'test@example.com', password: 'password' },
         mockPasswordService,
       )
@@ -45,7 +45,7 @@ describe('User Entity', () => {
       expect(user.email).toBe('test@example.com')
       expect(user.isActive).toBe(true)
       expect(user.emailVerified).toBe(false)
-      expect(user.getAuthIdentities).toHaveLength(1)
+      expect(user.authIdentities).toHaveLength(1)
 
       const authIdentity = user.getAuthIdentity(AuthProvider.LOCAL)
       expect(authIdentity).toBeDefined()
@@ -80,7 +80,7 @@ describe('User Entity', () => {
 
   describe('getAuthIdentity', () => {
     it('should return the correct auth identity if it exists', () => {
-      const authIdentity = AuthIdentity.createForRegister('hash')
+      const authIdentity = AuthIdentity.create('hash')
       const user = User.rehydrate({
         id: '1',
         email: 'test@test.com',
@@ -117,10 +117,10 @@ describe('User Entity', () => {
       })
 
       user.assignRoles(['ADMIN', 'USER'])
-      expect(user.getRoles).toEqual(['ADMIN', 'USER'])
+      expect(user.roles).toEqual(['ADMIN', 'USER'])
 
       user.revokeRole('ADMIN')
-      expect(user.getRoles).toEqual(['USER'])
+      expect(user.roles).toEqual(['USER'])
     })
 
     it('should track deleted status', () => {
@@ -167,7 +167,7 @@ describe('User Entity', () => {
       const { UserProfile } = require('./user-profile.entity')
       const profile = UserProfile.create({ userId: '1' })
       user.assignProfile(profile)
-      expect(user.getProfile).toBe(profile)
+      expect(user.profile).toBe(profile)
     })
   })
 })

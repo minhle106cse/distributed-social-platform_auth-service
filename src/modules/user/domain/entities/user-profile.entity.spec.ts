@@ -1,12 +1,16 @@
 import { UserProfile } from './user-profile.entity'
 
+jest.mock('uuid', () => ({
+  v7: jest.fn(() => 'mock-uuid-v7'),
+}))
+
 describe('UserProfile Entity', () => {
   it('should create and get properties', () => {
     const profile = UserProfile.create({
       userId: 'u1',
     })
 
-    expect(profile.id).toBe('')
+    expect(profile.id).toBe('mock-uuid-v7')
     expect(profile.userId).toBe('u1')
     expect(profile.firstName).toBeNull()
     expect(profile.lastName).toBeNull()

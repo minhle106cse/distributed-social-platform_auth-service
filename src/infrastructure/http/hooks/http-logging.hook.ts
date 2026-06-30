@@ -1,4 +1,5 @@
 import type { FastifyRequest, FastifyReply } from 'fastify'
+import { LogContext } from '@distributed-social-platform/shared-kernel'
 
 export function httpLoggingHook(req: FastifyRequest, reply: FastifyReply) {
   if (req.url === '/health' || req.url === '/metrics') {
@@ -8,6 +9,7 @@ export function httpLoggingHook(req: FastifyRequest, reply: FastifyReply) {
   const durationMs = Number(process.hrtime.bigint() - req.startTime) / 1_000_000
 
   const payload = {
+    context: LogContext.HTTP,
     requestId: req.id,
     method: req.method,
     route: req.routeOptions?.url,

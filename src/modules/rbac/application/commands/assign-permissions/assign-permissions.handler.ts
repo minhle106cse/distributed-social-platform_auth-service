@@ -25,6 +25,6 @@ export class AssignPermissionsHandler implements ICommandHandler<AssignPermissio
 
     await this.roleRepo.updateRole(role)
 
-    return { id: role.id, code: role.code, permissions: role.getPermissions }
+    return { id: role.id, code: role.code, permissions: role.permissions }
   }
 }

@@ -28,8 +28,8 @@ import { isPrismaTransientError } from '@/infrastructure/database/prisma/prisma-
 
 export function buildApplication(infra: InfraDeps) {
   const commandBus = new CommandBus()
-  const eventBus = new EventBus()
-  const queryBus = new QueryBus()
+  const eventBus = new EventBus(infra.logger)
+  const queryBus = new QueryBus(infra.logger)
 
   // Wiring Infra implementations into framework-agnostic Middlewares.
   // This is the ONLY place that knows about Prisma-specific details.

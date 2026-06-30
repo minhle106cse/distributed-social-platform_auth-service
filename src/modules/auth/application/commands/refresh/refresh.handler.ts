@@ -34,7 +34,7 @@ export class RefreshHandler implements ICommandHandler<RefreshCommand> {
     await this.refreshTokenRepository.update(refreshTokenEntity)
 
     const { refreshToken: newRefreshToken, refreshTokenEntity: newRefreshTokenEntity } =
-      RefreshToken.createForLogin(
+      RefreshToken.create(
         {
           userId: decoded.sub,
           email: decoded.email ?? null,
@@ -57,8 +57,8 @@ export class RefreshHandler implements ICommandHandler<RefreshCommand> {
     const accessToken = this.tokenService.signAccessToken({
       sub: user.id,
       email: user.email,
-      roles: user.getRoles,
-      permissions: user.getPermissions,
+      roles: user.roles,
+      permissions: user.permissions,
     })
 
     return {

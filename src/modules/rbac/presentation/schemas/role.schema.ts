@@ -6,9 +6,9 @@ import {
 
 export const createRoleSchema = {
   body: z.object({
-    code: z.string(),
-    nameRole: z.string(),
-    description: z.string().optional(),
+    code: z.string().trim().min(1).max(64),
+    nameRole: z.string().trim().min(1).max(80),
+    description: z.string().trim().max(500).optional(),
   }),
   response: {
     201: createSuccessResponseSchema(
@@ -26,7 +26,7 @@ export const createRoleSchema = {
 export const assignRoleSchema = {
   body: z.object({
     userId: z.string().uuid(),
-    roleCode: z.string(),
+    roleCode: z.string().trim().min(1).max(64),
   }),
   response: {
     200: createSuccessResponseSchema(
@@ -42,10 +42,10 @@ export const assignRoleSchema = {
 
 export const assignPermissionsSchema = {
   body: z.object({
-    permissionCodes: z.array(z.string()),
+    permissionCodes: z.array(z.string().trim().min(1).max(100)).min(1).max(100),
   }),
   params: z.object({
-    code: z.string(),
+    code: z.string().trim().min(1).max(64),
   }),
   response: {
     200: createSuccessResponseSchema(
@@ -83,7 +83,7 @@ export const getRolesSchema = {
 }
 
 export const getRoleSchema = {
-  params: z.object({ code: z.string() }),
+  params: z.object({ code: z.string().trim().min(1).max(64) }),
   response: {
     200: createSuccessResponseSchema(roleDtoSchema),
     401: ErrorResponseSchema,
@@ -93,7 +93,7 @@ export const getRoleSchema = {
 }
 
 export const deleteRoleSchema = {
-  params: z.object({ code: z.string() }),
+  params: z.object({ code: z.string().trim().min(1).max(64) }),
   response: {
     200: createSuccessResponseSchema(z.object({ success: z.boolean() })),
     401: ErrorResponseSchema,
@@ -105,7 +105,7 @@ export const deleteRoleSchema = {
 export const revokeRoleSchema = {
   body: z.object({
     userId: z.string().uuid(),
-    roleCode: z.string(),
+    roleCode: z.string().trim().min(1).max(64),
   }),
   response: {
     200: createSuccessResponseSchema(z.object({ success: z.boolean() })),
@@ -117,10 +117,10 @@ export const revokeRoleSchema = {
 
 export const revokePermissionsSchema = {
   body: z.object({
-    permissionCodes: z.array(z.string()),
+    permissionCodes: z.array(z.string().trim().min(1).max(100)).min(1).max(100),
   }),
   params: z.object({
-    code: z.string(),
+    code: z.string().trim().min(1).max(64),
   }),
   response: {
     200: createSuccessResponseSchema(z.object({ success: z.boolean() })),

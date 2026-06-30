@@ -14,7 +14,7 @@ describe('Role Entity', () => {
     expect(role.name).toBe('Administrator')
     expect(role.description).toBe('Admin role')
     expect(role.isActive).toBe(true)
-    expect(role.getPermissions).toEqual([])
+    expect(role.permissions).toEqual([])
   })
 
   it('should rehydrate an existing Role correctly', () => {
@@ -29,7 +29,7 @@ describe('Role Entity', () => {
 
     expect(role.id).toBe('existing-id')
     expect(role.isActive).toBe(false)
-    expect(role.getPermissions).toEqual(['READ_POSTS'])
+    expect(role.permissions).toEqual(['READ_POSTS'])
   })
 
   it('should throw RoleInactiveError when ensureIsActive is called on inactive role', () => {
@@ -53,10 +53,10 @@ describe('Role Entity', () => {
   it('should assign and deduplicate permissions', () => {
     const role = Role.create({ code: 'ADMIN', name: 'Admin' })
     role.assignPermissions(['READ_POSTS', 'WRITE_POSTS'])
-    expect(role.getPermissions).toEqual(['READ_POSTS', 'WRITE_POSTS'])
+    expect(role.permissions).toEqual(['READ_POSTS', 'WRITE_POSTS'])
 
     role.assignPermissions(['WRITE_POSTS', 'DELETE_POSTS'])
-    expect(role.getPermissions).toEqual(['READ_POSTS', 'WRITE_POSTS', 'DELETE_POSTS'])
+    expect(role.permissions).toEqual(['READ_POSTS', 'WRITE_POSTS', 'DELETE_POSTS'])
   })
 
   it('should revoke permissions', () => {
@@ -70,6 +70,6 @@ describe('Role Entity', () => {
     })
 
     role.revokePermissions(['WRITE_POSTS', 'NON_EXISTENT'])
-    expect(role.getPermissions).toEqual(['READ_POSTS', 'DELETE_POSTS'])
+    expect(role.permissions).toEqual(['READ_POSTS', 'DELETE_POSTS'])
   })
 })

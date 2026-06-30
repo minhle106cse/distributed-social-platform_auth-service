@@ -12,7 +12,7 @@ import { authenticate } from '@/infrastructure/http/decorators/authenticate.deco
 import { requirePermissions } from '@/infrastructure/http/decorators/authorize.decorator'
 import { httpLoggingHook } from '@/infrastructure/http/hooks/http-logging.hook'
 import { httpResponseHook } from '@/infrastructure/http/hooks/http-response.hook'
-import { globalErrorHandler } from '@/infrastructure/http/filter/global-error-handler'
+import { globalErrorHandler } from '@/infrastructure/http/filter/global-error.handler'
 
 export async function setupFastify(fastify: FastifyInstance) {
   fastify.withTypeProvider<ZodTypeProvider>()

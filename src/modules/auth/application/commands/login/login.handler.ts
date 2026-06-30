@@ -36,7 +36,7 @@ export class LoginHandler {
       await this.userRepo.save(user)
     }
 
-    const { refreshToken, refreshTokenEntity } = RefreshToken.createForLogin(
+    const { refreshToken, refreshTokenEntity } = RefreshToken.create(
       {
         userId: user.id,
         email,
@@ -51,8 +51,8 @@ export class LoginHandler {
     const accessToken = this.tokenService.signAccessToken({
       sub: user.id,
       email: user.email,
-      roles: user.getRoles,
-      permissions: user.getPermissions,
+      roles: user.roles,
+      permissions: user.permissions,
     })
 
     return {

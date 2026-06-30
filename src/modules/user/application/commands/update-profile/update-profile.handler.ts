@@ -15,7 +15,7 @@ export class UpdateProfileHandler implements ICommandHandler<UpdateProfileComman
       throw new UserNotFoundError()
     }
 
-    let profile = user.getProfile
+    let profile = user.profile
     if (!profile) {
       profile = UserProfile.create({
         userId,

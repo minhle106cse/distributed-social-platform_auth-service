@@ -38,7 +38,7 @@ export class User {
     this._profile = props.profile
     this._roles = [...props.roles]
     this._permissions = [...props.permissions]
-    this._deletedAt = props.deletedAt
+    this._deletedAt = props.deletedAt ? new Date(props.deletedAt.getTime()) : null
   }
 
   static rehydrate(
@@ -58,7 +58,7 @@ export class User {
     })
   }
 
-  static async createForRegister(
+  static async create(
     props: {
       email: string
       password: string
@@ -66,7 +66,7 @@ export class User {
     passwordService: PasswordService,
   ): Promise<User> {
     const passwordHash = await passwordService.hash(props.password)
-    const authIdentity = AuthIdentity.createForRegister(passwordHash)
+    const authIdentity = AuthIdentity.create(passwordHash)
 
     return new User({
       id: v7(),
@@ -94,24 +94,30 @@ export class User {
     return this._emailVerified
   }
 
-  get getAuthIdentities(): AuthIdentity[] {
-    return this._authIdentities
+  // Clone the array CONTAINER (shallow), not the elements: stops callers from
+  // mutating the collection via the getter (e.g. `user.authIdentities.push(...)`
+  // to add/remove an identity). Elements are immutable VOs, so sharing their
+  // references is safe — only the array wrapper needs copying.
+  get authIdentities(): AuthIdentity[] {
+    return [...this._authIdentities]
   }
 
-  get getProfile(): UserProfile | null {
+  // A child entity is returned by identity (no clone) — callers act on the
+  // same instance, which is how `assignProfile` / `profile.update()` compose.
+  get profile(): UserProfile | null {
     return this._profile
   }
 
-  get getRoles(): string[] {
-    return this._roles
+  get roles(): string[] {
+    return [...this._roles]
   }
 
-  get getPermissions(): string[] {
-    return this._permissions
+  get permissions(): string[] {
+    return [...this._permissions]
   }
 
   get deletedAt(): Date | null {
-    return this._deletedAt
+    return this._deletedAt ? new Date(this._deletedAt.getTime()) : null
   }
 
   isDeleted(): boolean {
@@ -119,9 +125,7 @@ export class User {
   }
 
   restore(): void {
-    if (this._deletedAt) {
-      this._deletedAt = null
-    }
+    this._deletedAt = null
   }
 
   assignProfile(profile: UserProfile) {
@@ -129,7 +133,9 @@ export class User {
   }
 
   assignRoles(roles: string[]) {
-    this._roles = roles
+    // Clone-in so a later mutation of the caller's array can't reach into state
+    // (same defensive-copy discipline as the constructor and getters).
+    this._roles = [...roles]
   }
 
   revokeRole(role: string) {

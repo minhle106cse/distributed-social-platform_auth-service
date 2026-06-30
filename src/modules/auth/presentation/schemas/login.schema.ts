@@ -5,8 +5,8 @@ import {
 } from '@distributed-social-platform/shared-kernel'
 
 export const loginBodySchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
+  email: z.string().trim().email().max(254),
+  password: z.string().min(6).max(128),
 })
 
 export type LoginBody = z.infer<typeof loginBodySchema>

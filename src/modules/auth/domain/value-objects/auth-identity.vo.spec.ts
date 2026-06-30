@@ -39,7 +39,7 @@ describe('AuthIdentity Value Object', () => {
   describe('localAuthenticate', () => {
     it('should pass if password is correct', async () => {
       mockPasswordService.verify.mockResolvedValueOnce(true)
-      const authIdentity = AuthIdentity.createForRegister('hashed-pass')
+      const authIdentity = AuthIdentity.create('hashed-pass')
 
       await expect(
         authIdentity.localAuthenticate('plain-pass', mockPasswordService),
@@ -48,7 +48,7 @@ describe('AuthIdentity Value Object', () => {
 
     it('should throw InvalidCredentialsError if password is incorrect', async () => {
       mockPasswordService.verify.mockResolvedValueOnce(false)
-      const authIdentity = AuthIdentity.createForRegister('hashed-pass')
+      const authIdentity = AuthIdentity.create('hashed-pass')
 
       await expect(
         authIdentity.localAuthenticate('wrong-pass', mockPasswordService),

@@ -21,7 +21,7 @@ export class AuthIdentity {
     )
   }
 
-  static createForRegister(passwordHash: string): AuthIdentity {
+  static create(passwordHash: string): AuthIdentity {
     return new AuthIdentity(AuthProvider.LOCAL, passwordHash)
   }
 

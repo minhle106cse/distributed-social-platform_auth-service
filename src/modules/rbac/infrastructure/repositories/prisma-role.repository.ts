@@ -47,7 +47,7 @@ export class PrismaRoleRepository implements RoleRepository {
     const data = RoleMapper.toPersistence(role)
     const db = getTx<PrismaClient>() ?? this.prisma
 
-    const permissionCodes = role.getPermissions
+    const permissionCodes = role.permissions
     const permissions = await db.permission.findMany({
       where: { code: { in: permissionCodes } },
       select: { id: true },

@@ -1,3 +1,5 @@
+import { v7 } from 'uuid'
+
 export interface UserProfileProps {
   id: string
   userId: string
@@ -41,7 +43,9 @@ export class UserProfile {
     phoneNumber?: string | null
   }): UserProfile {
     return new UserProfile({
-      id: props.id || '', // Replaced by DB or mapped id
+      // Entity owns its identity (like User/Role/Permission). The mapper persists
+      // this id on INSERT so the in-memory entity and the DB row never diverge.
+      id: props.id || v7(),
       userId: props.userId,
       firstName: props.firstName ?? null,
       lastName: props.lastName ?? null,

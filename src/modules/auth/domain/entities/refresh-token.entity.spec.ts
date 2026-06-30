@@ -30,7 +30,7 @@ describe('RefreshToken Entity', () => {
     expect(token.tokenHash).toBe(props.tokenHash)
     expect(token.expiredAt).toEqual(props.expiredAt)
     expect(token.usedAt).toEqual(props.usedAt)
-    expect(token.revokedAt).toBeUndefined()
+    expect(token.revokedAt).toBeNull()
     expect(token.ipAddress).toBe(props.ipAddress)
     expect(token.userAgent).toBe(props.userAgent)
   })
@@ -43,7 +43,7 @@ describe('RefreshToken Entity', () => {
       expiredAt: futureDate,
     })
 
-    const result = RefreshToken.createForLogin(
+    const result = RefreshToken.create(
       { userId: 'user-1', email: 'test@example.com', ipAddress: '127.0.0.1', userAgent: 'Jest' },
       mockTokenService,
     )
@@ -54,8 +54,8 @@ describe('RefreshToken Entity', () => {
     expect(entity.userId).toBe('user-1')
     expect(entity.tokenHash).toBe('hashed-jwt')
     expect(entity.expiredAt).toEqual(futureDate)
-    expect(entity.usedAt).toBeUndefined()
-    expect(entity.revokedAt).toBeUndefined()
+    expect(entity.usedAt).toBeNull()
+    expect(entity.revokedAt).toBeNull()
     expect(entity.ipAddress).toBe('127.0.0.1')
     expect(entity.userAgent).toBe('Jest')
   })
@@ -117,7 +117,7 @@ describe('RefreshToken Entity', () => {
       userAgent: null,
     })
 
-    expect(token.usedAt).toBeUndefined()
+    expect(token.usedAt).toBeNull()
     token.markAsUsed()
     expect(token.usedAt).toBeDefined()
   })
@@ -134,7 +134,7 @@ describe('RefreshToken Entity', () => {
       userAgent: null,
     })
 
-    expect(token.revokedAt).toBeUndefined()
+    expect(token.revokedAt).toBeNull()
     token.revoke()
     expect(token.revokedAt).toBeDefined()
   })

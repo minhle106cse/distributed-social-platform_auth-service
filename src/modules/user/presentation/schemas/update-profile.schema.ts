@@ -6,11 +6,11 @@ import {
 
 export const updateProfileSchema = {
   body: z.object({
-    firstName: z.string().nullable().optional(),
-    lastName: z.string().nullable().optional(),
-    displayName: z.string().nullable().optional(),
-    avatarUrl: z.string().url().nullable().optional(),
-    phoneNumber: z.string().nullable().optional(),
+    firstName: z.string().trim().max(100).nullable().optional(),
+    lastName: z.string().trim().max(100).nullable().optional(),
+    displayName: z.string().trim().max(100).nullable().optional(),
+    avatarUrl: z.string().url().max(2048).nullable().optional(),
+    phoneNumber: z.string().trim().max(20).nullable().optional(),
   }),
   response: {
     200: createSuccessResponseSchema(

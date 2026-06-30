@@ -85,15 +85,15 @@ export class UserMapper {
       id: user.id,
       ...UserMapper.toPersistenceUserData(user),
       authIdentities: {
-        create: user.getAuthIdentities.map((m) => ({
+        create: user.authIdentities.map((m) => ({
           provider: m.provider,
           passwordHash: m.passwordHash,
           providerId: m.providerId,
         })),
       },
-      profile: user.getProfile
+      profile: user.profile
         ? {
-            create: UserMapper.toPersistenceProfileData(user.getProfile),
+            create: { id: user.profile.id, ...UserMapper.toPersistenceProfileData(user.profile) },
           }
         : undefined,
     }

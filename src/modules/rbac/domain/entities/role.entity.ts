@@ -36,8 +36,6 @@ export class Role {
       description?: string
     },
   ): Role {
-    if (!props.code.trim()) throw new Error('Role code is required')
-    if (!props.name.trim()) throw new Error('Role name is required')
     return new Role({
       id: v7(),
       code: props.code,
@@ -63,8 +61,8 @@ export class Role {
   get isActive(): boolean {
     return this._isActive
   }
-  get getPermissions(): string[] {
-    return this._permissions
+  get permissions(): string[] {
+    return [...this._permissions]
   }
 
   ensureIsActive() {

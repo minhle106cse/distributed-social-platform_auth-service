@@ -45,7 +45,7 @@ describe('UpdateProfileHandler', () => {
     expect(mockUserRepo.findById).toHaveBeenCalledWith(userId)
     expect(mockUserRepo.save).toHaveBeenCalled()
     const savedUser = mockUserRepo.save.mock.calls[0][0]
-    const profile = savedUser.getProfile
+    const profile = savedUser.profile
     expect(profile).toBeDefined()
     expect(profile?.firstName).toBe('Jane')
     expect(profile?.lastName).toBe('Doe')
@@ -93,7 +93,7 @@ describe('UpdateProfileHandler', () => {
     expect(mockUserRepo.findById).toHaveBeenCalledWith(userId)
     expect(mockUserRepo.save).toHaveBeenCalled()
     const savedUser = mockUserRepo.save.mock.calls[0][0]
-    const profile = savedUser.getProfile
+    const profile = savedUser.profile
     expect(profile).toBeDefined()
     expect(profile?.firstName).toBe('Jane')
     expect(profile?.lastName).toBe('Doe')

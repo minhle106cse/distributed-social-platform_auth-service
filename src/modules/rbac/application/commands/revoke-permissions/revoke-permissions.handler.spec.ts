@@ -38,7 +38,7 @@ describe('RevokePermissionsHandler', () => {
     await handler.execute(command)
 
     expect(mockRoleRepo.findRoleByCode).toHaveBeenCalledWith('ADMIN')
-    expect(role.getPermissions).toEqual(['WRITE_POSTS'])
+    expect(role.permissions).toEqual(['WRITE_POSTS'])
     expect(mockRoleRepo.updateRole).toHaveBeenCalledWith(role)
   })
 

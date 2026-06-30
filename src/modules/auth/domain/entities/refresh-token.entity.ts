@@ -43,8 +43,10 @@ export class RefreshToken {
   get tokenHash(): string {
     return this._tokenHash
   }
+  // Clone Date out (as in the constructor) so callers cannot mutate internal
+  // state via the returned Date instance.
   get expiredAt(): Date {
-    return this._expiredAt
+    return new Date(this._expiredAt.getTime())
   }
   get ipAddress(): string | null {
     return this._ipAddress
@@ -54,11 +56,11 @@ export class RefreshToken {
   }
 
   get usedAt() {
-    return this._usedAt
+    return this._usedAt ? new Date(this._usedAt.getTime()) : null
   }
 
   get revokedAt() {
-    return this._revokedAt
+    return this._revokedAt ? new Date(this._revokedAt.getTime()) : null
   }
 
   static rehydrate(props: {
@@ -83,7 +85,7 @@ export class RefreshToken {
     })
   }
 
-  static createForLogin(
+  static create(
     props: {
       userId: string
       email: string | null
