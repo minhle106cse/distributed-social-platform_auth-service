@@ -1,5 +1,5 @@
 import { type FastifyInstance, type FastifyPluginOptions } from 'fastify'
-import { ApiResponse } from '@distributed-social-platform/shared-kernel'
+import { ApiResponse, SystemPermission } from '@distributed-social-platform/shared-kernel'
 import { type Application } from '@/container/application'
 import { CreateRoleCommand } from '@/modules/rbac/application/commands/create-role/create-role.command'
 import { AssignRoleCommand } from '@/modules/rbac/application/commands/assign-role/assign-role.command'
@@ -46,7 +46,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
         security: [{ cookieAuth: [] }],
         ...createRoleSchema,
       },
-      preHandler: [fastify.authenticate, fastify.requirePermissions(['rbac:*'])],
+      preHandler: [fastify.authenticate, fastify.requirePermissions([SystemPermission.RBAC_ALL])],
     },
     async (req, _reply) => {
       const body = req.body
@@ -65,7 +65,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
         security: [{ cookieAuth: [] }],
         ...assignRoleSchema,
       },
-      preHandler: [fastify.authenticate, fastify.requirePermissions(['rbac:*'])],
+      preHandler: [fastify.authenticate, fastify.requirePermissions([SystemPermission.RBAC_ALL])],
     },
     async (req, _reply) => {
       const body = req.body
@@ -84,7 +84,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
         security: [{ cookieAuth: [] }],
         ...assignPermissionsSchema,
       },
-      preHandler: [fastify.authenticate, fastify.requirePermissions(['rbac:*'])],
+      preHandler: [fastify.authenticate, fastify.requirePermissions([SystemPermission.RBAC_ALL])],
     },
     async (req, _reply) => {
       const body = req.body
@@ -104,7 +104,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
         security: [{ cookieAuth: [] }],
         ...getRolesSchema,
       },
-      preHandler: [fastify.authenticate, fastify.requirePermissions(['rbac:*'])],
+      preHandler: [fastify.authenticate, fastify.requirePermissions([SystemPermission.RBAC_ALL])],
     },
     async (_req, _reply) => {
       const data = await QueryBus.execute(new GetRolesQuery())
@@ -121,7 +121,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
         security: [{ cookieAuth: [] }],
         ...getRoleSchema,
       },
-      preHandler: [fastify.authenticate, fastify.requirePermissions(['rbac:*'])],
+      preHandler: [fastify.authenticate, fastify.requirePermissions([SystemPermission.RBAC_ALL])],
     },
     async (req, _reply) => {
       const data = await QueryBus.execute(new GetRoleQuery(req.params.code))
@@ -138,7 +138,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
         security: [{ cookieAuth: [] }],
         ...deleteRoleSchema,
       },
-      preHandler: [fastify.authenticate, fastify.requirePermissions(['rbac:*'])],
+      preHandler: [fastify.authenticate, fastify.requirePermissions([SystemPermission.RBAC_ALL])],
     },
     async (req, _reply) => {
       await CommandBus.execute(new DeleteRoleCommand(req.params.code))
@@ -155,7 +155,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
         security: [{ cookieAuth: [] }],
         ...revokeRoleSchema,
       },
-      preHandler: [fastify.authenticate, fastify.requirePermissions(['rbac:*'])],
+      preHandler: [fastify.authenticate, fastify.requirePermissions([SystemPermission.RBAC_ALL])],
     },
     async (req, _reply) => {
       await CommandBus.execute(new RevokeRoleCommand(req.body.userId, req.body.roleCode))
@@ -172,7 +172,7 @@ export function roleRoutes(fastify: FastifyInstance, options: RoleRouteOptions) 
         security: [{ cookieAuth: [] }],
         ...revokePermissionsSchema,
       },
-      preHandler: [fastify.authenticate, fastify.requirePermissions(['rbac:*'])],
+      preHandler: [fastify.authenticate, fastify.requirePermissions([SystemPermission.RBAC_ALL])],
     },
     async (req, _reply) => {
       await CommandBus.execute(

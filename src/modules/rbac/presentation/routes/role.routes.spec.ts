@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import { buildServer } from '@/bootstrap/server'
+import { SystemPermission } from '@distributed-social-platform/shared-kernel'
 import type { Application } from '@/container/application'
 
 jest.setTimeout(30000)
@@ -38,7 +39,7 @@ describe('Role Routes (Unit)', () => {
         sub: 'user123',
         email: 'test@example.com',
         roles: [],
-        permissions: ['rbac:*'],
+        permissions: [SystemPermission.RBAC_ALL],
       })
       const response = await app.inject({
         method: 'POST',
@@ -60,7 +61,7 @@ describe('Role Routes (Unit)', () => {
         sub: 'user123',
         email: 'test@example.com',
         roles: [],
-        permissions: ['rbac:*'],
+        permissions: [SystemPermission.RBAC_ALL],
       })
       const response = await app.inject({
         method: 'POST',
@@ -85,7 +86,7 @@ describe('Role Routes (Unit)', () => {
         sub: 'user123',
         email: 'test@example.com',
         roles: [],
-        permissions: ['rbac:*'],
+        permissions: [SystemPermission.RBAC_ALL],
       })
       const response = await app.inject({
         method: 'POST',
@@ -114,7 +115,7 @@ describe('Role Routes (Unit)', () => {
         sub: 'user123',
         email: 'test@example.com',
         roles: [],
-        permissions: ['rbac:*'],
+        permissions: [SystemPermission.RBAC_ALL],
       })
       const response = await app.inject({
         method: 'GET',
@@ -140,7 +141,7 @@ describe('Role Routes (Unit)', () => {
         sub: 'user123',
         email: 'test@example.com',
         roles: [],
-        permissions: ['rbac:*'],
+        permissions: [SystemPermission.RBAC_ALL],
       })
       const response = await app.inject({
         method: 'GET',
@@ -160,7 +161,7 @@ describe('Role Routes (Unit)', () => {
         sub: 'user123',
         email: 'test@example.com',
         roles: [],
-        permissions: ['rbac:*'],
+        permissions: [SystemPermission.RBAC_ALL],
       })
       const response = await app.inject({
         method: 'DELETE',
@@ -180,7 +181,7 @@ describe('Role Routes (Unit)', () => {
         sub: 'user123',
         email: 'test@example.com',
         roles: [],
-        permissions: ['rbac:*'],
+        permissions: [SystemPermission.RBAC_ALL],
       })
       const response = await app.inject({
         method: 'DELETE',
@@ -201,7 +202,7 @@ describe('Role Routes (Unit)', () => {
         sub: 'user123',
         email: 'test@example.com',
         roles: [],
-        permissions: ['rbac:*'],
+        permissions: [SystemPermission.RBAC_ALL],
       })
       const response = await app.inject({
         method: 'DELETE',
