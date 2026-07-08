@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import { buildServer } from '@/bootstrap/server'
+import { SystemPermission } from '@distributed-social-platform/shared-kernel'
 import type { Application } from '@/container/application'
 
 jest.setTimeout(30000)
@@ -30,28 +31,6 @@ describe('Permission Routes (Unit)', () => {
     jest.clearAllMocks()
   })
 
-  describe('POST /api/v1/permissions', () => {
-    it('should return 201 on successful creation', async () => {
-      ;(mockCommandBus.execute as jest.Mock).mockResolvedValue({ id: 'p1', code: 'READ' })
-
-      const token = app.jwt.sign({
-        sub: 'user123',
-        email: 'test@example.com',
-        roles: [],
-        permissions: ['rbac:*'],
-      })
-      const response = await app.inject({
-        method: 'POST',
-        url: '/api/v1/permissions',
-        cookies: { accessToken: token },
-        payload: { code: 'READ', moduleName: 'GLOBAL' },
-      })
-
-      expect(response.statusCode).toBe(201)
-      expect(mockCommandBus.execute).toHaveBeenCalledTimes(1)
-    })
-  })
-
   describe('GET /api/v1/permissions', () => {
     it('should return 200 on successful fetch', async () => {
       ;(mockQueryBus.execute as jest.Mock).mockResolvedValue([])
@@ -60,7 +39,7 @@ describe('Permission Routes (Unit)', () => {
         sub: 'user123',
         email: 'test@example.com',
         roles: [],
-        permissions: ['rbac:*'],
+        permissions: [SystemPermission.RBAC_ALL],
       })
       const response = await app.inject({
         method: 'GET',

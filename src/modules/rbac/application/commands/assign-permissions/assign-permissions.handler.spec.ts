@@ -1,15 +1,13 @@
+import { SystemPermission } from '@distributed-social-platform/shared-kernel'
 import type { RoleRepository } from '../../../domain/repositories/role.repository'
-import type { PermissionRepository } from '../../../domain/repositories/permission.repository'
 import { AssignPermissionsHandler } from './assign-permissions.handler'
 import { AssignPermissionsCommand } from './assign-permissions.command'
-import { RoleNotFoundError, PermissionInactiveError } from '@/common/errors/rbac.error'
+import { RoleNotFoundError, InvalidPermissionCodeError } from '@/common/errors/rbac.error'
 import { Role } from '@/modules/rbac/domain/entities/role.entity'
-import { Permission } from '@/modules/rbac/domain/entities/permission.entity'
 
 describe('AssignPermissionsHandler', () => {
   let handler: AssignPermissionsHandler
   let mockRoleRepo: jest.Mocked<RoleRepository>
-  let mockPermissionRepo: jest.Mocked<PermissionRepository>
 
   beforeEach(() => {
     mockRoleRepo = {
@@ -21,41 +19,29 @@ describe('AssignPermissionsHandler', () => {
       deleteRole: jest.fn(),
     } as unknown as jest.Mocked<RoleRepository>
 
-    mockPermissionRepo = {
-      createPermission: jest.fn(),
-      findPermissionByCode: jest.fn(),
-      findPermissionsByCodes: jest.fn(),
-      findAllPermissions: jest.fn(),
-    } as unknown as jest.Mocked<PermissionRepository>
-
-    handler = new AssignPermissionsHandler(mockRoleRepo, mockPermissionRepo)
+    handler = new AssignPermissionsHandler(mockRoleRepo)
   })
 
   it('should successfully assign permissions to a role', async () => {
-    const command = new AssignPermissionsCommand('ADMIN', ['READ_POSTS', 'WRITE_POSTS'])
+    const command = new AssignPermissionsCommand('ADMIN', [
+      SystemPermission.USER_READ,
+      SystemPermission.USER_BAN,
+    ])
     const role = Role.create({ code: 'ADMIN', name: 'Admin' })
 
-    const perm1 = Permission.create({ code: 'READ_POSTS', module: 'POST' })
-    const perm2 = Permission.create({ code: 'WRITE_POSTS', module: 'POST' })
-
     mockRoleRepo.findRoleByCode.mockResolvedValueOnce(role)
-    mockPermissionRepo.findPermissionsByCodes.mockResolvedValueOnce([perm1, perm2])
     mockRoleRepo.updateRole.mockResolvedValueOnce(undefined)
 
     const result = await handler.execute(command)
 
     expect(mockRoleRepo.findRoleByCode).toHaveBeenCalledWith('ADMIN')
-    expect(mockPermissionRepo.findPermissionsByCodes).toHaveBeenCalledWith([
-      'READ_POSTS',
-      'WRITE_POSTS',
-    ])
-    expect(role.permissions).toEqual(['READ_POSTS', 'WRITE_POSTS'])
+    expect(role.permissions).toEqual([SystemPermission.USER_READ, SystemPermission.USER_BAN])
     expect(mockRoleRepo.updateRole).toHaveBeenCalledWith(role)
-    expect(result.permissions).toEqual(['READ_POSTS', 'WRITE_POSTS'])
+    expect(result.permissions).toEqual([SystemPermission.USER_READ, SystemPermission.USER_BAN])
   })
 
   it('should throw RoleNotFoundError if role does not exist', async () => {
-    const command = new AssignPermissionsCommand('ADMIN', ['READ_POSTS'])
+    const command = new AssignPermissionsCommand('ADMIN', [SystemPermission.USER_READ])
 
     mockRoleRepo.findRoleByCode.mockResolvedValueOnce(null)
 
@@ -63,22 +49,13 @@ describe('AssignPermissionsHandler', () => {
     expect(mockRoleRepo.updateRole).not.toHaveBeenCalled()
   })
 
-  it('should throw PermissionInactiveError if any permission is inactive', async () => {
-    const command = new AssignPermissionsCommand('ADMIN', ['READ_POSTS'])
+  it('should throw InvalidPermissionCodeError if a code is not in the SystemPermission catalog', async () => {
+    const command = new AssignPermissionsCommand('ADMIN', ['not:a_real_permission'])
     const role = Role.create({ code: 'ADMIN', name: 'Admin' })
 
-    const perm1 = Permission.rehydrate({
-      id: 'p1',
-      code: 'READ_POSTS',
-      module: 'POST',
-      description: null,
-      isActive: false,
-    })
-
     mockRoleRepo.findRoleByCode.mockResolvedValueOnce(role)
-    mockPermissionRepo.findPermissionsByCodes.mockResolvedValueOnce([perm1])
 
-    await expect(handler.execute(command)).rejects.toThrow(PermissionInactiveError)
+    await expect(handler.execute(command)).rejects.toThrow(InvalidPermissionCodeError)
     expect(mockRoleRepo.updateRole).not.toHaveBeenCalled()
   })
 })

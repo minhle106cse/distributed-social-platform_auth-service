@@ -129,41 +129,14 @@ model Role {
   updatedAt   DateTime @updatedAt @map("updated_at")
   deletedAt   DateTime? @map("deleted_at") // Soft delete
 
-
-  permissions RolePermission[]
+  // Permission codes are a closed, code-defined catalog (SystemPermission in
+  // shared-kernel) — no DB entity for "Permission" needed, same pattern as
+  // OrgRolePermission.permission (core-api). Plain string[] column, not a
+  // join table: nothing else ever needs to reference a permission by row id.
+  permissions String[] @default([])
   users       UserRole[]
 
   @@map("roles")
-}
-
-model Permission {
-  id          String   @id @default(uuid())
-  code        String   @unique // VD: "user:ban", "report:read" — format 'resource:action' lowercase, xem SystemPermission trong system-permissions.ts
-  module      String   // Phân loại nhóm quyền
-  description String?
-
-  isActive    Boolean  @default(true) @map("is_active")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  deletedAt   DateTime? @map("deleted_at") // Soft delete
-
-
-  roles       RolePermission[]
-
-  @@map("permissions")
-}
-
-model RolePermission {
-  roleId       String     @map("role_id")
-  permissionId String     @map("permission_id")
-
-  createdAt    DateTime   @default(now()) @map("created_at")
-
-  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
-
-  @@id([roleId, permissionId])
-  @@map("role_permissions")
 }
 
 model UserRole {

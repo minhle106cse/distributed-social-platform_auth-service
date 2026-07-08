@@ -1,30 +1,13 @@
+import { ALL_SYSTEM_PERMISSIONS } from '@distributed-social-platform/shared-kernel'
 import { GetPermissionsHandler } from './get-permissions.handler'
 import { GetPermissionsQuery } from './get-permissions.query'
-import type { PermissionQueryRepository } from '@/modules/rbac/application/repositories/permission.query-repository'
 
 describe('GetPermissionsHandler', () => {
-  let handler: GetPermissionsHandler
-  let mockPermissionQueryRepo: jest.Mocked<PermissionQueryRepository>
+  it('returns the full SystemPermission catalog', async () => {
+    const handler = new GetPermissionsHandler()
 
-  beforeEach(() => {
-    mockPermissionQueryRepo = {
-      getPermissions: jest.fn(),
-    }
+    const result = await handler.execute(new GetPermissionsQuery())
 
-    handler = new GetPermissionsHandler(mockPermissionQueryRepo)
-  })
-
-  it('should return all permissions', async () => {
-    const query = new GetPermissionsQuery()
-    const permissions = [
-      { code: 'READ_POSTS', moduleName: 'POST', description: null, createdAt: new Date() },
-    ]
-
-    mockPermissionQueryRepo.getPermissions.mockResolvedValueOnce(permissions)
-
-    const result = await handler.execute(query)
-
-    expect(mockPermissionQueryRepo.getPermissions).toHaveBeenCalled()
-    expect(result).toEqual(permissions)
+    expect(result).toEqual(ALL_SYSTEM_PERMISSIONS.map((code) => ({ code })))
   })
 })

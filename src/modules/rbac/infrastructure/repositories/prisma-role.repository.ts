@@ -2,17 +2,14 @@ import { getTx } from '@distributed-social-platform/shared-kernel'
 import type { Role } from '../../domain/entities/role.entity'
 import { RoleMapper } from '../mapper/role.mapper'
 import type { RoleRepository } from '../../domain/repositories/role.repository'
-import type { PrismaClient } from '@/generated'
+import { Prisma, type PrismaClient } from '@/generated'
 
 export class PrismaRoleRepository implements RoleRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
   async findRoleByCode(code: string): Promise<Role | null> {
     const db = getTx<PrismaClient>() ?? this.prisma
-    const record = await db.role.findUnique({
-      where: { code },
-      include: { permissions: { include: { permission: true } } },
-    })
+    const record = await db.role.findUnique({ where: { code } })
 
     if (!record) return null
 
@@ -21,19 +18,14 @@ export class PrismaRoleRepository implements RoleRepository {
 
   async findRolesByCodes(codes: string[]): Promise<Role[]> {
     const db = getTx<PrismaClient>() ?? this.prisma
-    const records = await db.role.findMany({
-      where: { code: { in: codes } },
-      include: { permissions: { include: { permission: true } } },
-    })
+    const records = await db.role.findMany({ where: { code: { in: codes } } })
 
     return records.map((r) => RoleMapper.toDomain(r))
   }
 
   async getAllRoles(): Promise<Role[]> {
     const db = getTx<PrismaClient>() ?? this.prisma
-    const records = await db.role.findMany({
-      include: { permissions: { include: { permission: true } } },
-    })
+    const records = await db.role.findMany()
     return records.map((r) => RoleMapper.toDomain(r))
   }
 
@@ -47,30 +39,12 @@ export class PrismaRoleRepository implements RoleRepository {
     const data = RoleMapper.toPersistence(role)
     const db = getTx<PrismaClient>() ?? this.prisma
 
-    const permissionCodes = role.permissions
-    const permissions = await db.permission.findMany({
-      where: { code: { in: permissionCodes } },
-      select: { id: true },
-    })
-
-    await db.role.update({
-      where: { id: role.id },
-      data: {
-        ...data,
-        permissions: {
-          deleteMany: {},
-          create: permissions.map((p) => ({
-            permissionId: p.id,
-          })),
-        },
-      },
-    })
+    await db.role.update({ where: { id: role.id }, data })
   }
 
   async deleteRole(id: string): Promise<void> {
     const db = getTx<PrismaClient>() ?? this.prisma
     await db.userRole.deleteMany({ where: { roleId: id } })
-    await db.rolePermission.deleteMany({ where: { roleId: id } })
     await db.role.delete({ where: { id } })
   }
 
@@ -85,10 +59,16 @@ export class PrismaRoleRepository implements RoleRepository {
 
   async revokeRoleFromUser(userId: string, roleId: string): Promise<void> {
     const db = getTx<PrismaClient>() ?? this.prisma
-    await db.userRole
-      .delete({
+    try {
+      await db.userRole.delete({
         where: { userId_roleId: { userId, roleId } },
       })
-      .catch(() => {}) // Ignore if not exists
+    } catch (err) {
+      // P2025 = the mapping didn't exist → revoke is idempotent, ignore. Any other
+      // error (DB down, timeout) must propagate — don't report a silent success.
+      if (!(err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025')) {
+        throw err
+      }
+    }
   }
 }

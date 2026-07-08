@@ -1,14 +1,11 @@
+import { isValidSystemPermission } from '@distributed-social-platform/shared-kernel'
 import type { ICommandHandler } from '@distributed-social-platform/shared-kernel'
 import type { RoleRepository } from '../../../domain/repositories/role.repository'
-import type { PermissionRepository } from '../../../domain/repositories/permission.repository'
 import type { AssignPermissionsCommand } from './assign-permissions.command'
-import { RoleNotFoundError } from '@/common/errors/rbac.error'
+import { RoleNotFoundError, InvalidPermissionCodeError } from '@/common/errors/rbac.error'
 
 export class AssignPermissionsHandler implements ICommandHandler<AssignPermissionsCommand> {
-  constructor(
-    private readonly roleRepo: RoleRepository,
-    private readonly permissionRepo: PermissionRepository,
-  ) {}
+  constructor(private readonly roleRepo: RoleRepository) {}
 
   async execute(command: AssignPermissionsCommand) {
     const role = await this.roleRepo.findRoleByCode(command.roleCode)
@@ -16,12 +13,13 @@ export class AssignPermissionsHandler implements ICommandHandler<AssignPermissio
       throw new RoleNotFoundError()
     }
 
-    const permissions = await this.permissionRepo.findPermissionsByCodes(command.permissionCodes)
-    for (const permission of permissions) {
-      permission.ensureIsActive()
+    for (const code of command.permissionCodes) {
+      if (!isValidSystemPermission(code)) {
+        throw new InvalidPermissionCodeError(code)
+      }
     }
 
-    role.assignPermissions(permissions.map((p) => p.code))
+    role.assignPermissions(command.permissionCodes)
 
     await this.roleRepo.updateRole(role)
 

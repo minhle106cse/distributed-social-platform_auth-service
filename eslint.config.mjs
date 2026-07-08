@@ -14,6 +14,7 @@ export default [
       'src/generated/**',
       'generated/**',
       'prisma.config.ts',
+      'prisma/**',
       '*.cjs',
       '**/*.js',
       'eslint.config.mjs',

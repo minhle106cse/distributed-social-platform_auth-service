@@ -9,30 +9,12 @@ export class RoleNotFoundError extends ApplicationError {
   }
 }
 
-export class PermissionNotFoundError extends ApplicationError {
-  readonly statusCode = 404
-  readonly code = 'PERMISSION_NOT_FOUND'
-
-  constructor() {
-    super('Permission not found')
-  }
-}
-
 export class RoleAlreadyExistsError extends ApplicationError {
   readonly statusCode = 409
   readonly code = 'ROLE_ALREADY_EXISTS'
 
   constructor() {
     super('Role already exists')
-  }
-}
-
-export class PermissionAlreadyExistsError extends ApplicationError {
-  readonly statusCode = 409
-  readonly code = 'PERMISSION_ALREADY_EXISTS'
-
-  constructor() {
-    super('Permission already exists')
   }
 }
 
@@ -45,11 +27,14 @@ export class RoleInactiveError extends ApplicationError {
   }
 }
 
-export class PermissionInactiveError extends ApplicationError {
-  readonly statusCode = 403
-  readonly code = 'PERMISSION_INACTIVE'
+// Thrown when assigning a code that isn't in the SystemPermission catalog
+// (shared-kernel) — the catalog IS the source of truth for valid codes now
+// that there's no Permission table to check against.
+export class InvalidPermissionCodeError extends ApplicationError {
+  readonly statusCode = 400
+  readonly code = 'INVALID_PERMISSION_CODE'
 
-  constructor() {
-    super('Permission is inactive')
+  constructor(code: string) {
+    super(`Invalid permission code: ${code}`)
   }
 }
