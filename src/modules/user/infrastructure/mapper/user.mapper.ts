@@ -1,3 +1,4 @@
+import { ALL_SYSTEM_PERMISSIONS } from '@distributed-social-platform/shared-kernel'
 import type {
   User as PrismaUser,
   AuthIdentity as PrismaAuthIdentity,
@@ -5,7 +6,6 @@ import type {
   UserRole as PrismaUserRole,
   Role as PrismaRole,
 } from '@/generated'
-import { ALL_SYSTEM_PERMISSIONS } from '@distributed-social-platform/shared-kernel'
 import { User } from '@/modules/user/domain/entities/user.entity'
 import { UserProfile } from '@/modules/user/domain/entities/user-profile.entity'
 import { AuthIdentity } from '@/modules/auth/domain/value-objects/auth-identity.vo'

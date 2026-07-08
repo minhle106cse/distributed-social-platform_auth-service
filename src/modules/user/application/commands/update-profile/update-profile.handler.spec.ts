@@ -15,6 +15,7 @@ describe('UpdateProfileHandler', () => {
       findByEmail: jest.fn(),
       save: jest.fn(),
       create: jest.fn(),
+      hardDelete: jest.fn(),
     }
     handler = new UpdateProfileHandler(mockUserRepo)
   })

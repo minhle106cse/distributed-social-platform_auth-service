@@ -27,6 +27,7 @@ describe('LoginHandler', () => {
       create: jest.fn(),
       findById: jest.fn(),
       save: jest.fn(),
+      hardDelete: jest.fn(),
     }
 
     mockRefreshTokenRepo = {

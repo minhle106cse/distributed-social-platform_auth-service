@@ -6,6 +6,8 @@ import { type InfraDeps } from './infra'
 import { LoginHandler } from '@/modules/auth/application/commands/login/login.handler'
 import { RefreshHandler } from '@/modules/auth/application/commands/refresh/refresh.handler'
 import { RegisterHandler } from '@/modules/auth/application/commands/register/register.handler'
+import { ProvisionUserHandler } from '@/modules/auth/application/commands/provision-user/provision-user.handler'
+import { CancelProvisionedUserHandler } from '@/modules/auth/application/commands/cancel-provisioned-user/cancel-provisioned-user.handler'
 import { GetMeHandler } from '@/modules/user/application/queries/get-me/get-me.handler'
 import { UpdateProfileHandler } from '@/modules/user/application/commands/update-profile/update-profile.handler'
 import { CreateRoleHandler } from '@/modules/rbac/application/commands/create-role/create-role.handler'
@@ -44,6 +46,8 @@ export function buildApplication(infra: InfraDeps) {
     infra.tokenService,
   )
   const registerHandler = new RegisterHandler(infra.userRepository, infra.passwordService)
+  const provisionUserHandler = new ProvisionUserHandler(infra.userRepository, infra.passwordService)
+  const cancelProvisionedUserHandler = new CancelProvisionedUserHandler(infra.userRepository)
   const refreshHandler = new RefreshHandler(
     infra.refreshTokenRepository,
     infra.tokenService,
@@ -62,6 +66,8 @@ export function buildApplication(infra: InfraDeps) {
 
   commandBus.register('LoginCommand', loginHandler)
   commandBus.register('RegisterCommand', registerHandler)
+  commandBus.register('ProvisionUserCommand', provisionUserHandler)
+  commandBus.register('CancelProvisionedUserCommand', cancelProvisionedUserHandler)
   commandBus.register('RefreshCommand', refreshHandler)
   commandBus.register('UpdateProfileCommand', updateProfileHandler)
   commandBus.register('CreateRoleCommand', createRoleHandler)

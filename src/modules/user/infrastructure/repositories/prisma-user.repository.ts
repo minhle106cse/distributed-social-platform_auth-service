@@ -58,4 +58,11 @@ export class PrismaUserRepository implements UserRepository {
       })
     }
   }
+
+  async hardDelete(id: string): Promise<void> {
+    const db = getTx<PrismaClient>() ?? this.prisma
+    // authIdentities/refreshTokens/profile/roles cascade via onDelete: Cascade
+    // in schema.prisma — a single delete is enough.
+    await db.user.delete({ where: { id } })
+  }
 }

@@ -1,7 +1,7 @@
 import { createPublicKey, createHash } from 'crypto'
 import Fastify, { type FastifyBaseLogger } from 'fastify'
 import { register } from 'prom-client'
-import { createLogger, type ILogger } from '@distributed-social-platform/shared-kernel'
+import { type ILogger } from '@distributed-social-platform/shared-kernel'
 import { setupFastify } from './fastify'
 import { setupSwagger } from './swagger'
 import { config } from '@/config'
@@ -19,7 +19,7 @@ interface ServerDeps {
 
 export async function buildServer(
   deps: ServerDeps,
-  logger: ILogger = createLogger('auth-service'),
+  logger?: ILogger,
 ) {
   const isTest = process.env.NODE_ENV === 'test'
   const fastify = Fastify({
@@ -36,24 +36,42 @@ export async function buildServer(
   await setupFastify(fastify)
   await setupSwagger(fastify)
 
-  fastify.get('/health', { config: { skipResponseWrapper: true } }, async (_req, reply) => {
-    let dbOk = false
-    try {
-      await prisma.$queryRaw`SELECT 1`
-      dbOk = true
-    } catch {
-      // health endpoint: db failure expected during cold start
-    }
-    reply.code(dbOk ? 200 : 503).send({
-      status: dbOk ? 'ok' : 'degraded',
-      service: 'auth-service',
-      uptime: Math.floor(process.uptime()),
-      timestamp: new Date().toISOString(),
-      checks: { database: dbOk ? 'ok' : 'error' },
-    })
-  })
+  // infra endpoints (scraped by monitoring, e.g. Prometheus every 15s) must not
+  // be rate-limited — same convention as core-api/notification-service/
+  // search-service's @SkipThrottle() health controllers. compress:false because
+  // @fastify/compress's gzip pipeline (pump + end-of-stream) was intermittently
+  // truncating these responses to 0 bytes under concurrent/rapid scrape requests
+  // (reproduced deterministically on /metrics: 5/5 gzip requests -> content-length
+  // 0, "premature close" logged) — these payloads are small/low-traffic, not
+  // worth compressing anyway.
+  fastify.get(
+    '/health',
+    { config: { skipResponseWrapper: true, rateLimit: false, compress: false } },
+    async (_req, reply) => {
+      let dbOk = false
+      try {
+        await prisma.$queryRaw`SELECT 1`
+        dbOk = true
+      } catch {
+        // health endpoint: db failure expected during cold start
+      }
+      reply.code(dbOk ? 200 : 503).send({
+        status: dbOk ? 'ok' : 'degraded',
+        service: 'auth-service',
+        uptime: Math.floor(process.uptime()),
+        timestamp: new Date().toISOString(),
+        checks: { database: dbOk ? 'ok' : 'error' },
+      })
+    },
+  )
 
-  fastify.get('/.well-known/jwks.json', () => {
+  // JWKS (RFC 7517) must return the raw { keys: [...] } shape — external JWT
+  // verifiers read this directly, not the app's {success,data} envelope.
+  // skipResponseWrapper=true so httpResponseHook passes the plain object
+  // through instead of throwing ResponseFormatError (payload isn't an
+  // ApiResponse instance). compress:false to match /health and /metrics —
+  // avoids the same @fastify/compress gzip-truncation issue fixed there.
+  fastify.get('/.well-known/jwks.json', { config: { skipResponseWrapper: true, compress: false } }, () => {
     const keyObj = createPublicKey(config.jwt.publicKey)
     const jwk = keyObj.export({ format: 'jwk' }) as { n: string; e: string }
     const kid = createHash('sha256').update(config.jwt.publicKey).digest('hex').substring(0, 16)
@@ -62,10 +80,14 @@ export async function buildServer(
     }
   })
 
-  fastify.get('/metrics', { config: { skipResponseWrapper: true } }, async (_req, reply) => {
-    reply.header('Content-Type', register.contentType)
-    reply.send(await register.metrics())
-  })
+  fastify.get(
+    '/metrics',
+    { config: { skipResponseWrapper: true, rateLimit: false, compress: false } },
+    async (_req, reply) => {
+      reply.header('Content-Type', register.contentType)
+      reply.send(await register.metrics())
+    },
+  )
 
   await fastify.register(
     async (api) => {

@@ -3,8 +3,11 @@ import { env } from './env'
 export const config = {
   nodeEnv: env.NODE_ENV,
   port: Number(env.AUTH_SERVICE_PORT),
+  grpcPort: Number(env.AUTH_GRPC_PORT),
 
   databaseUrl: env.AUTH_DATABASE_URL,
+
+  internalGrpcSharedSecret: env.INTERNAL_GRPC_SHARED_SECRET,
 
   jwt: {
     privateKey: Buffer.from(env.JWT_PRIVATE_KEY, 'base64').toString('utf-8'),
