@@ -12,14 +12,10 @@ import { AuthIdentity } from '@/modules/auth/domain/value-objects/auth-identity.
 import type { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
 import { SystemRole } from '@/common/rbac/system-rbac'
 
-type PrismaRoleWithPermissions = PrismaRole & {
-  permissions?: string[]
-}
-
 type PrismaUserWithRelations = PrismaUser & {
   authIdentities?: PrismaAuthIdentity[]
   profile?: PrismaUserProfile | null
-  roles?: (PrismaUserRole & { role: PrismaRoleWithPermissions })[]
+  roles?: (PrismaUserRole & { role: PrismaRole })[]
 }
 
 export class UserMapper {
