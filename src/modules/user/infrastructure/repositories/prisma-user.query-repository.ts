@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@/generated'
-import type { UserQueryRepository } from '@/modules/user/application/repositories/user.query-repository'
-import type { GetMeDto } from '@/modules/user/application/queries/get-me/get-me.dto'
+import type { UserQueryRepository } from '@/modules/user/application/queries/user.query-repository'
+import type { GetMeDto } from '@/modules/user/application/queries/user.dto'
 
 export class PrismaUserQueryRepository implements UserQueryRepository {
   constructor(private readonly prisma: PrismaClient) {}
@@ -16,13 +16,7 @@ export class PrismaUserQueryRepository implements UserQueryRepository {
         createdAt: true,
         roles: {
           include: {
-            role: {
-              include: {
-                permissions: {
-                  include: { permission: true },
-                },
-              },
-            },
+            role: true,
           },
         },
         profile: true,
@@ -34,7 +28,7 @@ export class PrismaUserQueryRepository implements UserQueryRepository {
     const permissions = new Set<string>()
     user.roles.forEach((ur) => {
       ur.role.permissions.forEach((rp) => {
-        permissions.add(rp.permission.code)
+        permissions.add(rp)
       })
     })
 

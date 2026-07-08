@@ -1,4 +1,4 @@
-import type { GetMeDto } from '../queries/get-me/get-me.dto'
+import type { GetMeDto } from './user.dto'
 
 export interface UserQueryRepository {
   getMe(userId: string): Promise<GetMeDto | null>

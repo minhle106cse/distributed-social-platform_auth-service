@@ -1,6 +1,6 @@
 import { GetRolesHandler } from './get-roles.handler'
 import { GetRolesQuery } from './get-roles.query'
-import type { RoleQueryRepository } from '@/modules/rbac/application/repositories/role.query-repository'
+import type { RoleQueryRepository } from '@/modules/rbac/application/queries/role.query-repository'
 
 describe('GetRolesHandler', () => {
   let handler: GetRolesHandler

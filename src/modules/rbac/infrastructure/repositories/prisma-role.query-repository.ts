@@ -1,19 +1,13 @@
 import type { PrismaClient } from '@/generated'
-import type {
-  RoleQueryRepository,
-  RoleDto,
-} from '@/modules/rbac/application/repositories/role.query-repository'
+import type { RoleQueryRepository } from '@/modules/rbac/application/queries/role.query-repository'
+import type { RoleDto } from '@/modules/rbac/application/queries/role.dto'
 
 export class PrismaRoleQueryRepository implements RoleQueryRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
   async getRoles(): Promise<RoleDto[]> {
     const roles = await this.prisma.role.findMany({
-      include: {
-        permissions: {
-          include: { permission: true },
-        },
-      },
+
       orderBy: { createdAt: 'desc' },
     })
 
@@ -22,18 +16,14 @@ export class PrismaRoleQueryRepository implements RoleQueryRepository {
       nameRole: role.name,
       description: role.description,
       createdAt: role.createdAt,
-      permissions: role.permissions.map((rp) => rp.permission.code),
+      permissions: role.permissions,
     }))
   }
 
   async getRoleByCode(code: string): Promise<RoleDto | null> {
     const role = await this.prisma.role.findUnique({
       where: { code },
-      include: {
-        permissions: {
-          include: { permission: true },
-        },
-      },
+
     })
 
     if (!role) return null
@@ -43,7 +33,7 @@ export class PrismaRoleQueryRepository implements RoleQueryRepository {
       nameRole: role.name,
       description: role.description,
       createdAt: role.createdAt,
-      permissions: role.permissions.map((rp) => rp.permission.code),
+      permissions: role.permissions,
     }
   }
 }

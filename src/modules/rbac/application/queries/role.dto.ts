@@ -5,8 +5,3 @@ export interface RoleDto {
   createdAt: Date
   permissions: string[]
 }
-
-export interface RoleQueryRepository {
-  getRoles(): Promise<RoleDto[]>
-  getRoleByCode(code: string): Promise<RoleDto | null>
-}
