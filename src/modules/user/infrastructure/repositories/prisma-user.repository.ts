@@ -7,11 +7,7 @@ import { UserMapper } from '@/modules/user/infrastructure/mapper/user.mapper'
 const rolesInclude = {
   roles: {
     include: {
-      role: {
-        include: {
-          permissions: { include: { permission: true } },
-        },
-      },
+      role: true,
     },
   },
 } as const

@@ -4,16 +4,16 @@ import type {
   UserProfile as PrismaUserProfile,
   UserRole as PrismaUserRole,
   Role as PrismaRole,
-  RolePermission as PrismaRolePermission,
-  Permission as PrismaPermission,
 } from '@/generated'
+import { ALL_SYSTEM_PERMISSIONS } from '@distributed-social-platform/shared-kernel'
 import { User } from '@/modules/user/domain/entities/user.entity'
 import { UserProfile } from '@/modules/user/domain/entities/user-profile.entity'
 import { AuthIdentity } from '@/modules/auth/domain/value-objects/auth-identity.vo'
 import type { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
+import { SystemRole } from '@/common/rbac/system-rbac'
 
 type PrismaRoleWithPermissions = PrismaRole & {
-  permissions?: (PrismaRolePermission & { permission: PrismaPermission })[]
+  permissions?: string[]
 }
 
 type PrismaUserWithRelations = PrismaUser & {
@@ -50,13 +50,19 @@ export class UserMapper {
           })
         : null,
       roles: record.roles ? record.roles.map((r) => r.role.code) : [],
-      permissions: record.roles
-        ? Array.from(
-            new Set(
-              record.roles.flatMap((r) => r.role.permissions?.map((p) => p.permission.code) ?? []),
-            ),
-          )
-        : [],
+      // SUPER_ADMIN never has role_permissions rows (implicit-all by design —
+      // see system-rbac.ts) — without this expansion, its JWT `permissions`
+      // claim would be empty and every downstream guard (auth-service's own
+      // requirePermissions, core-api's SystemPermissionGuard) would reject it.
+      permissions: record.roles?.some((r) => r.role.code === SystemRole.SUPER_ADMIN)
+        ? [...ALL_SYSTEM_PERMISSIONS]
+        : record.roles
+          ? Array.from(
+              new Set(
+                record.roles.flatMap((r) => r.role.permissions ?? []),
+              ),
+            )
+          : [],
       deletedAt: record.deletedAt,
     })
   }
