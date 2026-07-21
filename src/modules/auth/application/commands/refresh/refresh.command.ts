@@ -6,10 +6,14 @@ export class RefreshCommand implements ICommand {
    * MUST be transactional: marks old token as used AND creates new token.
    * If create fails without a transaction, user loses access permanently.
    */
-  readonly options: CommandOptions = { transactional: true, retryable: true }
+  readonly options: CommandOptions = {
+    transactional: true,
+    // domain-guard: refresh token is single-use (usedAt) — a replay throws RefreshTokenUsedError and
+    // revokes the whole family (theft response). none: no duplicate-creation race. transactional:true
+    // → safe to auto-retry on deadlock.
+  }
   constructor(
     public readonly refreshToken: string,
-    public readonly decoded: { sub: string; email: string },
     public readonly ipAddress?: string,
     public readonly userAgent?: string,
   ) {}

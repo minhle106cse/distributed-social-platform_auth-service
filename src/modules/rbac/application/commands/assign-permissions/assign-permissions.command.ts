@@ -2,7 +2,10 @@ import type { ICommand, CommandOptions } from '@distributed-social-platform/shar
 
 export class AssignPermissionsCommand implements ICommand {
   readonly name = AssignPermissionsCommand.name
-  readonly options: CommandOptions = { transactional: false, retryable: false }
+  readonly options: CommandOptions = {
+    transactional: false,
+    // set-semantics: overwrites the role's permission set (nested write) — re-applying is a no-op.
+  }
 
   constructor(
     public readonly roleCode: string,

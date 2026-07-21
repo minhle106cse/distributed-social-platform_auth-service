@@ -23,7 +23,10 @@ import { PrismaRoleQueryRepository } from '@/modules/rbac/infrastructure/reposit
 import { PrismaUserQueryRepository } from '@/modules/user/infrastructure/repositories/prisma-user.query-repository'
 import { PrismaRoleRepository } from '@/modules/rbac/infrastructure/repositories/prisma-role.repository'
 import { PrismaTransactionManager } from '@/infrastructure/database/prisma/prisma-transaction-manager'
-import { isPrismaTransientError } from '@/infrastructure/database/prisma/prisma-transient-error'
+import {
+  isPrismaTransientError,
+  recordDbTransientErrorObservation,
+} from '@/infrastructure/database/prisma/prisma-transient-error'
 
 export function buildApplication(infra: InfraDeps) {
   const commandBus = new CommandBus()
@@ -36,7 +39,16 @@ export function buildApplication(infra: InfraDeps) {
 
   // Middlewares are executed in order: Logging -> Retry -> Transaction
   commandBus.use(new LoggingMiddleware(infra.logger))
-  commandBus.use(new RetryMiddleware(infra.logger, isPrismaTransientError))
+  commandBus.use(
+    new RetryMiddleware(
+      infra.logger,
+      isPrismaTransientError,
+      undefined,
+      undefined,
+      undefined,
+      recordDbTransientErrorObservation,
+    ),
+  )
   commandBus.use(new TransactionMiddleware(transactionManager, infra.logger))
 
   const loginHandler = new LoginHandler(
