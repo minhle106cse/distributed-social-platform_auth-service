@@ -46,7 +46,7 @@ describe('LogoutHandler', () => {
 
   it('should throw RefreshTokenNotFoundError if token entity not found', async () => {
     const command = new LogoutCommand('user-1', 'valid-token')
-    mockTokenService.verifyRefreshToken.mockReturnValue('hash')
+    mockTokenService.verifyRefreshToken.mockReturnValue({ tokenHash: 'hash', sub: 'user-1', email: 'e@e.com' })
 
     mockRefreshTokenRepository.findByTokenHash.mockResolvedValueOnce(null)
 
@@ -56,7 +56,7 @@ describe('LogoutHandler', () => {
 
   it('should throw ForbiddenError if token belongs to another user', async () => {
     const command = new LogoutCommand('user-1', 'valid-token')
-    mockTokenService.verifyRefreshToken.mockReturnValue('hash')
+    mockTokenService.verifyRefreshToken.mockReturnValue({ tokenHash: 'hash', sub: 'user-1', email: 'e@e.com' })
 
     const tokenEntity = RefreshToken.rehydrate({
       id: 'token-1',
@@ -76,7 +76,7 @@ describe('LogoutHandler', () => {
 
   it('should revoke token if valid and belongs to the user', async () => {
     const command = new LogoutCommand('user-1', 'valid-token')
-    mockTokenService.verifyRefreshToken.mockReturnValue('hash')
+    mockTokenService.verifyRefreshToken.mockReturnValue({ tokenHash: 'hash', sub: 'user-1', email: 'e@e.com' })
 
     const tokenEntity = RefreshToken.rehydrate({
       id: 'token-2',

@@ -22,6 +22,7 @@ describe('RefreshHandler', () => {
       findByTokenHash: jest.fn(),
       update: jest.fn(),
       revokeAllByUserId: jest.fn(),
+      claimForUse: jest.fn(),
     }
 
     mockTokenService = {
@@ -46,16 +47,16 @@ describe('RefreshHandler', () => {
   })
 
   it('should throw RefreshTokenNotFoundError if token not in DB', async () => {
-    const command = new RefreshCommand('token', { sub: 'u1', email: 'e@e.com' }, 'ip', 'ua')
-    mockTokenService.verifyRefreshToken.mockReturnValue('hash')
+    const command = new RefreshCommand('token', 'ip', 'ua')
+    mockTokenService.verifyRefreshToken.mockReturnValue({ tokenHash: 'hash', sub: 'u1', email: 'e@e.com' })
     mockRefreshTokenRepository.findByTokenHash.mockResolvedValueOnce(null)
 
     await expect(handler.execute(command)).rejects.toThrow(RefreshTokenNotFoundError)
   })
 
   it('should throw error if token is expired', async () => {
-    const command = new RefreshCommand('token', { sub: 'u1', email: 'e@e.com' }, 'ip', 'ua')
-    mockTokenService.verifyRefreshToken.mockReturnValue('hash')
+    const command = new RefreshCommand('token', 'ip', 'ua')
+    mockTokenService.verifyRefreshToken.mockReturnValue({ tokenHash: 'hash', sub: 'u1', email: 'e@e.com' })
 
     const tokenEntity = RefreshToken.rehydrate({
       id: 'token-1',
@@ -72,9 +73,9 @@ describe('RefreshHandler', () => {
     await expect(handler.execute(command)).rejects.toThrow(RefreshTokenExpiredError)
   })
 
-  it('should revoke all tokens and throw RefreshTokenUsedError if token was already used', async () => {
-    const command = new RefreshCommand('token', { sub: 'u1', email: 'e@e.com' }, 'ip', 'ua')
-    mockTokenService.verifyRefreshToken.mockReturnValue('hash')
+  it('should revoke all tokens and throw RefreshTokenUsedError if the atomic claim loses (already used, incl. concurrent reuse)', async () => {
+    const command = new RefreshCommand('token', 'ip', 'ua')
+    mockTokenService.verifyRefreshToken.mockReturnValue({ tokenHash: 'hash', sub: 'u1', email: 'e@e.com' })
 
     const tokenEntity = RefreshToken.rehydrate({
       id: 'token-2',
@@ -86,17 +87,21 @@ describe('RefreshHandler', () => {
       ipAddress: null,
       userAgent: null,
     })
-    tokenEntity.markAsUsed() // already used
 
     mockRefreshTokenRepository.findByTokenHash.mockResolvedValueOnce(tokenEntity)
+    // claimForUse is the single source of truth for reuse-detection now — the
+    // in-memory `usedAt` on tokenEntity is irrelevant to this path (see
+    // refresh.handler.ts comment on the race it closes).
+    mockRefreshTokenRepository.claimForUse.mockResolvedValueOnce(false)
 
     await expect(handler.execute(command)).rejects.toThrow(RefreshTokenUsedError)
+    expect(mockRefreshTokenRepository.claimForUse).toHaveBeenCalledWith('token-2')
     expect(mockRefreshTokenRepository.revokeAllByUserId).toHaveBeenCalledWith('u1')
   })
 
   it('should generate new tokens and mark old as used on success', async () => {
-    const command = new RefreshCommand('token', { sub: 'u1', email: 'e@e.com' }, 'ip', 'ua')
-    mockTokenService.verifyRefreshToken.mockReturnValue('hash')
+    const command = new RefreshCommand('token', 'ip', 'ua')
+    mockTokenService.verifyRefreshToken.mockReturnValue({ tokenHash: 'hash', sub: 'u1', email: 'e@e.com' })
 
     const tokenEntity = RefreshToken.rehydrate({
       id: 'token-3',
@@ -110,6 +115,7 @@ describe('RefreshHandler', () => {
     })
 
     mockRefreshTokenRepository.findByTokenHash.mockResolvedValueOnce(tokenEntity)
+    mockRefreshTokenRepository.claimForUse.mockResolvedValueOnce(true)
 
     mockTokenService.signRefreshToken.mockReturnValue({
       token: 'new-token',
@@ -123,9 +129,8 @@ describe('RefreshHandler', () => {
 
     const result = await handler.execute(command)
 
-    // Old token should be marked as used and updated
-    expect(tokenEntity.usedAt).toBeDefined()
-    expect(mockRefreshTokenRepository.update).toHaveBeenCalledWith(tokenEntity)
+    // Old token claimed atomically via the repository, not markAsUsed()+update()
+    expect(mockRefreshTokenRepository.claimForUse).toHaveBeenCalledWith('token-3')
 
     // New token should be created
     expect(mockRefreshTokenRepository.create).toHaveBeenCalled()
@@ -141,8 +146,8 @@ describe('RefreshHandler', () => {
   })
 
   it('should throw UserNotFoundError if user is not found in DB', async () => {
-    const command = new RefreshCommand('token', { sub: 'u1', email: 'e@e.com' }, 'ip', 'ua')
-    mockTokenService.verifyRefreshToken.mockReturnValue('hash')
+    const command = new RefreshCommand('token', 'ip', 'ua')
+    mockTokenService.verifyRefreshToken.mockReturnValue({ tokenHash: 'hash', sub: 'u1', email: 'e@e.com' })
 
     const tokenEntity = RefreshToken.rehydrate({
       id: 'token-4',
@@ -156,6 +161,7 @@ describe('RefreshHandler', () => {
     })
 
     mockRefreshTokenRepository.findByTokenHash.mockResolvedValueOnce(tokenEntity)
+    mockRefreshTokenRepository.claimForUse.mockResolvedValueOnce(true)
 
     mockTokenService.signRefreshToken.mockReturnValue({
       token: 'new-token',
@@ -167,5 +173,34 @@ describe('RefreshHandler', () => {
     mockUserRepo.findByEmail.mockResolvedValueOnce(null)
 
     await expect(handler.execute(command)).rejects.toThrow(UserNotFoundError)
+  })
+
+  it('should throw UserNotFoundError without querying the repository if the verified token payload has no email', async () => {
+    const command = new RefreshCommand('token', 'ip', 'ua')
+    mockTokenService.verifyRefreshToken.mockReturnValue({ tokenHash: 'hash', sub: 'u1', email: null })
+
+    const tokenEntity = RefreshToken.rehydrate({
+      id: 'token-5',
+      userId: 'u1',
+      tokenHash: 'hash',
+      expiredAt: new Date(Date.now() + 10000),
+      usedAt: null,
+      revokedAt: null,
+      ipAddress: null,
+      userAgent: null,
+    })
+
+    mockRefreshTokenRepository.findByTokenHash.mockResolvedValueOnce(tokenEntity)
+    mockRefreshTokenRepository.claimForUse.mockResolvedValueOnce(true)
+    mockTokenService.signRefreshToken.mockReturnValue({
+      token: 'new-token',
+      tokenHash: 'new-hash',
+      expiredAt: new Date(),
+    })
+
+    const mockUserRepo = handler.userRepository as any
+
+    await expect(handler.execute(command)).rejects.toThrow(UserNotFoundError)
+    expect(mockUserRepo.findByEmail).not.toHaveBeenCalled()
   })
 })

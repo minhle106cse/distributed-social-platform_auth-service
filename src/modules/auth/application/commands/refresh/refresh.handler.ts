@@ -15,8 +15,12 @@ export class RefreshHandler implements ICommandHandler<RefreshCommand> {
   ) {}
 
   async execute(command: RefreshCommand) {
-    const { refreshToken, decoded, ipAddress, userAgent } = command
-    const tokenHash = this.tokenService.verifyRefreshToken(refreshToken)
+    const { refreshToken, ipAddress, userAgent } = command
+    // sub/email are read from the SAME jwt.verify() call as tokenHash — there
+    // is no unverified jwt.decode() anywhere in this flow anymore (fixes a
+    // fragile decode-then-verify-later pattern that used to be split across
+    // the route and this handler).
+    const { tokenHash, sub, email } = this.tokenService.verifyRefreshToken(refreshToken)
     const refreshTokenEntity = await this.refreshTokenRepository.findByTokenHash(tokenHash)
 
     if (!refreshTokenEntity) {
@@ -25,19 +29,23 @@ export class RefreshHandler implements ICommandHandler<RefreshCommand> {
 
     refreshTokenEntity.assertUsable()
 
-    if (refreshTokenEntity.usedAt) {
-      await this.refreshTokenRepository.revokeAllByUserId(decoded.sub)
+    // Atomic conditional claim, not read-then-write — the in-memory
+    // `refreshTokenEntity.usedAt` read above is already stale the instant a
+    // concurrent request commits, so checking it here would let two
+    // simultaneous refreshes for the same token both pass. claimForUse()
+    // pushes the check into the UPDATE's WHERE clause so Postgres resolves
+    // the race, not this code.
+    const claimed = await this.refreshTokenRepository.claimForUse(refreshTokenEntity.id)
+    if (!claimed) {
+      await this.refreshTokenRepository.revokeAllByUserId(sub)
       throw new RefreshTokenUsedError()
     }
-
-    refreshTokenEntity.markAsUsed()
-    await this.refreshTokenRepository.update(refreshTokenEntity)
 
     const { refreshToken: newRefreshToken, refreshTokenEntity: newRefreshTokenEntity } =
       RefreshToken.create(
         {
-          userId: decoded.sub,
-          email: decoded.email ?? null,
+          userId: sub,
+          email,
           ipAddress: ipAddress ?? null,
           userAgent: userAgent ?? null,
         },
@@ -46,8 +54,11 @@ export class RefreshHandler implements ICommandHandler<RefreshCommand> {
 
     await this.refreshTokenRepository.create(newRefreshTokenEntity)
 
-    // Fetch user to get latest roles
-    const user = await this.userRepository.findByEmail(decoded.email)
+    // Fetch user to get latest roles. A refresh token is only ever minted
+    // (RefreshToken.create) with the email used at login, so `email` being
+    // null here would mean the token payload itself is malformed — treat the
+    // same as "user not found" rather than passing null into the repository.
+    const user = email ? await this.userRepository.findByEmail(email) : null
     if (!user) {
       throw new UserNotFoundError()
     }

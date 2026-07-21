@@ -39,8 +39,14 @@ export class ImpTokenService implements TokenService {
   }
 
   verifyRefreshToken(token: string) {
-    jwt.verify(token, config.jwt.refreshSecret)
+    // jwt.verify both checks the signature AND returns the payload — the sub/
+    // email below are only ever read from a token whose signature has just
+    // been checked, never from an unverified jwt.decode().
+    const payload = jwt.verify(token, config.jwt.refreshSecret) as jwt.JwtPayload & {
+      sub: string
+      email: string | null
+    }
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex')
-    return tokenHash
+    return { tokenHash, sub: payload.sub, email: payload.email ?? null }
   }
 }

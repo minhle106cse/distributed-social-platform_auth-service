@@ -1,5 +1,5 @@
 import type { LoginCommand } from './login.command'
-import { InvalidCredentialsError } from '@/common/errors/auth.error'
+import { AuthMethodNotFoundError, InvalidCredentialsError } from '@/common/errors/auth.error'
 import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
 import type { UserRepository } from '@/modules/user/domain/repositories/user.repository'
 import type { PasswordService } from '@/modules/auth/domain/services/password.service'
@@ -27,7 +27,17 @@ export class LoginHandler {
 
     user.ensureCanLogin()
 
-    const authIdentity = user.getAuthIdentity(AuthProvider.LOCAL)
+    // A user that exists but signed up via OAuth (no LOCAL identity) must get
+    // the exact same error as a wrong password — AuthMethodNotFoundError
+    // leaking straight to the client tells an attacker "this email is
+    // registered, just not with a password", a user-enumeration oracle.
+    let authIdentity
+    try {
+      authIdentity = user.getAuthIdentity(AuthProvider.LOCAL)
+    } catch (err) {
+      if (err instanceof AuthMethodNotFoundError) throw new InvalidCredentialsError()
+      throw err
+    }
     await authIdentity.localAuthenticate(password, this.passwordService)
 
     // Khôi phục tài khoản nếu đang ở trạng thái Soft Delete (trong vòng 30 ngày)

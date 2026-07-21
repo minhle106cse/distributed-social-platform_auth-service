@@ -42,4 +42,17 @@ export class PrismaRefreshTokenRepository implements RefreshTokenRepository {
       data: { revokedAt: new Date() },
     })
   }
+
+  async claimForUse(id: string): Promise<boolean> {
+    const db = getTx<PrismaClient>() ?? this.prisma
+    // `usedAt: null` in the WHERE clause makes this a single atomic
+    // conditional update — Postgres row lock resolves the race, not
+    // application code. If another concurrent call already claimed it, this
+    // WHERE matches 0 rows and `count` comes back 0.
+    const result = await db.refreshToken.updateMany({
+      where: { id, usedAt: null },
+      data: { usedAt: new Date() },
+    })
+    return result.count === 1
+  }
 }

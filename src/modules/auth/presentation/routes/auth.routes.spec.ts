@@ -98,9 +98,10 @@ describe('Auth Routes (Unit)', () => {
 
   describe('POST /auth/refresh', () => {
     it('should return 200 on successful refresh', async () => {
-      // Decode mock to bypass JWT check in handler
-      app.jwt.decode = jest.fn().mockReturnValue({ sub: 'user1', email: 'test@example.com' })
-
+      // The route no longer decodes the JWT itself (fixed 2026-07-19 —
+      // RefreshHandler now verifies the signature and reads sub/email from
+      // that single verified call, see token.service.ts). CommandBus is
+      // mocked below so there's nothing to stub at the route level anymore.
       const mockTokens = {
         accessToken: { token: 'new-access', expiredAt: new Date().toISOString() },
         refreshToken: { token: 'new-refresh', expiredAt: new Date().toISOString() },
@@ -130,17 +131,11 @@ describe('Auth Routes (Unit)', () => {
       expect(response.statusCode).toBe(401)
     })
 
-    it('should return 401 if decoded payload has no sub', async () => {
-      app.jwt.decode = jest.fn().mockReturnValue({ email: 'test@example.com' }) // no sub
-      const response = await app.inject({
-        method: 'POST',
-        url: '/api/v1/auth/refresh',
-        payload: {
-          refreshToken: 'valid-refresh-token',
-        },
-      })
-      expect(response.statusCode).toBe(401)
-    })
+    // An invalid/malformed refresh token (no `sub`, bad signature, etc.) is no
+    // longer rejected by a route-level jwt.decode() check — RefreshHandler's
+    // tokenService.verifyRefreshToken() now owns that validation (single
+    // verified call, see refresh.handler.spec.ts for the handler-level
+    // coverage of RefreshTokenNotFoundError/expired/used cases).
   })
 
   describe('POST /auth/logout', () => {

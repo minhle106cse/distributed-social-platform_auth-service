@@ -119,17 +119,13 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
         throw new UnauthorizedError()
       }
 
-      const decoded = fastify.jwt.decode<{ sub: string; email: string }>(refreshToken)
-      if (!decoded?.sub) {
-        throw new UnauthorizedError()
-      }
-
-      const command = new RefreshCommand(
-        refreshToken,
-        decoded,
-        req.body?.ipAddress,
-        req.body?.userAgent,
-      )
+      // sub/email are NOT extracted here — that used to go through
+      // fastify.jwt.decode() (no signature check) before the handler
+      // separately verified the same token string. Safe today only because
+      // both operate on the identical string, but fragile for future
+      // refactors. RefreshHandler now verifies the signature AND reads the
+      // payload from that single verified call (token.service.ts).
+      const command = new RefreshCommand(refreshToken, req.body?.ipAddress, req.body?.userAgent)
       const data = await CommandBus.execute<typeof command, TokenResponse>(command)
 
       reply.setCookie('accessToken', data.accessToken.token, {

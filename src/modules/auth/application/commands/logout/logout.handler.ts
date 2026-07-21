@@ -17,7 +17,7 @@ export class LogoutHandler implements ICommandHandler<LogoutCommand> {
       return
     }
 
-    const tokenHash = this.tokenService.verifyRefreshToken(refreshToken)
+    const { tokenHash } = this.tokenService.verifyRefreshToken(refreshToken)
     const tokenEntity = await this.refreshTokenRepository.findByTokenHash(tokenHash)
 
     if (!tokenEntity) {

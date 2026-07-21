@@ -120,6 +120,25 @@ describe('LoginHandler', () => {
     ).rejects.toThrow(InvalidCredentialsError)
   })
 
+  it('should throw InvalidCredentialsError (not AuthMethodNotFoundError) if user exists but has no LOCAL identity (OAuth-only) — prevents user enumeration', async () => {
+    const user = User.rehydrate({
+      id: 'user-id',
+      email: 'oauth-only@example.com',
+      isActive: true,
+      emailVerified: true,
+      authIdentities: [], // no LOCAL identity — signed up via OAuth
+    })
+
+    mockUserRepo.findByEmail.mockResolvedValue(user)
+
+    await expect(
+      handler.execute({
+        email: 'oauth-only@example.com',
+        password: 'pass',
+      } as any),
+    ).rejects.toThrow(InvalidCredentialsError)
+  })
+
   it('should throw if user is inactive', async () => {
     const user = User.rehydrate({
       id: 'user-id',
