@@ -4,6 +4,10 @@ import {
   type CommandBus,
   type ILogger,
   verifyInternalGrpcSecret,
+  readTraceparent,
+  startTraceContext,
+  runWithTraceContext,
+  LogContext,
 } from '@distributed-social-platform/shared-kernel'
 import { ProvisionUserCommand } from '@/modules/auth/application/commands/provision-user/provision-user.command'
 import type { ProvisionUserResult } from '@/modules/auth/application/commands/provision-user/provision-user.handler'
@@ -41,8 +45,15 @@ export class AuthProvisioningGrpcService implements AuthProvisioningServer {
   // no-misused-promises correctly flags: an unhandled rejection here would be
   // silently swallowed by grpc-js).
   provisionUser: AuthProvisioningServer['provisionUser'] = (call, callback) => {
-    void (async () => {
+    const traceCtx = startTraceContext(readTraceparent(call))
+    void runWithTraceContext(traceCtx, async () => {
       if (!verifyInternalGrpcSecret(call, config.internalGrpcSharedSecret)) {
+        // Security-relevant rejection — previously silent (2026-07-25 gateway
+        // audit). See membership-verification.grpc-service.ts for the same fix.
+        this.#logger.warn(
+          { context: LogContext.GRPC },
+          'ProvisionUser gRPC call rejected — invalid internal secret',
+        )
         callback({ code: grpc.status.UNAUTHENTICATED, message: 'Invalid internal secret' })
         return
       }
@@ -51,21 +62,34 @@ export class AuthProvisioningGrpcService implements AuthProvisioningServer {
         const result = await this.#commandBus.execute<ProvisionUserCommand, ProvisionUserResult>(
           new ProvisionUserCommand(call.request.email),
         )
+        // Mirrors the HTTP boundary logging every request (success + error) —
+        // gRPC previously logged failures only. `userId` only, never the
+        // temporary password (redaction is defense-in-depth, not a reason to
+        // log secrets on purpose — see logging_standard.md).
+        this.#logger.info(
+          { context: LogContext.GRPC, userId: result.userId },
+          'ProvisionUser gRPC call succeeded',
+        )
         callback(null, { userId: result.userId, temporaryPassword: result.temporaryPassword })
       } catch (err) {
         if (err instanceof UserAlreadyExistsError) {
           callback({ code: grpc.status.ALREADY_EXISTS, message: err.message })
           return
         }
-        this.#logger.error({ err }, 'ProvisionUser gRPC call failed')
+        this.#logger.error({ context: LogContext.GRPC, err }, 'ProvisionUser gRPC call failed')
         callback({ code: grpc.status.INTERNAL, message: 'Failed to provision user' })
       }
-    })()
+    })
   }
 
   cancelProvisionedUser: AuthProvisioningServer['cancelProvisionedUser'] = (call, callback) => {
-    void (async () => {
+    const traceCtx = startTraceContext(readTraceparent(call))
+    void runWithTraceContext(traceCtx, async () => {
       if (!verifyInternalGrpcSecret(call, config.internalGrpcSharedSecret)) {
+        this.#logger.warn(
+          { context: LogContext.GRPC },
+          'CancelProvisionedUser gRPC call rejected — invalid internal secret',
+        )
         callback({ code: grpc.status.UNAUTHENTICATED, message: 'Invalid internal secret' })
         return
       }
@@ -75,11 +99,18 @@ export class AuthProvisioningGrpcService implements AuthProvisioningServer {
           CancelProvisionedUserCommand,
           CancelProvisionedUserResult
         >(new CancelProvisionedUserCommand(call.request.userId))
+        this.#logger.info(
+          { context: LogContext.GRPC, userId: call.request.userId, cancelled: result.cancelled },
+          'CancelProvisionedUser gRPC call succeeded',
+        )
         callback(null, { cancelled: result.cancelled })
       } catch (err) {
-        this.#logger.error({ err }, 'CancelProvisionedUser gRPC call failed')
+        this.#logger.error(
+          { context: LogContext.GRPC, err },
+          'CancelProvisionedUser gRPC call failed',
+        )
         callback({ code: grpc.status.INTERNAL, message: 'Failed to cancel provisioned user' })
       }
-    })()
+    })
   }
 }

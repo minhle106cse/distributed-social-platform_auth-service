@@ -2,7 +2,7 @@ import { join } from 'path'
 import { config as dotenvConfig } from 'dotenv'
 dotenvConfig({ path: join(process.cwd(), '../../.env') })
 import { collectDefaultMetrics } from 'prom-client'
-import { createLogger } from '@distributed-social-platform/shared-kernel'
+import { LogContext, createLogger } from '@distributed-social-platform/shared-kernel'
 import { createApp } from './app'
 import { config } from './config'
 import { buildInfra } from './container/infra'
@@ -43,10 +43,10 @@ async function bootstrap() {
   // SHUTDOWN_TIMEOUT_MS), THEN close the DB connection — closing Prisma
   // first would break any request still in flight.
   const shutdown = (signal: string) => {
-    logger.info(`${signal} received, shutting down gracefully...`)
+    logger.info({ context: LogContext.LIFECYCLE }, `${signal} received, shutting down gracefully...`)
 
     const forceExit = setTimeout(() => {
-      logger.error('Graceful shutdown timed out, forcing exit')
+      logger.error({ context: LogContext.LIFECYCLE }, 'Graceful shutdown timed out, forcing exit')
       process.exit(1)
     }, SHUTDOWN_TIMEOUT_MS)
     forceExit.unref() // don't let this timer itself keep the process alive
@@ -58,11 +58,11 @@ async function bootstrap() {
       .then(() => prismaService.disconnect())
       .then(() => {
         clearTimeout(forceExit)
-        logger.info('Shutdown complete')
+        logger.info({ context: LogContext.LIFECYCLE }, 'Shutdown complete')
         process.exit(0)
       })
       .catch((err) => {
-        logger.error({ err }, 'Error during shutdown')
+        logger.error({ context: LogContext.LIFECYCLE, err }, 'Error during shutdown')
         process.exit(1)
       })
   }

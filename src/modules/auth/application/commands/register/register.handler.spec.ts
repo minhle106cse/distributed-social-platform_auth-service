@@ -1,3 +1,4 @@
+import type { ILogger } from '@distributed-social-platform/shared-kernel'
 import { RegisterHandler } from './register.handler'
 import type { UserRepository } from '@/modules/user/domain/repositories/user.repository'
 import type { PasswordService } from '@/modules/auth/domain/services/password.service'
@@ -13,6 +14,7 @@ describe('RegisterHandler', () => {
   let handler: RegisterHandler
   let mockUserRepo: jest.Mocked<UserRepository>
   let mockPasswordService: jest.Mocked<PasswordService>
+  let mockAuditLogger: jest.Mocked<ILogger>
 
   beforeEach(() => {
     mockUserRepo = {
@@ -26,7 +28,9 @@ describe('RegisterHandler', () => {
       verify: jest.fn(),
     }
 
-    handler = new RegisterHandler(mockUserRepo, mockPasswordService)
+    mockAuditLogger = { info: jest.fn() } as unknown as jest.Mocked<ILogger>
+
+    handler = new RegisterHandler(mockUserRepo, mockPasswordService, mockAuditLogger)
   })
 
   it('should register a new user successfully', async () => {

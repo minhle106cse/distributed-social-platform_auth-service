@@ -1,4 +1,5 @@
-import type { ICommandHandler } from '@distributed-social-platform/shared-kernel'
+import type { ICommandHandler, ILogger } from '@distributed-social-platform/shared-kernel'
+import { logAudit, hashEmail } from '@distributed-social-platform/shared-kernel'
 import type { RefreshCommand } from './refresh.command'
 import { RefreshTokenNotFoundError, RefreshTokenUsedError } from '@/common/errors/auth.error'
 import { UserNotFoundError } from '@/common/errors/user.error'
@@ -12,6 +13,7 @@ export class RefreshHandler implements ICommandHandler<RefreshCommand> {
     public readonly refreshTokenRepository: RefreshTokenRepository,
     public readonly tokenService: TokenService,
     public readonly userRepository: UserRepository,
+    private readonly logger: ILogger,
   ) {}
 
   async execute(command: RefreshCommand) {
@@ -38,6 +40,19 @@ export class RefreshHandler implements ICommandHandler<RefreshCommand> {
     const claimed = await this.refreshTokenRepository.claimForUse(refreshTokenEntity.id)
     if (!claimed) {
       await this.refreshTokenRepository.revokeAllByUserId(sub)
+      // The single most important audit event in this handler: a used
+      // refresh token being replayed is the textbook signal of a STOLEN
+      // token (attacker replaying a token the legitimate user already
+      // rotated past), not routine user behavior — this is exactly the kind
+      // of event worth being able to filter for (context: AuditLog).
+      logAudit(this.logger, {
+        action: 'auth.refresh_reuse_detected',
+        outcome: 'failure',
+        actorUserId: sub,
+        actorEmailHash: email ? hashEmail(email) : undefined,
+        ip: ipAddress,
+        metadata: { allSessionsRevoked: true },
+      })
       throw new RefreshTokenUsedError()
     }
 

@@ -1,6 +1,7 @@
 import * as grpc from '@grpc/grpc-js'
 import {
   AuthProvisioningService,
+  LogContext,
   type CommandBus,
   type ILogger,
 } from '@distributed-social-platform/shared-kernel'
@@ -16,10 +17,10 @@ export function startGrpcServer(commandBus: CommandBus, logger: ILogger): grpc.S
     grpc.ServerCredentials.createInsecure(),
     (err, port) => {
       if (err) {
-        logger.error({ err }, 'Failed to start gRPC server')
+        logger.error({ context: LogContext.GRPC, err }, 'Failed to start gRPC server')
         return
       }
-      logger.info(`🔌 gRPC (AuthProvisioning) listening on port ${port}`)
+      logger.info({ context: LogContext.GRPC }, `🔌 gRPC (AuthProvisioning) listening on port ${port}`)
     },
   )
 

@@ -1,3 +1,4 @@
+import type { ILogger } from '@distributed-social-platform/shared-kernel'
 import { RefreshHandler } from './refresh.handler'
 import { RefreshCommand } from './refresh.command'
 import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
@@ -40,10 +41,17 @@ describe('RefreshHandler', () => {
       authIdentities: [],
     })
 
-    handler = new RefreshHandler(mockRefreshTokenRepository, mockTokenService, {
-      findById: jest.fn().mockResolvedValue(mockUser),
-      findByEmail: jest.fn().mockResolvedValue(mockUser),
-    } as any)
+    const mockAuditLogger = { info: jest.fn(), warn: jest.fn() } as unknown as jest.Mocked<ILogger>
+
+    handler = new RefreshHandler(
+      mockRefreshTokenRepository,
+      mockTokenService,
+      {
+        findById: jest.fn().mockResolvedValue(mockUser),
+        findByEmail: jest.fn().mockResolvedValue(mockUser),
+      } as any,
+      mockAuditLogger,
+    )
   })
 
   it('should throw RefreshTokenNotFoundError if token not in DB', async () => {

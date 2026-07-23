@@ -51,19 +51,36 @@ export function buildApplication(infra: InfraDeps) {
   )
   commandBus.use(new TransactionMiddleware(transactionManager, infra.logger))
 
+  // 2026-07-25 — REVERTED the `.child({context: ClassName.name})` pattern
+  // used here before. Found it produces a genuinely malformed log line: real
+  // pino's `child()` bindings and a later per-call object argument with the
+  // SAME key (`context`) do NOT merge — they're both written to the JSON
+  // output, producing a line with the `context` key TWICE
+  // (`"context":"LoginHandler","context":"AuditLog"`), correct only by
+  // accident because most JSON parsers take the last occurrence. Verified
+  // with a real pino instance. Every log call these 3 handlers make goes
+  // through `logAudit()`, which ALREADY sets `context: LogContext.AUDIT`
+  // explicitly — the child binding was dead weight producing bad JSON for
+  // zero benefit. Passing `infra.logger` directly, unmodified.
   const loginHandler = new LoginHandler(
     infra.userRepository,
     infra.refreshTokenRepository,
     infra.passwordService,
     infra.tokenService,
+    infra.logger,
   )
-  const registerHandler = new RegisterHandler(infra.userRepository, infra.passwordService)
+  const registerHandler = new RegisterHandler(
+    infra.userRepository,
+    infra.passwordService,
+    infra.logger,
+  )
   const provisionUserHandler = new ProvisionUserHandler(infra.userRepository, infra.passwordService)
   const cancelProvisionedUserHandler = new CancelProvisionedUserHandler(infra.userRepository)
   const refreshHandler = new RefreshHandler(
     infra.refreshTokenRepository,
     infra.tokenService,
     infra.userRepository,
+    infra.logger,
   )
   const updateProfileHandler = new UpdateProfileHandler(infra.userRepository)
 

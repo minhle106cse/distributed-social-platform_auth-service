@@ -1,3 +1,4 @@
+import type { ILogger } from '@distributed-social-platform/shared-kernel'
 import { LoginHandler } from './login.handler'
 import type { UserRepository } from '@/modules/user/domain/repositories/user.repository'
 import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
@@ -20,6 +21,7 @@ describe('LoginHandler', () => {
   let mockRefreshTokenRepo: jest.Mocked<RefreshTokenRepository>
   let mockPasswordService: jest.Mocked<PasswordService>
   let mockTokenService: jest.Mocked<TokenService>
+  let mockAuditLogger: jest.Mocked<ILogger>
 
   beforeEach(() => {
     mockUserRepo = {
@@ -49,11 +51,19 @@ describe('LoginHandler', () => {
       verifyRefreshToken: jest.fn(),
     } as unknown as jest.Mocked<TokenService>
 
+    mockAuditLogger = {
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      debug: jest.fn(),
+    } as unknown as jest.Mocked<ILogger>
+
     handler = new LoginHandler(
       mockUserRepo,
       mockRefreshTokenRepo,
       mockPasswordService,
       mockTokenService,
+      mockAuditLogger,
     )
   })
 

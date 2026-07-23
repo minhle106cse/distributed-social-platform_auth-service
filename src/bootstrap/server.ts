@@ -1,7 +1,11 @@
 import { createPublicKey, createHash } from 'crypto'
 import Fastify, { type FastifyBaseLogger } from 'fastify'
 import { register } from 'prom-client'
-import { type ILogger } from '@distributed-social-platform/shared-kernel'
+import {
+  type ILogger,
+  runWithTraceContext,
+  startTraceContext,
+} from '@distributed-social-platform/shared-kernel'
 import { setupFastify } from './fastify'
 import { setupSwagger } from './swagger'
 import { config } from '@/config'
@@ -17,10 +21,7 @@ interface ServerDeps {
   QueryBus: Application['QueryBus']
 }
 
-export async function buildServer(
-  deps: ServerDeps,
-  logger?: ILogger,
-) {
+export async function buildServer(deps: ServerDeps, logger?: ILogger) {
   const isTest = process.env.NODE_ENV === 'test'
   const fastify = Fastify({
     ...(isTest ? { logger: false } : { loggerInstance: logger as unknown as FastifyBaseLogger }),
@@ -31,6 +32,17 @@ export async function buildServer(
     },
     disableRequestLogging: true,
     bodyLimit: 2 * 1024 * 1024,
+  })
+
+  // Registered before setupFastify() so it's the FIRST onRequest hook — every
+  // hook/handler after it (including the ones setupFastify adds) runs inside
+  // the trace-context ALS scope. Reuses the traceId of an inbound
+  // `traceparent` header (e.g. a request core-api forwarded) or starts a new
+  // trace otherwise (auth-service is also a first-hop entry for login/register).
+  fastify.addHook('onRequest', (req, _reply, done) => {
+    const header = req.headers['traceparent']
+    const inbound = Array.isArray(header) ? header[0] : header
+    runWithTraceContext(startTraceContext(inbound), () => done())
   })
 
   await setupFastify(fastify)
@@ -71,14 +83,18 @@ export async function buildServer(
   // through instead of throwing ResponseFormatError (payload isn't an
   // ApiResponse instance). compress:false to match /health and /metrics —
   // avoids the same @fastify/compress gzip-truncation issue fixed there.
-  fastify.get('/.well-known/jwks.json', { config: { skipResponseWrapper: true, compress: false } }, () => {
-    const keyObj = createPublicKey(config.jwt.publicKey)
-    const jwk = keyObj.export({ format: 'jwk' }) as { n: string; e: string }
-    const kid = createHash('sha256').update(config.jwt.publicKey).digest('hex').substring(0, 16)
-    return {
-      keys: [{ kty: 'RSA', use: 'sig', alg: 'RS256', kid, n: jwk.n, e: jwk.e }],
-    }
-  })
+  fastify.get(
+    '/.well-known/jwks.json',
+    { config: { skipResponseWrapper: true, compress: false } },
+    () => {
+      const keyObj = createPublicKey(config.jwt.publicKey)
+      const jwk = keyObj.export({ format: 'jwk' }) as { n: string; e: string }
+      const kid = createHash('sha256').update(config.jwt.publicKey).digest('hex').substring(0, 16)
+      return {
+        keys: [{ kty: 'RSA', use: 'sig', alg: 'RS256', kid, n: jwk.n, e: jwk.e }],
+      }
+    },
+  )
 
   fastify.get(
     '/metrics',
