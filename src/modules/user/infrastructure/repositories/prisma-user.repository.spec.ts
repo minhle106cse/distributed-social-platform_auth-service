@@ -46,4 +46,53 @@ describe('PrismaUserRepository', () => {
       await expect(repo.create(user)).rejects.toBe(otherError)
     })
   })
+
+  describe('findByEmail / findById — includeDeleted escape hatch', () => {
+    // Regression test: the SOFT_DELETE_MODELS extension (prisma.client.ts) only
+    // auto-injects `deletedAt: null` when the `where` object is MISSING the
+    // 'deletedAt' key entirely (`!('deletedAt' in where)`). `{ deletedAt: undefined }`
+    // still has the key present, so the extension leaves it alone — but the
+    // OLD code passed `...(includeDeleted ? {} : { deletedAt: null })`, which for
+    // includeDeleted=true produced `{}` (key absent), letting the extension silently
+    // re-inject `deletedAt: null` anyway. That made findByEmail(email, true) — used by
+    // login.handler.ts to find soft-deleted accounts for the recovery flow — always
+    // behave identically to includeDeleted=false. Asserting the exact `where` shape here
+    // is what would have caught it (a mocked resolved value alone would not).
+
+    it('findByEmail(email, false) → where includes deletedAt: null (visible-only)', async () => {
+      const findFirst = jest.fn().mockResolvedValue(null)
+      const mockPrisma = { user: { findFirst } } as unknown as PrismaClient
+      const repo = new PrismaUserRepository(mockPrisma)
+
+      await repo.findByEmail('a@example.com', false)
+
+      expect(findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { email: 'a@example.com', deletedAt: null } }),
+      )
+    })
+
+    it('findByEmail(email, true) → where has deletedAt KEY PRESENT as undefined (includes soft-deleted)', async () => {
+      const findFirst = jest.fn().mockResolvedValue(null)
+      const mockPrisma = { user: { findFirst } } as unknown as PrismaClient
+      const repo = new PrismaUserRepository(mockPrisma)
+
+      await repo.findByEmail('a@example.com', true)
+
+      const calledWhere = findFirst.mock.calls[0][0].where
+      expect('deletedAt' in calledWhere).toBe(true)
+      expect(calledWhere.deletedAt).toBeUndefined()
+    })
+
+    it('findById(id, true) → where has deletedAt KEY PRESENT as undefined (includes soft-deleted)', async () => {
+      const findFirst = jest.fn().mockResolvedValue(null)
+      const mockPrisma = { user: { findFirst } } as unknown as PrismaClient
+      const repo = new PrismaUserRepository(mockPrisma)
+
+      await repo.findById('u1', true)
+
+      const calledWhere = findFirst.mock.calls[0][0].where
+      expect('deletedAt' in calledWhere).toBe(true)
+      expect(calledWhere.deletedAt).toBeUndefined()
+    })
+  })
 })

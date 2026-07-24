@@ -34,7 +34,6 @@ export class UserProfile {
   }
 
   static create(props: {
-    id?: string
     userId: string
     firstName?: string | null
     lastName?: string | null
@@ -45,7 +44,7 @@ export class UserProfile {
     return new UserProfile({
       // Entity owns its identity (like User/Role/Permission). The mapper persists
       // this id on INSERT so the in-memory entity and the DB row never diverge.
-      id: props.id || v7(),
+      id: v7(),
       userId: props.userId,
       firstName: props.firstName ?? null,
       lastName: props.lastName ?? null,

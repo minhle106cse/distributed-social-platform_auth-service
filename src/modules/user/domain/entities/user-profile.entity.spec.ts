@@ -19,16 +19,6 @@ describe('UserProfile Entity', () => {
     expect(profile.phoneNumber).toBeNull()
   })
 
-  it('should create with provided id', () => {
-    const profile = UserProfile.create({
-      id: 'p2',
-      userId: 'u2',
-    })
-
-    expect(profile.id).toBe('p2')
-    expect(profile.userId).toBe('u2')
-  })
-
   it('should rehydrate correctly', () => {
     const profile = UserProfile.rehydrate({
       id: 'p1',

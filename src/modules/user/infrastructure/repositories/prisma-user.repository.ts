@@ -19,7 +19,10 @@ export class PrismaUserRepository implements UserRepository {
   async findById(id: string, includeDeleted = false): Promise<User | null> {
     const db = getTx<PrismaClient>() ?? this.prisma
     const record = await db.user.findFirst({
-      where: { id, ...(includeDeleted ? {} : { deletedAt: null }) },
+      // `deletedAt: undefined` (not `{}`) keeps the key PRESENT — the SOFT_DELETE_MODELS
+      // extension only auto-injects `deletedAt: null` when the key is absent from `where`.
+      // A present key, even `undefined`, is the documented escape hatch (database_standard.md).
+      where: { id, deletedAt: includeDeleted ? undefined : null },
       include: { authIdentities: true, profile: true, ...rolesInclude },
     })
     if (!record) return null
@@ -29,7 +32,7 @@ export class PrismaUserRepository implements UserRepository {
   async findByEmail(email: string, includeDeleted = false): Promise<User | null> {
     const db = getTx<PrismaClient>() ?? this.prisma
     const record = await db.user.findFirst({
-      where: { email, ...(includeDeleted ? {} : { deletedAt: null }) },
+      where: { email, deletedAt: includeDeleted ? undefined : null },
       include: { authIdentities: true, profile: true, ...rolesInclude },
     })
     if (!record) return null
