@@ -26,6 +26,14 @@ model User {
   email     String   @unique
   isActive  Boolean  @default(true) @map("is_active")
   emailVerified Boolean @default(false) @map("email_verified")
+  // True only when created by ProvisionUserHandler (cross-service saga owner
+  // provisioning), false for self-registered users (RegisterHandler). Both use
+  // the same User.create factory and both start emailVerified:false, so this is
+  // the only signal that distinguishes them — needed by the observability-only
+  // orphan-detection job (review of ADR-0001, 2026-07-30). Do NOT use
+  // emailVerified alone for that: no verification flow exists yet, so it stays
+  // false forever for BOTH kinds of user, successful or orphaned.
+  provisionedViaSaga Boolean @default(false) @map("provisioned_via_saga")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -150,4 +158,32 @@ model UserRole {
 
   @@id([userId, roleId])
   @@map("user_roles")
+}
+
+//////////////////////
+// INFRASTRUCTURE
+//////////////////////
+
+/// Idempotency cache for the internal AuthProvisioning.ProvisionUser gRPC call —
+/// mirrors core-api's IdempotencyRecord (same problem, one layer deeper: that
+/// HTTP-level cache only replays a response it actually got to store. If THIS
+/// call's own response is lost in flight, core-api's handler throws before ever
+/// reaching that cache, so it never learns a user was created here at all. This
+/// record is what lets a retry with the SAME key recover the SAME userId
+/// instead of orphaning a second provisioned user (review of ADR-0001,
+/// 2026-07-30). Deliberately does NOT store the temporary password — a retry
+/// gets a freshly re-issued one (ProvisionUserHandler updates the AuthIdentity
+/// hash) rather than a plaintext secret persisted at rest for later replay.
+model GrpcIdempotencyRecord {
+  key       String   @id // core-api's X-Idempotency-Key, threaded through the RPC
+  userId    String   @map("user_id")
+  // Stored so a key collision across two DIFFERENT requests (client bug, or
+  // reused key across admins) is detectable instead of silently reissuing a
+  // live temp password for someone else's account — see ProvisionUserHandler.
+  email     String
+  createdAt DateTime @default(now()) @map("created_at")
+  expiresAt DateTime @map("expires_at")
+
+  @@index([expiresAt])
+  @@map("grpc_idempotency_records")
 }

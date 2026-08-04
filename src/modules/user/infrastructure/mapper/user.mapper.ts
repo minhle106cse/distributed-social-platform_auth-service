@@ -25,6 +25,7 @@ export class UserMapper {
       email: record.email,
       isActive: record.isActive,
       emailVerified: record.emailVerified,
+      provisionedViaSaga: record.provisionedViaSaga,
       authIdentities: record.authIdentities
         ? record.authIdentities.map((r) =>
             AuthIdentity.rehydrate({
@@ -53,11 +54,7 @@ export class UserMapper {
       permissions: record.roles?.some((r) => r.role.code === SystemRole.SUPER_ADMIN)
         ? [...ALL_SYSTEM_PERMISSIONS]
         : record.roles
-          ? Array.from(
-              new Set(
-                record.roles.flatMap((r) => r.role.permissions ?? []),
-              ),
-            )
+          ? Array.from(new Set(record.roles.flatMap((r) => r.role.permissions ?? [])))
           : [],
       deletedAt: record.deletedAt,
     })
@@ -68,6 +65,7 @@ export class UserMapper {
       email: user.email,
       isActive: user.isActive,
       emailVerified: user.emailVerified,
+      provisionedViaSaga: user.provisionedViaSaga,
       deletedAt: user.deletedAt,
     }
   }

@@ -2,7 +2,7 @@ import { v7 } from 'uuid'
 import type { UserProfile } from './user-profile.entity'
 import { type AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
 import { AuthIdentity } from '@/modules/auth/domain/value-objects/auth-identity.vo'
-import type { PasswordService } from '@/modules/auth/domain/services/password.service'
+import type { IPasswordService } from '@/modules/auth/domain/services/password.service'
 import { AuthMethodNotFoundError } from '@/common/errors/auth.error'
 import { UserCannotLoginError } from '@/common/errors/user.error'
 
@@ -11,6 +11,9 @@ export interface UserProps {
   email: string
   isActive: boolean
   emailVerified: boolean
+  // True only when created by ProvisionUserHandler — see schema.prisma's
+  // GrpcIdempotencyRecord doc for why this exists (review of ADR-0001, 2026-07-30).
+  provisionedViaSaga: boolean
   authIdentities: AuthIdentity[]
   profile: UserProfile | null
   roles: string[] // System roles
@@ -23,6 +26,7 @@ export class User {
   private _email: string
   private _isActive: boolean
   private _emailVerified: boolean
+  private _provisionedViaSaga: boolean
   private _authIdentities: AuthIdentity[]
   private _profile: UserProfile | null
   private _roles: string[]
@@ -34,6 +38,7 @@ export class User {
     this._email = props.email
     this._isActive = props.isActive
     this._emailVerified = props.emailVerified
+    this._provisionedViaSaga = props.provisionedViaSaga
     this._authIdentities = [...props.authIdentities]
     this._profile = props.profile
     this._roles = [...props.roles]
@@ -42,11 +47,15 @@ export class User {
   }
 
   static rehydrate(
-    props: Omit<UserProps, 'profile' | 'roles' | 'permissions' | 'deletedAt'> & {
+    props: Omit<
+      UserProps,
+      'profile' | 'roles' | 'permissions' | 'deletedAt' | 'provisionedViaSaga'
+    > & {
       profile?: UserProfile | null
       roles?: string[]
       permissions?: string[]
       deletedAt?: Date | null
+      provisionedViaSaga?: boolean
     },
   ): User {
     return new User({
@@ -55,6 +64,7 @@ export class User {
       roles: props.roles || [],
       permissions: props.permissions || [],
       deletedAt: props.deletedAt || null,
+      provisionedViaSaga: props.provisionedViaSaga ?? false,
     })
   }
 
@@ -62,8 +72,9 @@ export class User {
     props: {
       email: string
       password: string
+      provisionedViaSaga?: boolean
     },
-    passwordService: PasswordService,
+    passwordService: IPasswordService,
   ): Promise<User> {
     const passwordHash = await passwordService.hash(props.password)
     const authIdentity = AuthIdentity.create(passwordHash)
@@ -73,6 +84,7 @@ export class User {
       email: props.email,
       isActive: true,
       emailVerified: false,
+      provisionedViaSaga: props.provisionedViaSaga ?? false,
       authIdentities: [authIdentity],
       profile: null,
       roles: [],
@@ -92,6 +104,9 @@ export class User {
   }
   get emailVerified(): boolean {
     return this._emailVerified
+  }
+  get provisionedViaSaga(): boolean {
+    return this._provisionedViaSaga
   }
 
   // Clone the array CONTAINER (shallow), not the elements: stops callers from

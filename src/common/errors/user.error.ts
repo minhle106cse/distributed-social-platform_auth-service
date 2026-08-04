@@ -25,3 +25,12 @@ export class UserCannotLoginError extends ApplicationError {
     super('User not allowed to authenticate')
   }
 }
+
+export class IdempotencyKeyConflictError extends ApplicationError {
+  readonly statusCode = 409
+  readonly code = 'IDEMPOTENCY_KEY_CONFLICT'
+
+  constructor() {
+    super('Idempotency key was already used for a different request')
+  }
+}

@@ -60,7 +60,7 @@ export class AuthProvisioningGrpcService implements AuthProvisioningServer {
 
       try {
         const result = await this.#commandBus.execute<ProvisionUserCommand, ProvisionUserResult>(
-          new ProvisionUserCommand(call.request.email),
+          new ProvisionUserCommand(call.request.email, call.request.idempotencyKey || undefined),
         )
         // Mirrors the HTTP boundary logging every request (success + error) —
         // gRPC previously logged failures only. `userId` only, never the
