@@ -1,4 +1,5 @@
-import type { RoleRepository } from '../../../domain/repositories/role.repository'
+import type { AuthServiceRepos } from '@/container/repos'
+import type { IRoleRepository } from '../../../domain/repositories/role.repository'
 import { CreateRoleHandler } from './create-role.handler'
 import { CreateRoleCommand } from './create-role.command'
 import { RoleAlreadyExistsError } from '@/common/errors/rbac.error'
@@ -6,7 +7,8 @@ import { Role } from '@/modules/rbac/domain/entities/role.entity'
 
 describe('CreateRoleHandler', () => {
   let handler: CreateRoleHandler
-  let mockRoleRepo: jest.Mocked<RoleRepository>
+  let tx: AuthServiceRepos
+  let mockRoleRepo: jest.Mocked<IRoleRepository>
 
   beforeEach(() => {
     mockRoleRepo = {
@@ -16,9 +18,10 @@ describe('CreateRoleHandler', () => {
       findAllRoles: jest.fn(),
       updateRole: jest.fn(),
       deleteRole: jest.fn(),
-    } as unknown as jest.Mocked<RoleRepository>
+    } as unknown as jest.Mocked<IRoleRepository>
 
-    handler = new CreateRoleHandler(mockRoleRepo)
+    handler = new CreateRoleHandler()
+    tx = { roles: mockRoleRepo } as unknown as AuthServiceRepos
   })
 
   it('should successfully create a role', async () => {
@@ -27,7 +30,7 @@ describe('CreateRoleHandler', () => {
     mockRoleRepo.findRoleByCode.mockResolvedValueOnce(null)
     mockRoleRepo.createRole.mockResolvedValueOnce(undefined)
 
-    const result = await handler.execute(command)
+    const result = await handler.execute(command, tx)
 
     expect(mockRoleRepo.findRoleByCode).toHaveBeenCalledWith('ADMIN')
     expect(mockRoleRepo.createRole).toHaveBeenCalled()
@@ -40,7 +43,7 @@ describe('CreateRoleHandler', () => {
 
     mockRoleRepo.findRoleByCode.mockResolvedValueOnce(Role.create({ code: 'ADMIN', name: 'Admin' }))
 
-    await expect(handler.execute(command)).rejects.toThrow(RoleAlreadyExistsError)
+    await expect(handler.execute(command, tx)).rejects.toThrow(RoleAlreadyExistsError)
     expect(mockRoleRepo.createRole).not.toHaveBeenCalled()
   })
 })

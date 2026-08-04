@@ -1,6 +1,6 @@
 import { v7 } from 'uuid'
 import { RefreshTokenExpiredError, RefreshTokenRevokedError } from '@/common/errors/auth.error'
-import { type TokenService } from '@/modules/auth/domain/services/token.service'
+import { type ITokenService } from '@/modules/auth/domain/services/token.service'
 
 export interface RefreshTokenProps {
   id: string
@@ -92,7 +92,7 @@ export class RefreshToken {
       ipAddress: string | null
       userAgent: string | null
     },
-    tokenService: TokenService,
+    tokenService: ITokenService,
   ): {
     refreshToken: string
     refreshTokenEntity: RefreshToken

@@ -9,6 +9,7 @@ import { buildInfra } from './container/infra'
 import { buildApplication } from './container/application'
 import { startGrpcServer } from './bootstrap/grpc'
 import { prismaService } from './infrastructure/database/prisma/prisma.client'
+import { startOrphanedProvisionedUserWatcher } from './modules/user/infrastructure/jobs/orphaned-provisioned-user-watcher'
 
 collectDefaultMetrics()
 
@@ -38,18 +39,28 @@ async function bootstrap() {
 
   const grpcServer = startGrpcServer(application.CommandBus, logger)
 
+  // Observability-only safety net for saga-orphaned provisioned users — see
+  // the watcher's own doc for why this does NOT auto-delete (review of
+  // ADR-0001, 2026-07-30).
+  const orphanWatcher = startOrphanedProvisionedUserWatcher(prismaService, logger)
+
   // Graceful shutdown: stop accepting new work on both transports, let
   // in-flight HTTP requests/gRPC calls finish (bounded by
   // SHUTDOWN_TIMEOUT_MS), THEN close the DB connection — closing Prisma
   // first would break any request still in flight.
   const shutdown = (signal: string) => {
-    logger.info({ context: LogContext.LIFECYCLE }, `${signal} received, shutting down gracefully...`)
+    logger.info(
+      { context: LogContext.LIFECYCLE },
+      `${signal} received, shutting down gracefully...`,
+    )
 
     const forceExit = setTimeout(() => {
       logger.error({ context: LogContext.LIFECYCLE }, 'Graceful shutdown timed out, forcing exit')
       process.exit(1)
     }, SHUTDOWN_TIMEOUT_MS)
     forceExit.unref() // don't let this timer itself keep the process alive
+
+    orphanWatcher.stop()
 
     Promise.all([
       app.close(),

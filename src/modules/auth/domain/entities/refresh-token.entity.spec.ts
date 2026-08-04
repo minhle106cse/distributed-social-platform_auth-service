@@ -1,9 +1,9 @@
 import { RefreshToken } from './refresh-token.entity'
-import type { TokenService } from '@/modules/auth/domain/services/token.service'
+import type { ITokenService } from '@/modules/auth/domain/services/token.service'
 import { RefreshTokenExpiredError, RefreshTokenRevokedError } from '@/common/errors/auth.error'
 
 describe('RefreshToken Entity', () => {
-  let mockTokenService: jest.Mocked<TokenService>
+  let mockTokenService: jest.Mocked<ITokenService>
 
   beforeEach(() => {
     mockTokenService = {

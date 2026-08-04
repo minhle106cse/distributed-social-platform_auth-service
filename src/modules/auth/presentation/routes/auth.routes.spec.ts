@@ -122,6 +122,24 @@ describe('Auth Routes (Unit)', () => {
       expect(data.data).toBeNull()
     })
 
+    it('should return 401 if the handler reports the token was already used (reused:true)', async () => {
+      ;(mockCommandBus.execute as jest.Mock).mockResolvedValue({
+        reused: true,
+        userId: 'u1',
+        email: 'e@e.com',
+      })
+
+      const response = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/refresh',
+        payload: {
+          refreshToken: 'reused-refresh-token',
+        },
+      })
+
+      expect(response.statusCode).toBe(401)
+    })
+
     it('should return 401 if refreshToken is missing', async () => {
       const response = await app.inject({
         method: 'POST',

@@ -1,5 +1,6 @@
+import type { AuthServiceRepos } from '@/container/repos'
 import { SystemPermission } from '@distributed-social-platform/shared-kernel'
-import type { RoleRepository } from '../../../domain/repositories/role.repository'
+import type { IRoleRepository } from '../../../domain/repositories/role.repository'
 import { AssignPermissionsHandler } from './assign-permissions.handler'
 import { AssignPermissionsCommand } from './assign-permissions.command'
 import { RoleNotFoundError, InvalidPermissionCodeError } from '@/common/errors/rbac.error'
@@ -7,7 +8,8 @@ import { Role } from '@/modules/rbac/domain/entities/role.entity'
 
 describe('AssignPermissionsHandler', () => {
   let handler: AssignPermissionsHandler
-  let mockRoleRepo: jest.Mocked<RoleRepository>
+  let tx: AuthServiceRepos
+  let mockRoleRepo: jest.Mocked<IRoleRepository>
 
   beforeEach(() => {
     mockRoleRepo = {
@@ -17,9 +19,10 @@ describe('AssignPermissionsHandler', () => {
       findAllRoles: jest.fn(),
       updateRole: jest.fn(),
       deleteRole: jest.fn(),
-    } as unknown as jest.Mocked<RoleRepository>
+    } as unknown as jest.Mocked<IRoleRepository>
 
-    handler = new AssignPermissionsHandler(mockRoleRepo)
+    handler = new AssignPermissionsHandler()
+    tx = { roles: mockRoleRepo } as unknown as AuthServiceRepos
   })
 
   it('should successfully assign permissions to a role', async () => {
@@ -32,7 +35,7 @@ describe('AssignPermissionsHandler', () => {
     mockRoleRepo.findRoleByCode.mockResolvedValueOnce(role)
     mockRoleRepo.updateRole.mockResolvedValueOnce(undefined)
 
-    const result = await handler.execute(command)
+    const result = await handler.execute(command, tx)
 
     expect(mockRoleRepo.findRoleByCode).toHaveBeenCalledWith('ADMIN')
     expect(role.permissions).toEqual([SystemPermission.USER_READ, SystemPermission.USER_BAN])
@@ -45,7 +48,7 @@ describe('AssignPermissionsHandler', () => {
 
     mockRoleRepo.findRoleByCode.mockResolvedValueOnce(null)
 
-    await expect(handler.execute(command)).rejects.toThrow(RoleNotFoundError)
+    await expect(handler.execute(command, tx)).rejects.toThrow(RoleNotFoundError)
     expect(mockRoleRepo.updateRole).not.toHaveBeenCalled()
   })
 
@@ -55,7 +58,7 @@ describe('AssignPermissionsHandler', () => {
 
     mockRoleRepo.findRoleByCode.mockResolvedValueOnce(role)
 
-    await expect(handler.execute(command)).rejects.toThrow(InvalidPermissionCodeError)
+    await expect(handler.execute(command, tx)).rejects.toThrow(InvalidPermissionCodeError)
     expect(mockRoleRepo.updateRole).not.toHaveBeenCalled()
   })
 })

@@ -1,4 +1,5 @@
-import type { RoleRepository } from '../../../domain/repositories/role.repository'
+import type { AuthServiceRepos } from '@/container/repos'
+import type { IRoleRepository } from '../../../domain/repositories/role.repository'
 import { RevokePermissionsHandler } from './revoke-permissions.handler'
 import { RevokePermissionsCommand } from './revoke-permissions.command'
 import { RoleNotFoundError } from '@/common/errors/rbac.error'
@@ -6,7 +7,8 @@ import { Role } from '@/modules/rbac/domain/entities/role.entity'
 
 describe('RevokePermissionsHandler', () => {
   let handler: RevokePermissionsHandler
-  let mockRoleRepo: jest.Mocked<RoleRepository>
+  let tx: AuthServiceRepos
+  let mockRoleRepo: jest.Mocked<IRoleRepository>
 
   beforeEach(() => {
     mockRoleRepo = {
@@ -16,9 +18,10 @@ describe('RevokePermissionsHandler', () => {
       findAllRoles: jest.fn(),
       updateRole: jest.fn(),
       deleteRole: jest.fn(),
-    } as unknown as jest.Mocked<RoleRepository>
+    } as unknown as jest.Mocked<IRoleRepository>
 
-    handler = new RevokePermissionsHandler(mockRoleRepo)
+    handler = new RevokePermissionsHandler()
+    tx = { roles: mockRoleRepo } as unknown as AuthServiceRepos
   })
 
   it('should successfully revoke permissions from a role', async () => {
@@ -35,7 +38,7 @@ describe('RevokePermissionsHandler', () => {
     mockRoleRepo.findRoleByCode.mockResolvedValueOnce(role)
     mockRoleRepo.updateRole.mockResolvedValueOnce(undefined)
 
-    await handler.execute(command)
+    await handler.execute(command, tx)
 
     expect(mockRoleRepo.findRoleByCode).toHaveBeenCalledWith('ADMIN')
     expect(role.permissions).toEqual(['WRITE_POSTS'])
@@ -47,7 +50,7 @@ describe('RevokePermissionsHandler', () => {
 
     mockRoleRepo.findRoleByCode.mockResolvedValueOnce(null)
 
-    await expect(handler.execute(command)).rejects.toThrow(RoleNotFoundError)
+    await expect(handler.execute(command, tx)).rejects.toThrow(RoleNotFoundError)
     expect(mockRoleRepo.updateRole).not.toHaveBeenCalled()
   })
 })

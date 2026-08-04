@@ -1,4 +1,4 @@
-export interface TokenService {
+export interface ITokenService {
   signAccessToken(payload: object): {
     token: string
     expiredAt: Date

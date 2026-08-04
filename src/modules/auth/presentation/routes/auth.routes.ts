@@ -12,7 +12,8 @@ import { RegisterCommand } from '@/modules/auth/application/commands/register/re
 import { RefreshCommand } from '@/modules/auth/application/commands/refresh/refresh.command'
 import { LogoutCommand } from '@/modules/auth/application/commands/logout/logout.command'
 import { logoutSchema } from '@/modules/auth/presentation/schemas/logout.schema'
-import { UnauthorizedError } from '@/common/errors/auth.error'
+import { UnauthorizedError, RefreshTokenUsedError } from '@/common/errors/auth.error'
+import type { RefreshResult } from '@/modules/auth/application/commands/refresh/refresh.handler'
 
 interface AuthRouteOptions extends FastifyPluginOptions {
   CommandBus: Application['CommandBus']
@@ -126,7 +127,16 @@ export function authRoutes(fastify: FastifyInstance, options: AuthRouteOptions) 
       // refactors. RefreshHandler now verifies the signature AND reads the
       // payload from that single verified call (token.service.ts).
       const command = new RefreshCommand(refreshToken, req.body?.ipAddress, req.body?.userAgent)
-      const data = await CommandBus.execute<typeof command, TokenResponse>(command)
+      const result = await CommandBus.execute<typeof command, RefreshResult>(command)
+
+      // The revocation for a reused token already committed inside the
+      // handler's transaction (see RefreshHandler.execute) — this throw only
+      // decides the HTTP response, it does not undo anything.
+      if (result.reused) {
+        throw new RefreshTokenUsedError()
+      }
+
+      const data = result as TokenResponse
 
       reply.setCookie('accessToken', data.accessToken.token, {
         path: '/',

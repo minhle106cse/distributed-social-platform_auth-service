@@ -1,8 +1,8 @@
 import type { PrismaClient } from '@/generated'
-import type { UserQueryRepository } from '@/modules/user/application/queries/user.query-repository'
+import type { IUserQueryRepository } from '@/modules/user/application/queries/user.query-repository'
 import type { GetMeDto } from '@/modules/user/application/queries/user.dto'
 
-export class PrismaUserQueryRepository implements UserQueryRepository {
+export class PrismaUserQueryRepository implements IUserQueryRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
   async getMe(userId: string): Promise<GetMeDto | null> {

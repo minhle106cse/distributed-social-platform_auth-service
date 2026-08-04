@@ -1,6 +1,6 @@
 import { type RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
 
-export interface RefreshTokenRepository {
+export interface IRefreshTokenRepository {
   create(refreshToken: RefreshToken): Promise<void>
   update(refreshToken: RefreshToken): Promise<void>
   findByTokenHash(tokenHash: string): Promise<RefreshToken | null>

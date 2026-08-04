@@ -1,6 +1,6 @@
 import type { Role } from '../entities/role.entity'
 
-export interface RoleRepository {
+export interface IRoleRepository {
   findRoleByCode(code: string): Promise<Role | null>
   findRolesByCodes(codes: string[]): Promise<Role[]>
   getAllRoles(): Promise<Role[]>

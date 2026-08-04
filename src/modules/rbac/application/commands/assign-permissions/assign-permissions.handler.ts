@@ -1,14 +1,19 @@
+import type { AuthServiceRepos } from '@/container/repos'
 import { isValidSystemPermission } from '@distributed-social-platform/shared-kernel'
-import type { ICommandHandler } from '@distributed-social-platform/shared-kernel'
-import type { RoleRepository } from '../../../domain/repositories/role.repository'
+import type { ITransactionalCommandHandler } from '@distributed-social-platform/shared-kernel'
+import type { IRoleRepository } from '../../../domain/repositories/role.repository'
 import type { AssignPermissionsCommand } from './assign-permissions.command'
 import { RoleNotFoundError, InvalidPermissionCodeError } from '@/common/errors/rbac.error'
 
-export class AssignPermissionsHandler implements ICommandHandler<AssignPermissionsCommand> {
-  constructor(private readonly roleRepo: RoleRepository) {}
+export class AssignPermissionsHandler implements ITransactionalCommandHandler<
+  AssignPermissionsCommand,
+  any,
+  AuthServiceRepos
+> {
+  readonly kind = 'transactional' as const
 
-  async execute(command: AssignPermissionsCommand) {
-    const role = await this.roleRepo.findRoleByCode(command.roleCode)
+  async execute(command: AssignPermissionsCommand, tx: AuthServiceRepos) {
+    const role = await tx.roles.findRoleByCode(command.roleCode)
     if (!role) {
       throw new RoleNotFoundError()
     }
@@ -21,7 +26,7 @@ export class AssignPermissionsHandler implements ICommandHandler<AssignPermissio
 
     role.assignPermissions(command.permissionCodes)
 
-    await this.roleRepo.updateRole(role)
+    await tx.roles.updateRole(role)
 
     return { id: role.id, code: role.code, permissions: role.permissions }
   }

@@ -1,11 +1,11 @@
 import { GetMeHandler } from './get-me.handler'
 import { GetMeQuery } from './get-me.query'
-import type { UserQueryRepository } from '@/modules/user/application/queries/user.query-repository'
+import type { IUserQueryRepository } from '@/modules/user/application/queries/user.query-repository'
 import { UserNotFoundError } from '@/common/errors/user.error'
 
 describe('GetMeHandler', () => {
   let handler: GetMeHandler
-  let mockUserQueryRepository: jest.Mocked<UserQueryRepository>
+  let mockUserQueryRepository: jest.Mocked<IUserQueryRepository>
 
   beforeEach(() => {
     mockUserQueryRepository = {

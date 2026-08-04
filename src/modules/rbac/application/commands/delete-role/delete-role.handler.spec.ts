@@ -1,12 +1,14 @@
+import type { AuthServiceRepos } from '@/container/repos'
 import { DeleteRoleHandler } from './delete-role.handler'
 import { DeleteRoleCommand } from './delete-role.command'
-import type { RoleRepository } from '@/modules/rbac/domain/repositories/role.repository'
+import type { IRoleRepository } from '@/modules/rbac/domain/repositories/role.repository'
 import { RoleNotFoundError } from '@/common/errors/rbac.error'
 import { Role } from '@/modules/rbac/domain/entities/role.entity'
 
 describe('DeleteRoleHandler', () => {
   let handler: DeleteRoleHandler
-  let mockRoleRepo: jest.Mocked<RoleRepository>
+  let tx: AuthServiceRepos
+  let mockRoleRepo: jest.Mocked<IRoleRepository>
 
   beforeEach(() => {
     mockRoleRepo = {
@@ -16,9 +18,10 @@ describe('DeleteRoleHandler', () => {
       findAllRoles: jest.fn(),
       updateRole: jest.fn(),
       deleteRole: jest.fn(),
-    } as unknown as jest.Mocked<RoleRepository>
+    } as unknown as jest.Mocked<IRoleRepository>
 
-    handler = new DeleteRoleHandler(mockRoleRepo)
+    handler = new DeleteRoleHandler()
+    tx = { roles: mockRoleRepo } as unknown as AuthServiceRepos
   })
 
   it('should successfully delete a role', async () => {
@@ -35,7 +38,7 @@ describe('DeleteRoleHandler', () => {
     mockRoleRepo.findRoleByCode.mockResolvedValueOnce(role)
     mockRoleRepo.deleteRole.mockResolvedValueOnce(undefined)
 
-    await handler.execute(command)
+    await handler.execute(command, tx)
 
     expect(mockRoleRepo.findRoleByCode).toHaveBeenCalledWith('ADMIN')
     expect(mockRoleRepo.deleteRole).toHaveBeenCalledWith('role-123')
@@ -46,7 +49,7 @@ describe('DeleteRoleHandler', () => {
 
     mockRoleRepo.findRoleByCode.mockResolvedValueOnce(null)
 
-    await expect(handler.execute(command)).rejects.toThrow(RoleNotFoundError)
+    await expect(handler.execute(command, tx)).rejects.toThrow(RoleNotFoundError)
     expect(mockRoleRepo.deleteRole).not.toHaveBeenCalled()
   })
 })

@@ -1,14 +1,19 @@
-import type { ICommandHandler } from '@distributed-social-platform/shared-kernel'
-import type { RoleRepository } from '../../../domain/repositories/role.repository'
+import type { AuthServiceRepos } from '@/container/repos'
+import type { ITransactionalCommandHandler } from '@distributed-social-platform/shared-kernel'
+import type { IRoleRepository } from '../../../domain/repositories/role.repository'
 import type { CreateRoleCommand } from './create-role.command'
 import { Role } from '@/modules/rbac/domain/entities/role.entity'
 import { RoleAlreadyExistsError } from '@/common/errors/rbac.error'
 
-export class CreateRoleHandler implements ICommandHandler<CreateRoleCommand> {
-  constructor(private readonly roleRepo: RoleRepository) {}
+export class CreateRoleHandler implements ITransactionalCommandHandler<
+  CreateRoleCommand,
+  any,
+  AuthServiceRepos
+> {
+  readonly kind = 'transactional' as const
 
-  async execute(command: CreateRoleCommand) {
-    const existing = await this.roleRepo.findRoleByCode(command.code)
+  async execute(command: CreateRoleCommand, tx: AuthServiceRepos) {
+    const existing = await tx.roles.findRoleByCode(command.code)
     if (existing) {
       throw new RoleAlreadyExistsError()
     }
@@ -19,7 +24,7 @@ export class CreateRoleHandler implements ICommandHandler<CreateRoleCommand> {
       description: command.description,
     })
 
-    await this.roleRepo.createRole(role)
+    await tx.roles.createRole(role)
 
     return { id: role.id, code: role.code }
   }

@@ -1,6 +1,6 @@
 import { InvalidAuthProviderError, InvalidCredentialsError } from '@/common/errors/auth.error'
 import { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
-import { type PasswordService } from '@/modules/auth/domain/services/password.service'
+import { type IPasswordService } from '@/modules/auth/domain/services/password.service'
 
 export class AuthIdentity {
   private constructor(
@@ -25,7 +25,7 @@ export class AuthIdentity {
     return new AuthIdentity(AuthProvider.LOCAL, passwordHash)
   }
 
-  async localAuthenticate(plainPassword: string, passwordService: PasswordService): Promise<void> {
+  async localAuthenticate(plainPassword: string, passwordService: IPasswordService): Promise<void> {
     if (this.provider !== AuthProvider.LOCAL || !this.passwordHash) {
       throw new InvalidAuthProviderError()
     }

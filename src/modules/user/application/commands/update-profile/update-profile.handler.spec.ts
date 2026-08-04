@@ -1,4 +1,5 @@
-import type { UserRepository } from '../../../domain/repositories/user.repository'
+import type { AuthServiceRepos } from '@/container/repos'
+import type { IUserRepository } from '../../../domain/repositories/user.repository'
 import { User } from '../../../domain/entities/user.entity'
 import { UserProfile } from '../../../domain/entities/user-profile.entity'
 import { UpdateProfileCommand } from './update-profile.command'
@@ -7,7 +8,8 @@ import { UserNotFoundError } from '@/common/errors/user.error'
 
 describe('UpdateProfileHandler', () => {
   let handler: UpdateProfileHandler
-  let mockUserRepo: jest.Mocked<UserRepository>
+  let tx: AuthServiceRepos
+  let mockUserRepo: jest.Mocked<IUserRepository>
 
   beforeEach(() => {
     mockUserRepo = {
@@ -16,8 +18,10 @@ describe('UpdateProfileHandler', () => {
       save: jest.fn(),
       create: jest.fn(),
       hardDelete: jest.fn(),
+      updateLocalPasswordHash: jest.fn(),
     }
-    handler = new UpdateProfileHandler(mockUserRepo)
+    handler = new UpdateProfileHandler()
+    tx = { users: mockUserRepo } as unknown as AuthServiceRepos
   })
 
   it('should update profile when user exists', async () => {
@@ -41,7 +45,7 @@ describe('UpdateProfileHandler', () => {
 
     mockUserRepo.findById.mockResolvedValue(mockUser)
 
-    const result = await handler.execute(command)
+    const result = await handler.execute(command, tx)
 
     expect(mockUserRepo.findById).toHaveBeenCalledWith(userId)
     expect(mockUserRepo.save).toHaveBeenCalled()
@@ -89,7 +93,7 @@ describe('UpdateProfileHandler', () => {
 
     mockUserRepo.findById.mockResolvedValue(mockUser)
 
-    const result = await handler.execute(command)
+    const result = await handler.execute(command, tx)
 
     expect(mockUserRepo.findById).toHaveBeenCalledWith(userId)
     expect(mockUserRepo.save).toHaveBeenCalled()
@@ -107,7 +111,7 @@ describe('UpdateProfileHandler', () => {
 
     mockUserRepo.findById.mockResolvedValue(null)
 
-    await expect(handler.execute(command)).rejects.toThrow(UserNotFoundError)
+    await expect(handler.execute(command, tx)).rejects.toThrow(UserNotFoundError)
     expect(mockUserRepo.findById).toHaveBeenCalledWith('user-123')
     expect(mockUserRepo.save).not.toHaveBeenCalled()
   })

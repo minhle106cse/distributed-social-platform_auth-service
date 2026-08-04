@@ -1,15 +1,13 @@
-import { getTx } from '@distributed-social-platform/shared-kernel'
 import type { Role } from '../../domain/entities/role.entity'
 import { RoleMapper } from '../mapper/role.mapper'
-import type { RoleRepository } from '../../domain/repositories/role.repository'
-import { Prisma, type PrismaClient } from '@/generated'
+import type { IRoleRepository } from '../../domain/repositories/role.repository'
+import { Prisma } from '@/generated'
 
-export class PrismaRoleRepository implements RoleRepository {
-  constructor(private readonly prisma: PrismaClient) {}
+export class PrismaRoleRepository implements IRoleRepository {
+  constructor(private readonly db: Prisma.TransactionClient) {}
 
   async findRoleByCode(code: string): Promise<Role | null> {
-    const db = getTx<PrismaClient>() ?? this.prisma
-    const record = await db.role.findUnique({ where: { code } })
+    const record = await this.db.role.findUnique({ where: { code } })
 
     if (!record) return null
 
@@ -17,40 +15,34 @@ export class PrismaRoleRepository implements RoleRepository {
   }
 
   async findRolesByCodes(codes: string[]): Promise<Role[]> {
-    const db = getTx<PrismaClient>() ?? this.prisma
-    const records = await db.role.findMany({ where: { code: { in: codes } } })
+    const records = await this.db.role.findMany({ where: { code: { in: codes } } })
 
     return records.map((r) => RoleMapper.toDomain(r))
   }
 
   async getAllRoles(): Promise<Role[]> {
-    const db = getTx<PrismaClient>() ?? this.prisma
-    const records = await db.role.findMany()
+    const records = await this.db.role.findMany()
     return records.map((r) => RoleMapper.toDomain(r))
   }
 
   async createRole(role: Role): Promise<void> {
     const data = RoleMapper.toPersistence(role)
-    const db = getTx<PrismaClient>() ?? this.prisma
-    await db.role.create({ data })
+    await this.db.role.create({ data })
   }
 
   async updateRole(role: Role): Promise<void> {
     const data = RoleMapper.toPersistence(role)
-    const db = getTx<PrismaClient>() ?? this.prisma
 
-    await db.role.update({ where: { id: role.id }, data })
+    await this.db.role.update({ where: { id: role.id }, data })
   }
 
   async deleteRole(id: string): Promise<void> {
-    const db = getTx<PrismaClient>() ?? this.prisma
-    await db.userRole.deleteMany({ where: { roleId: id } })
-    await db.role.delete({ where: { id } })
+    await this.db.userRole.deleteMany({ where: { roleId: id } })
+    await this.db.role.delete({ where: { id } })
   }
 
   async assignRoleToUser(userId: string, roleId: string): Promise<void> {
-    const db = getTx<PrismaClient>() ?? this.prisma
-    await db.userRole.upsert({
+    await this.db.userRole.upsert({
       where: { userId_roleId: { userId, roleId } },
       create: { userId, roleId },
       update: {}, // Do nothing if exists
@@ -58,9 +50,8 @@ export class PrismaRoleRepository implements RoleRepository {
   }
 
   async revokeRoleFromUser(userId: string, roleId: string): Promise<void> {
-    const db = getTx<PrismaClient>() ?? this.prisma
     try {
-      await db.userRole.delete({
+      await this.db.userRole.delete({
         where: { userId_roleId: { userId, roleId } },
       })
     } catch (err) {

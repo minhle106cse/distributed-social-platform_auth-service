@@ -1,9 +1,10 @@
+import type { AuthServiceRepos } from '@/container/repos'
 import type { ILogger } from '@distributed-social-platform/shared-kernel'
 import { LoginHandler } from './login.handler'
-import type { UserRepository } from '@/modules/user/domain/repositories/user.repository'
-import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
-import type { PasswordService } from '@/modules/auth/domain/services/password.service'
-import type { TokenService } from '@/modules/auth/domain/services/token.service'
+import type { IUserRepository } from '@/modules/user/domain/repositories/user.repository'
+import type { IRefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
+import type { IPasswordService } from '@/modules/auth/domain/services/password.service'
+import type { ITokenService } from '@/modules/auth/domain/services/token.service'
 import { InvalidCredentialsError } from '@/common/errors/auth.error'
 import { UserCannotLoginError } from '@/common/errors/user.error'
 import { User } from '@/modules/user/domain/entities/user.entity'
@@ -17,10 +18,11 @@ jest.mock('@/modules/auth/domain/entities/refresh-token.entity')
 
 describe('LoginHandler', () => {
   let handler: LoginHandler
-  let mockUserRepo: jest.Mocked<UserRepository>
-  let mockRefreshTokenRepo: jest.Mocked<RefreshTokenRepository>
-  let mockPasswordService: jest.Mocked<PasswordService>
-  let mockTokenService: jest.Mocked<TokenService>
+  let tx: AuthServiceRepos
+  let mockUserRepo: jest.Mocked<IUserRepository>
+  let mockRefreshTokenRepo: jest.Mocked<IRefreshTokenRepository>
+  let mockPasswordService: jest.Mocked<IPasswordService>
+  let mockTokenService: jest.Mocked<ITokenService>
   let mockAuditLogger: jest.Mocked<ILogger>
 
   beforeEach(() => {
@@ -30,6 +32,7 @@ describe('LoginHandler', () => {
       findById: jest.fn(),
       save: jest.fn(),
       hardDelete: jest.fn(),
+      updateLocalPasswordHash: jest.fn(),
     }
 
     mockRefreshTokenRepo = {
@@ -37,7 +40,7 @@ describe('LoginHandler', () => {
       findByToken: jest.fn(),
       revoke: jest.fn(),
       revokeAllUserTokens: jest.fn(),
-    } as unknown as jest.Mocked<RefreshTokenRepository>
+    } as unknown as jest.Mocked<IRefreshTokenRepository>
 
     mockPasswordService = {
       hash: jest.fn(),
@@ -49,7 +52,7 @@ describe('LoginHandler', () => {
       signRefreshToken: jest.fn(),
       verifyAccessToken: jest.fn(),
       verifyRefreshToken: jest.fn(),
-    } as unknown as jest.Mocked<TokenService>
+    } as unknown as jest.Mocked<ITokenService>
 
     mockAuditLogger = {
       info: jest.fn(),
@@ -58,13 +61,8 @@ describe('LoginHandler', () => {
       debug: jest.fn(),
     } as unknown as jest.Mocked<ILogger>
 
-    handler = new LoginHandler(
-      mockUserRepo,
-      mockRefreshTokenRepo,
-      mockPasswordService,
-      mockTokenService,
-      mockAuditLogger,
-    )
+    handler = new LoginHandler(mockPasswordService, mockTokenService, mockAuditLogger)
+    tx = { users: mockUserRepo, refreshTokens: mockRefreshTokenRepo } as unknown as AuthServiceRepos
   })
 
   it('should successfully login and return tokens', async () => {
@@ -97,12 +95,15 @@ describe('LoginHandler', () => {
       expiredAt: new Date(Date.now() + 5000),
     })
 
-    const result = await handler.execute({
-      email: 'test@example.com',
-      password: 'plain-pass',
-      ipAddress: '127.0.0.1',
-      userAgent: 'jest',
-    } as any)
+    const result = await handler.execute(
+      {
+        email: 'test@example.com',
+        password: 'plain-pass',
+        ipAddress: '127.0.0.1',
+        userAgent: 'jest',
+      } as any,
+      tx,
+    )
 
     // Assertions
     expect(mockUserRepo.findByEmail).toHaveBeenCalledWith('test@example.com', true)
@@ -117,16 +118,41 @@ describe('LoginHandler', () => {
 
     expect(result.accessToken.token).toBe('mock-access-token')
     expect(result.refreshToken.token).toBe('mock-refresh-token')
+    expect(result.userId).toBe('user-id')
+    // Success audit must NOT fire from inside execute() — see afterCommit test
+    // below. A commit-time Prisma failure would otherwise make CommandBus.withRetry
+    // re-run this whole handler and log a duplicate "success" (review of
+    // ADR-0001, 2026-07-30).
+    expect(mockAuditLogger.info).not.toHaveBeenCalled()
+  })
+
+  it('afterCommit should log the success audit only once the transaction has committed', () => {
+    handler.afterCommit({ email: 'test@example.com', ipAddress: '127.0.0.1' } as any, {
+      userId: 'user-id',
+    })
+
+    expect(mockAuditLogger.info).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'auth.login',
+        outcome: 'success',
+        actorUserId: 'user-id',
+        ip: '127.0.0.1',
+      }),
+      expect.any(String),
+    )
   })
 
   it('should throw InvalidCredentialsError if user is not found', async () => {
     mockUserRepo.findByEmail.mockResolvedValue(null)
 
     await expect(
-      handler.execute({
-        email: 'notfound@example.com',
-        password: 'pass',
-      } as any),
+      handler.execute(
+        {
+          email: 'notfound@example.com',
+          password: 'pass',
+        } as any,
+        tx,
+      ),
     ).rejects.toThrow(InvalidCredentialsError)
   })
 
@@ -142,10 +168,13 @@ describe('LoginHandler', () => {
     mockUserRepo.findByEmail.mockResolvedValue(user)
 
     await expect(
-      handler.execute({
-        email: 'oauth-only@example.com',
-        password: 'pass',
-      } as any),
+      handler.execute(
+        {
+          email: 'oauth-only@example.com',
+          password: 'pass',
+        } as any,
+        tx,
+      ),
     ).rejects.toThrow(InvalidCredentialsError)
   })
 
@@ -161,10 +190,13 @@ describe('LoginHandler', () => {
     mockUserRepo.findByEmail.mockResolvedValue(user)
 
     await expect(
-      handler.execute({
-        email: 'test@example.com',
-        password: 'pass',
-      } as any),
+      handler.execute(
+        {
+          email: 'test@example.com',
+          password: 'pass',
+        } as any,
+        tx,
+      ),
     ).rejects.toThrow(UserCannotLoginError)
   })
 
@@ -189,12 +221,15 @@ describe('LoginHandler', () => {
 
     mockTokenService.signAccessToken.mockReturnValue({ token: 'access', expiredAt: new Date() })
 
-    await handler.execute({
-      email: 'test@example.com',
-      password: 'plain-pass',
-      ipAddress: '127.0.0.1',
-      userAgent: 'jest',
-    } as any)
+    await handler.execute(
+      {
+        email: 'test@example.com',
+        password: 'plain-pass',
+        ipAddress: '127.0.0.1',
+        userAgent: 'jest',
+      } as any,
+      tx,
+    )
 
     expect(user.isDeleted()).toBe(false)
     expect(mockUserRepo.save).toHaveBeenCalledWith(user)

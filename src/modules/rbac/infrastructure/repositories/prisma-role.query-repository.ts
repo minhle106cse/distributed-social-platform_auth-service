@@ -1,8 +1,8 @@
 import type { PrismaClient } from '@/generated'
-import type { RoleQueryRepository } from '@/modules/rbac/application/queries/role.query-repository'
+import type { IRoleQueryRepository } from '@/modules/rbac/application/queries/role.query-repository'
 import type { RoleDto } from '@/modules/rbac/application/queries/role.dto'
 
-export class PrismaRoleQueryRepository implements RoleQueryRepository {
+export class PrismaRoleQueryRepository implements IRoleQueryRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
   async getRoles(): Promise<RoleDto[]> {

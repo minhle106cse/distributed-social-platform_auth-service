@@ -1,16 +1,21 @@
-import type { ICommandHandler } from '@distributed-social-platform/shared-kernel'
-import type { UserRepository } from '../../../domain/repositories/user.repository'
+import type { AuthServiceRepos } from '@/container/repos'
+import type { ITransactionalCommandHandler } from '@distributed-social-platform/shared-kernel'
+import type { IUserRepository } from '../../../domain/repositories/user.repository'
 import { UserProfile } from '../../../domain/entities/user-profile.entity'
 import type { UpdateProfileCommand } from './update-profile.command'
 import { UserNotFoundError } from '@/common/errors/user.error'
 
-export class UpdateProfileHandler implements ICommandHandler<UpdateProfileCommand> {
-  constructor(private readonly userRepo: UserRepository) {}
+export class UpdateProfileHandler implements ITransactionalCommandHandler<
+  UpdateProfileCommand,
+  any,
+  AuthServiceRepos
+> {
+  readonly kind = 'transactional' as const
 
-  async execute(command: UpdateProfileCommand) {
+  async execute(command: UpdateProfileCommand, tx: AuthServiceRepos) {
     const { userId, ...profileData } = command
 
-    const user = await this.userRepo.findById(userId)
+    const user = await tx.users.findById(userId)
     if (!user) {
       throw new UserNotFoundError()
     }
@@ -36,7 +41,7 @@ export class UpdateProfileHandler implements ICommandHandler<UpdateProfileComman
       })
     }
 
-    await this.userRepo.save(user)
+    await tx.users.save(user)
 
     return { success: true }
   }

@@ -1,4 +1,5 @@
-import type { RoleRepository } from '../../../domain/repositories/role.repository'
+import type { AuthServiceRepos } from '@/container/repos'
+import type { IRoleRepository } from '../../../domain/repositories/role.repository'
 import { AssignRoleHandler } from './assign-role.handler'
 import { AssignRoleCommand } from './assign-role.command'
 import { RoleNotFoundError, RoleInactiveError } from '@/common/errors/rbac.error'
@@ -6,7 +7,8 @@ import { Role } from '@/modules/rbac/domain/entities/role.entity'
 
 describe('AssignRoleHandler', () => {
   let handler: AssignRoleHandler
-  let mockRoleRepo: jest.Mocked<RoleRepository>
+  let tx: AuthServiceRepos
+  let mockRoleRepo: jest.Mocked<IRoleRepository>
 
   beforeEach(() => {
     mockRoleRepo = {
@@ -17,9 +19,10 @@ describe('AssignRoleHandler', () => {
       updateRole: jest.fn(),
       deleteRole: jest.fn(),
       assignRoleToUser: jest.fn(),
-    } as unknown as jest.Mocked<RoleRepository>
+    } as unknown as jest.Mocked<IRoleRepository>
 
-    handler = new AssignRoleHandler(mockRoleRepo)
+    handler = new AssignRoleHandler()
+    tx = { roles: mockRoleRepo } as unknown as AuthServiceRepos
   })
 
   it('should successfully assign a role to a user', async () => {
@@ -36,7 +39,7 @@ describe('AssignRoleHandler', () => {
     mockRoleRepo.findRoleByCode.mockResolvedValueOnce(role)
     mockRoleRepo.assignRoleToUser.mockResolvedValueOnce(undefined)
 
-    const result = await handler.execute(command)
+    const result = await handler.execute(command, tx)
 
     expect(mockRoleRepo.findRoleByCode).toHaveBeenCalledWith('ADMIN')
     expect(mockRoleRepo.assignRoleToUser).toHaveBeenCalledWith('user-1', 'role-1')
@@ -48,7 +51,7 @@ describe('AssignRoleHandler', () => {
 
     mockRoleRepo.findRoleByCode.mockResolvedValueOnce(null)
 
-    await expect(handler.execute(command)).rejects.toThrow(RoleNotFoundError)
+    await expect(handler.execute(command, tx)).rejects.toThrow(RoleNotFoundError)
     expect(mockRoleRepo.assignRoleToUser).not.toHaveBeenCalled()
   })
 
@@ -65,7 +68,7 @@ describe('AssignRoleHandler', () => {
 
     mockRoleRepo.findRoleByCode.mockResolvedValueOnce(role)
 
-    await expect(handler.execute(command)).rejects.toThrow(RoleInactiveError)
+    await expect(handler.execute(command, tx)).rejects.toThrow(RoleInactiveError)
     expect(mockRoleRepo.assignRoleToUser).not.toHaveBeenCalled()
   })
 })

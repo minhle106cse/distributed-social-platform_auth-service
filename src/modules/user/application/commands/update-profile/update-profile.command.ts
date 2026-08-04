@@ -1,12 +1,11 @@
-import type { ICommand, CommandOptions } from '@distributed-social-platform/shared-kernel'
+import type { ICommand } from '@distributed-social-platform/shared-kernel'
 
+// Safety notes (kept from the removed CommandOptions block — ADR-0001 replaced the
+// flag with the handler type, but the reasoning about replay/concurrency still applies):
+// set-semantics: overwrites profile fields (user + user_profile in one tx) — a repeat is a no-op.
 export class UpdateProfileCommand implements ICommand {
   readonly name = UpdateProfileCommand.name
   // save() ghi 2 bảng (user + user_profile) → cần atomic, tránh partial write.
-  readonly options: CommandOptions = {
-    transactional: true,
-    // set-semantics: overwrites profile fields (user + user_profile in one tx) — a repeat is a no-op.
-  }
 
   constructor(
     public readonly userId: string,

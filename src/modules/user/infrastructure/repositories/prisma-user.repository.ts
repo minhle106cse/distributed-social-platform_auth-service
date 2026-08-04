@@ -1,7 +1,6 @@
-import { getTx } from '@distributed-social-platform/shared-kernel'
-import { Prisma, type PrismaClient } from '@/generated'
+import { Prisma } from '@/generated'
 import type { User } from '@/modules/user/domain/entities/user.entity'
-import type { UserRepository } from '@/modules/user/domain/repositories/user.repository'
+import type { IUserRepository } from '@/modules/user/domain/repositories/user.repository'
 import { UserMapper } from '@/modules/user/infrastructure/mapper/user.mapper'
 import { UserAlreadyExistsError } from '@/common/errors/user.error'
 
@@ -13,12 +12,11 @@ const rolesInclude = {
   },
 } as const
 
-export class PrismaUserRepository implements UserRepository {
-  constructor(private readonly prisma: PrismaClient) {}
+export class PrismaUserRepository implements IUserRepository {
+  constructor(private readonly db: Prisma.TransactionClient) {}
 
   async findById(id: string, includeDeleted = false): Promise<User | null> {
-    const db = getTx<PrismaClient>() ?? this.prisma
-    const record = await db.user.findFirst({
+    const record = await this.db.user.findFirst({
       // `deletedAt: undefined` (not `{}`) keeps the key PRESENT — the SOFT_DELETE_MODELS
       // extension only auto-injects `deletedAt: null` when the key is absent from `where`.
       // A present key, even `undefined`, is the documented escape hatch (database_standard.md).
@@ -30,8 +28,7 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async findByEmail(email: string, includeDeleted = false): Promise<User | null> {
-    const db = getTx<PrismaClient>() ?? this.prisma
-    const record = await db.user.findFirst({
+    const record = await this.db.user.findFirst({
       where: { email, deletedAt: includeDeleted ? undefined : null },
       include: { authIdentities: true, profile: true, ...rolesInclude },
     })
@@ -40,9 +37,8 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async create(user: User): Promise<void> {
-    const db = getTx<PrismaClient>() ?? this.prisma
     try {
-      await db.user.create({ data: UserMapper.toPersistence(user) })
+      await this.db.user.create({ data: UserMapper.toPersistence(user) })
     } catch (err) {
       // Handlers already do a check-then-create on email (findByEmail, then
       // create) — that read is inherently racy: two concurrent registrations
@@ -59,9 +55,7 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async save(user: User): Promise<void> {
-    const db = getTx<PrismaClient>() ?? this.prisma
-
-    await db.user.update({
+    await this.db.user.update({
       where: { id: user.id },
       data: UserMapper.toPersistenceUserData(user),
     })
@@ -69,7 +63,7 @@ export class PrismaUserRepository implements UserRepository {
     const profile = user.profile
     if (profile) {
       const profileData = UserMapper.toPersistenceProfileData(profile)
-      await db.userProfile.upsert({
+      await this.db.userProfile.upsert({
         where: { userId: user.id },
         create: { id: profile.id, userId: user.id, ...profileData },
         update: profileData,
@@ -78,9 +72,15 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async hardDelete(id: string): Promise<void> {
-    const db = getTx<PrismaClient>() ?? this.prisma
     // authIdentities/refreshTokens/profile/roles cascade via onDelete: Cascade
     // in schema.prisma — a single delete is enough.
-    await db.user.delete({ where: { id } })
+    await this.db.user.delete({ where: { id } })
+  }
+
+  async updateLocalPasswordHash(userId: string, passwordHash: string): Promise<void> {
+    await this.db.authIdentity.updateMany({
+      where: { userId, provider: 'LOCAL' },
+      data: { passwordHash },
+    })
   }
 }

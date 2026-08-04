@@ -1,7 +1,4 @@
 import { CommandBus, EventBus, QueryBus } from '@distributed-social-platform/shared-kernel'
-import { LoggingMiddleware } from '@distributed-social-platform/shared-kernel'
-import { TransactionMiddleware } from '@distributed-social-platform/shared-kernel'
-import { RetryMiddleware } from '@distributed-social-platform/shared-kernel'
 import { type InfraDeps } from './infra'
 import { LoginHandler } from '@/modules/auth/application/commands/login/login.handler'
 import { RefreshHandler } from '@/modules/auth/application/commands/refresh/refresh.handler'
@@ -21,35 +18,22 @@ import { GetRoleHandler } from '@/modules/rbac/application/queries/get-role/get-
 import { GetPermissionsHandler } from '@/modules/rbac/application/queries/get-permissions/get-permissions.handler'
 import { PrismaRoleQueryRepository } from '@/modules/rbac/infrastructure/repositories/prisma-role.query-repository'
 import { PrismaUserQueryRepository } from '@/modules/user/infrastructure/repositories/prisma-user.query-repository'
-import { PrismaRoleRepository } from '@/modules/rbac/infrastructure/repositories/prisma-role.repository'
-import { PrismaTransactionManager } from '@/infrastructure/database/prisma/prisma-transaction-manager'
-import {
-  isPrismaTransientError,
-  recordDbTransientErrorObservation,
-} from '@/infrastructure/database/prisma/prisma-transient-error'
+import { PrismaTxRunner } from '@/infrastructure/database/prisma/prisma-tx-runner'
+import { authServiceRepoFactory } from './repos'
+import { transientError } from '@/infrastructure/database/prisma/prisma-transient-error'
 
 export function buildApplication(infra: InfraDeps) {
-  const commandBus = new CommandBus()
+  // The ONLY place that knows about Prisma-specific details. The repos
+  // factory is a plain constructor argument now (2026-07-30 collapse) — no
+  // separate registerScope() call, no chance to forget it: TxRunner cannot
+  // be constructed without one.
+  const txRunner = new PrismaTxRunner(infra.prisma, infra.logger, authServiceRepoFactory)
+
+  // Logging → retry → transaction is fixed inside CommandBus now; there is no
+  // .use() to get the order wrong (ADR-0001 §2.3).
+  const commandBus = new CommandBus(infra.logger, txRunner, transientError)
   const eventBus = new EventBus(infra.logger)
   const queryBus = new QueryBus(infra.logger)
-
-  // Wiring Infra implementations into framework-agnostic Middlewares.
-  // This is the ONLY place that knows about Prisma-specific details.
-  const transactionManager = new PrismaTransactionManager(infra.prisma)
-
-  // Middlewares are executed in order: Logging -> Retry -> Transaction
-  commandBus.use(new LoggingMiddleware(infra.logger))
-  commandBus.use(
-    new RetryMiddleware(
-      infra.logger,
-      isPrismaTransientError,
-      undefined,
-      undefined,
-      undefined,
-      recordDbTransientErrorObservation,
-    ),
-  )
-  commandBus.use(new TransactionMiddleware(transactionManager, infra.logger))
 
   // 2026-07-25 — REVERTED the `.child({context: ClassName.name})` pattern
   // used here before. Found it produces a genuinely malformed log line: real
@@ -62,56 +46,32 @@ export function buildApplication(infra: InfraDeps) {
   // through `logAudit()`, which ALREADY sets `context: LogContext.AUDIT`
   // explicitly — the child binding was dead weight producing bad JSON for
   // zero benefit. Passing `infra.logger` directly, unmodified.
-  const loginHandler = new LoginHandler(
-    infra.userRepository,
-    infra.refreshTokenRepository,
-    infra.passwordService,
-    infra.tokenService,
-    infra.logger,
+  //
+  // Write repositories are NOT constructed here any more: they are built per
+  // transaction by the scope factories above, so handlers receive them as a
+  // parameter instead of holding one for the process lifetime.
+  commandBus.register(
+    'LoginCommand',
+    new LoginHandler(infra.passwordService, infra.tokenService, infra.logger),
   )
-  const registerHandler = new RegisterHandler(
-    infra.userRepository,
-    infra.passwordService,
-    infra.logger,
-  )
-  const provisionUserHandler = new ProvisionUserHandler(infra.userRepository, infra.passwordService)
-  const cancelProvisionedUserHandler = new CancelProvisionedUserHandler(infra.userRepository)
-  const refreshHandler = new RefreshHandler(
-    infra.refreshTokenRepository,
-    infra.tokenService,
-    infra.userRepository,
-    infra.logger,
-  )
-  const updateProfileHandler = new UpdateProfileHandler(infra.userRepository)
+  commandBus.register('RegisterCommand', new RegisterHandler(infra.passwordService, infra.logger))
+  commandBus.register('ProvisionUserCommand', new ProvisionUserHandler(infra.passwordService))
+  commandBus.register('CancelProvisionedUserCommand', new CancelProvisionedUserHandler())
+  commandBus.register('RefreshCommand', new RefreshHandler(infra.tokenService, infra.logger))
+  commandBus.register('UpdateProfileCommand', new UpdateProfileHandler())
+  commandBus.register('CreateRoleCommand', new CreateRoleHandler())
+  commandBus.register('AssignRoleCommand', new AssignRoleHandler())
+  commandBus.register('AssignPermissionsCommand', new AssignPermissionsHandler())
+  commandBus.register('RevokeRoleCommand', new RevokeRoleHandler())
+  commandBus.register('RevokePermissionsCommand', new RevokePermissionsHandler())
+  commandBus.register('DeleteRoleCommand', new DeleteRoleHandler())
 
-  const roleRepo = new PrismaRoleRepository(infra.prisma)
-
-  const createRoleHandler = new CreateRoleHandler(roleRepo)
-  const assignRoleHandler = new AssignRoleHandler(roleRepo)
-  const assignPermissionsHandler = new AssignPermissionsHandler(roleRepo)
-  const revokeRoleHandler = new RevokeRoleHandler(roleRepo)
-  const revokePermissionsHandler = new RevokePermissionsHandler(roleRepo)
-  const deleteRoleHandler = new DeleteRoleHandler(roleRepo)
-
-  commandBus.register('LoginCommand', loginHandler)
-  commandBus.register('RegisterCommand', registerHandler)
-  commandBus.register('ProvisionUserCommand', provisionUserHandler)
-  commandBus.register('CancelProvisionedUserCommand', cancelProvisionedUserHandler)
-  commandBus.register('RefreshCommand', refreshHandler)
-  commandBus.register('UpdateProfileCommand', updateProfileHandler)
-  commandBus.register('CreateRoleCommand', createRoleHandler)
-  commandBus.register('AssignRoleCommand', assignRoleHandler)
-  commandBus.register('AssignPermissionsCommand', assignPermissionsHandler)
-  commandBus.register('RevokeRoleCommand', revokeRoleHandler)
-  commandBus.register('RevokePermissionsCommand', revokePermissionsHandler)
-  commandBus.register('DeleteRoleCommand', deleteRoleHandler)
-
+  // Read side is unchanged: queries need no transaction, so their repositories
+  // stay long-lived on the plain client.
   const userQueryRepository = new PrismaUserQueryRepository(infra.prisma)
-  const getMeHandler = new GetMeHandler(userQueryRepository)
-  queryBus.register('GetMeQuery', getMeHandler)
+  queryBus.register('GetMeQuery', new GetMeHandler(userQueryRepository))
 
   const roleQueryRepository = new PrismaRoleQueryRepository(infra.prisma)
-
   queryBus.register('GetRolesQuery', new GetRolesHandler(roleQueryRepository))
   queryBus.register('GetRoleQuery', new GetRoleHandler(roleQueryRepository))
   queryBus.register('GetPermissionsQuery', new GetPermissionsHandler())

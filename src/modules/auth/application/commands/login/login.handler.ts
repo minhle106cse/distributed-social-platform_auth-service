@@ -1,28 +1,29 @@
+import type { AuthServiceRepos } from '@/container/repos'
 import type { ILogger } from '@distributed-social-platform/shared-kernel'
 import { logAudit, hashEmail } from '@distributed-social-platform/shared-kernel'
 import type { LoginCommand } from './login.command'
 import { AuthMethodNotFoundError, InvalidCredentialsError } from '@/common/errors/auth.error'
-import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
-import type { UserRepository } from '@/modules/user/domain/repositories/user.repository'
-import type { PasswordService } from '@/modules/auth/domain/services/password.service'
-import type { TokenService } from '@/modules/auth/domain/services/token.service'
+import type { IRefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
+import type { IUserRepository } from '@/modules/user/domain/repositories/user.repository'
+import type { IPasswordService } from '@/modules/auth/domain/services/password.service'
+import type { ITokenService } from '@/modules/auth/domain/services/token.service'
 import { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
 import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
 
 export class LoginHandler {
+  readonly kind = 'transactional' as const
+
   constructor(
-    private readonly userRepo: UserRepository,
-    private readonly refreshTokenRepo: RefreshTokenRepository,
-    private readonly passwordService: PasswordService,
-    private readonly tokenService: TokenService,
+    private readonly passwordService: IPasswordService,
+    private readonly tokenService: ITokenService,
     private readonly logger: ILogger,
   ) {}
 
-  async execute(command: LoginCommand) {
+  async execute(command: LoginCommand, tx: AuthServiceRepos) {
     const { email, password, ipAddress, userAgent } = command
 
     // Fetch user, including soft-deleted ones (so they can be told they are deleted, or recover)
-    const user = await this.userRepo.findByEmail(email, true)
+    const user = await tx.users.findByEmail(email, true)
 
     if (!user) {
       // No userId to attribute this to — email is the only signal we have,
@@ -79,7 +80,7 @@ export class LoginHandler {
     // Khôi phục tài khoản nếu đang ở trạng thái Soft Delete (trong vòng 30 ngày)
     if (user.isDeleted()) {
       user.restore()
-      await this.userRepo.save(user)
+      await tx.users.save(user)
     }
 
     const { refreshToken, refreshTokenEntity } = RefreshToken.create(
@@ -92,7 +93,7 @@ export class LoginHandler {
       this.tokenService,
     )
 
-    await this.refreshTokenRepo.create(refreshTokenEntity)
+    await tx.refreshTokens.create(refreshTokenEntity)
 
     const accessToken = this.tokenService.signAccessToken({
       sub: user.id,
@@ -101,15 +102,8 @@ export class LoginHandler {
       permissions: user.permissions,
     })
 
-    logAudit(this.logger, {
-      action: 'auth.login',
-      outcome: 'success',
-      actorUserId: user.id,
-      actorEmailHash: hashEmail(email),
-      ip: ipAddress,
-    })
-
     return {
+      userId: user.id,
       accessToken: {
         token: accessToken.token,
         expiredAt: accessToken.expiredAt,
@@ -119,5 +113,25 @@ export class LoginHandler {
         expiredAt: refreshTokenEntity.expiredAt,
       },
     }
+  }
+
+  // Runs only after the transaction has actually committed (see
+  // ITransactionalCommandHandler.afterCommit's doc) — logAudit ships straight to
+  // the pino stream / Elasticsearch, which does NOT roll back with the DB. Calling
+  // it inside execute() used to mean a commit-time failure (P2034 detected at
+  // COMMIT, after the callback already resolved) made CommandBus.withRetry re-run
+  // the whole handler and log a second "success", or in the exhausted-retries
+  // case leave a "success" audit entry for a login that never actually committed
+  // (review of ADR-0001, 2026-07-30). The failure-path logAudit calls above stay
+  // inside execute(): they all throw BEFORE any DB write, so nothing after them
+  // can trigger a retry of that same attempt.
+  afterCommit(command: LoginCommand, result: { userId: string }): void {
+    logAudit(this.logger, {
+      action: 'auth.login',
+      outcome: 'success',
+      actorUserId: result.userId,
+      actorEmailHash: hashEmail(command.email),
+      ip: command.ipAddress,
+    })
   }
 }

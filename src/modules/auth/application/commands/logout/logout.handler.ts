@@ -1,16 +1,20 @@
-import type { ICommandHandler } from '@distributed-social-platform/shared-kernel'
+import type { AuthServiceRepos } from '@/container/repos'
+import type { ITransactionalCommandHandler } from '@distributed-social-platform/shared-kernel'
 import type { LogoutCommand } from './logout.command'
-import type { RefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
-import type { TokenService } from '@/modules/auth/domain/services/token.service'
+import type { IRefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
+import type { ITokenService } from '@/modules/auth/domain/services/token.service'
 import { RefreshTokenNotFoundError, ForbiddenError } from '@/common/errors/auth.error'
 
-export class LogoutHandler implements ICommandHandler<LogoutCommand> {
-  constructor(
-    public readonly refreshTokenRepository: RefreshTokenRepository,
-    public readonly tokenService: TokenService,
-  ) {}
+export class LogoutHandler implements ITransactionalCommandHandler<
+  LogoutCommand,
+  void,
+  AuthServiceRepos
+> {
+  readonly kind = 'transactional' as const
 
-  async execute(command: LogoutCommand): Promise<void> {
+  constructor(public readonly tokenService: ITokenService) {}
+
+  async execute(command: LogoutCommand, tx: AuthServiceRepos): Promise<void> {
     const { userId, refreshToken } = command
 
     if (!refreshToken) {
@@ -18,7 +22,7 @@ export class LogoutHandler implements ICommandHandler<LogoutCommand> {
     }
 
     const { tokenHash } = this.tokenService.verifyRefreshToken(refreshToken)
-    const tokenEntity = await this.refreshTokenRepository.findByTokenHash(tokenHash)
+    const tokenEntity = await tx.refreshTokens.findByTokenHash(tokenHash)
 
     if (!tokenEntity) {
       throw new RefreshTokenNotFoundError()
@@ -30,6 +34,6 @@ export class LogoutHandler implements ICommandHandler<LogoutCommand> {
 
     // Revoke the specific token
     tokenEntity.revoke()
-    await this.refreshTokenRepository.update(tokenEntity)
+    await tx.refreshTokens.update(tokenEntity)
   }
 }
