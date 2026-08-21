@@ -1,5 +1,5 @@
 import type { PrismaClient } from '@/generated'
-import type { IUserQueryRepository } from '@/modules/user/application/queries/user.query-repository'
+import type { IUserQueryRepository } from '@/modules/user/application/repositories/user.query-repository'
 import type { GetMeDto } from '@/modules/user/application/queries/user.dto'
 
 export class PrismaUserQueryRepository implements IUserQueryRepository {

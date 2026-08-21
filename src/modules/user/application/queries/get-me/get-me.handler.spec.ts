@@ -1,6 +1,6 @@
 import { GetMeHandler } from './get-me.handler'
 import { GetMeQuery } from './get-me.query'
-import type { IUserQueryRepository } from '@/modules/user/application/queries/user.query-repository'
+import type { IUserQueryRepository } from '@/modules/user/application/repositories/user.query-repository'
 import { UserNotFoundError } from '@/common/errors/user.error'
 
 describe('GetMeHandler', () => {

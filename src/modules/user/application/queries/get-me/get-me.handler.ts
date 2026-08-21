@@ -1,6 +1,6 @@
 import type { IQueryHandler } from '@distributed-social-platform/shared-kernel'
 import type { GetMeQuery } from './get-me.query'
-import type { IUserQueryRepository } from '@/modules/user/application/queries/user.query-repository'
+import type { IUserQueryRepository } from '@/modules/user/application/repositories/user.query-repository'
 import { UserNotFoundError, UserCannotLoginError } from '@/common/errors/user.error'
 
 export class GetMeHandler implements IQueryHandler<GetMeQuery> {

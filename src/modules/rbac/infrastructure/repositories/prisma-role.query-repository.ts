@@ -1,5 +1,5 @@
 import type { PrismaClient } from '@/generated'
-import type { IRoleQueryRepository } from '@/modules/rbac/application/queries/role.query-repository'
+import type { IRoleQueryRepository } from '@/modules/rbac/application/repositories/role.query-repository'
 import type { RoleDto } from '@/modules/rbac/application/queries/role.dto'
 
 export class PrismaRoleQueryRepository implements IRoleQueryRepository {
