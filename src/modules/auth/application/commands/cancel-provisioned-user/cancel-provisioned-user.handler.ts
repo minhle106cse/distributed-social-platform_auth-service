@@ -1,7 +1,6 @@
-import type { AuthServiceRepos } from '@/container/repos'
 import type { ITransactionalCommandHandler } from '@distributed-social-platform/shared-kernel'
 import type { CancelProvisionedUserCommand } from './cancel-provisioned-user.command'
-import type { IUserRepository } from '@/modules/user/domain/repositories/user.repository'
+import type { AuthServiceRepos } from '@/container/repos'
 
 export interface CancelProvisionedUserResult {
   cancelled: boolean

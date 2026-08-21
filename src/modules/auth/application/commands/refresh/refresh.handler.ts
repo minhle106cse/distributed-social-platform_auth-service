@@ -1,16 +1,14 @@
-import type { AuthServiceRepos } from '@/container/repos'
 import type {
   ITransactionalCommandHandler,
   ILogger,
 } from '@distributed-social-platform/shared-kernel'
 import { logAudit, hashEmail } from '@distributed-social-platform/shared-kernel'
 import type { RefreshCommand } from './refresh.command'
+import type { AuthServiceRepos } from '@/container/repos'
 import { RefreshTokenNotFoundError } from '@/common/errors/auth.error'
 import { UserNotFoundError } from '@/common/errors/user.error'
-import type { IRefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
 import type { ITokenService } from '@/modules/auth/domain/services/token.service'
 import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
-import type { IUserRepository } from '@/modules/user/domain/repositories/user.repository'
 
 export type RefreshResult =
   | { reused: true; userId: string; email: string | null; ipAddress?: string }

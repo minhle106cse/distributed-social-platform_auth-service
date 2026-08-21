@@ -1,15 +1,11 @@
-import type { AuthServiceRepos } from '@/container/repos'
 import type { ILogger } from '@distributed-social-platform/shared-kernel'
 import { RefreshHandler } from './refresh.handler'
 import { RefreshCommand } from './refresh.command'
+import type { AuthServiceRepos } from '@/container/repos'
 import type { IRefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
 import type { ITokenService } from '@/modules/auth/domain/services/token.service'
 import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
-import {
-  RefreshTokenNotFoundError,
-  RefreshTokenUsedError,
-  RefreshTokenExpiredError,
-} from '@/common/errors/auth.error'
+import { RefreshTokenNotFoundError, RefreshTokenExpiredError } from '@/common/errors/auth.error'
 import { UserNotFoundError } from '@/common/errors/user.error'
 import { User } from '@/modules/user/domain/entities/user.entity'
 
@@ -131,10 +127,10 @@ describe('RefreshHandler', () => {
     const command = new RefreshCommand('token', 'ip', 'ua')
     const auditLogger = (handler as any).logger as jest.Mocked<ILogger>
 
-    handler.afterCommit!(command, { reused: true, userId: 'u1', email: 'e@e.com', ipAddress: 'ip' })
+    handler.afterCommit(command, { reused: true, userId: 'u1', email: 'e@e.com', ipAddress: 'ip' })
     expect(auditLogger.warn).toHaveBeenCalled()
     ;(auditLogger.warn as jest.Mock).mockClear()
-    handler.afterCommit!(command, {
+    handler.afterCommit(command, {
       accessToken: { token: 'a', expiredAt: new Date() },
       refreshToken: { token: 'r', expiredAt: new Date() },
     })

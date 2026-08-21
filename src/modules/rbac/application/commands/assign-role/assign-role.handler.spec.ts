@@ -1,7 +1,7 @@
-import type { AuthServiceRepos } from '@/container/repos'
 import type { IRoleRepository } from '../../../domain/repositories/role.repository'
 import { AssignRoleHandler } from './assign-role.handler'
 import { AssignRoleCommand } from './assign-role.command'
+import type { AuthServiceRepos } from '@/container/repos'
 import { RoleNotFoundError, RoleInactiveError } from '@/common/errors/rbac.error'
 import { Role } from '@/modules/rbac/domain/entities/role.entity'
 

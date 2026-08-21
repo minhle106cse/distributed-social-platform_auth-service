@@ -1,13 +1,12 @@
-import type { AuthServiceRepos } from '@/container/repos'
 import type { ITransactionalCommandHandler } from '@distributed-social-platform/shared-kernel'
-import type { IRoleRepository } from '../../../domain/repositories/role.repository'
 import type { CreateRoleCommand } from './create-role.command'
+import type { AuthServiceRepos } from '@/container/repos'
 import { Role } from '@/modules/rbac/domain/entities/role.entity'
 import { RoleAlreadyExistsError } from '@/common/errors/rbac.error'
 
 export class CreateRoleHandler implements ITransactionalCommandHandler<
   CreateRoleCommand,
-  any,
+  { id: string; code: string },
   AuthServiceRepos
 > {
   readonly kind = 'transactional' as const

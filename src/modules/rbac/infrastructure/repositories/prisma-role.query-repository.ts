@@ -7,7 +7,6 @@ export class PrismaRoleQueryRepository implements IRoleQueryRepository {
 
   async getRoles(): Promise<RoleDto[]> {
     const roles = await this.prisma.role.findMany({
-
       orderBy: { createdAt: 'desc' },
     })
 
@@ -23,7 +22,6 @@ export class PrismaRoleQueryRepository implements IRoleQueryRepository {
   async getRoleByCode(code: string): Promise<RoleDto | null> {
     const role = await this.prisma.role.findUnique({
       where: { code },
-
     })
 
     if (!role) return null

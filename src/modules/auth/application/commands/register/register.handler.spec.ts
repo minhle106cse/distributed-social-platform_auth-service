@@ -1,6 +1,6 @@
-import type { AuthServiceRepos } from '@/container/repos'
 import type { ILogger } from '@distributed-social-platform/shared-kernel'
 import { RegisterHandler } from './register.handler'
+import type { AuthServiceRepos } from '@/container/repos'
 import type { IUserRepository } from '@/modules/user/domain/repositories/user.repository'
 import type { IPasswordService } from '@/modules/auth/domain/services/password.service'
 import { UserAlreadyExistsError } from '@/common/errors/user.error'

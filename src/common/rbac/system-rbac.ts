@@ -1,4 +1,7 @@
-import { SystemPermission, type SystemPermissionValue } from '@distributed-social-platform/shared-kernel'
+import {
+  SystemPermission,
+  type SystemPermissionValue,
+} from '@distributed-social-platform/shared-kernel'
 
 // ── System Role Catalog ───────────────────────────────────────────────────────
 // Role code là identifier cho nhóm quyền hệ thống. Gán cho internal team, không phải end user.

@@ -1,5 +1,5 @@
-import { startOrphanedProvisionedUserWatcher } from './orphaned-provisioned-user-watcher'
 import type { ILogger } from '@distributed-social-platform/shared-kernel'
+import { startOrphanedProvisionedUserWatcher } from './orphaned-provisioned-user-watcher'
 
 describe('startOrphanedProvisionedUserWatcher', () => {
   let logger: jest.Mocked<ILogger>
@@ -12,7 +12,7 @@ describe('startOrphanedProvisionedUserWatcher', () => {
       warn: jest.fn(),
       error: jest.fn(),
       debug: jest.fn(),
-    } as unknown as jest.Mocked<ILogger>
+    }
     count = jest.fn().mockResolvedValue(0)
   })
 

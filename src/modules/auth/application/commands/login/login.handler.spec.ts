@@ -1,6 +1,6 @@
-import type { AuthServiceRepos } from '@/container/repos'
 import type { ILogger } from '@distributed-social-platform/shared-kernel'
 import { LoginHandler } from './login.handler'
+import type { AuthServiceRepos } from '@/container/repos'
 import type { IUserRepository } from '@/modules/user/domain/repositories/user.repository'
 import type { IRefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
 import type { IPasswordService } from '@/modules/auth/domain/services/password.service'
@@ -59,7 +59,7 @@ describe('LoginHandler', () => {
       warn: jest.fn(),
       error: jest.fn(),
       debug: jest.fn(),
-    } as unknown as jest.Mocked<ILogger>
+    }
 
     handler = new LoginHandler(mockPasswordService, mockTokenService, mockAuditLogger)
     tx = { users: mockUserRepo, refreshTokens: mockRefreshTokenRepo } as unknown as AuthServiceRepos

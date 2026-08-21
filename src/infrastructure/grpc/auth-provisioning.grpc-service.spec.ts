@@ -1,6 +1,6 @@
 import type { CommandBus, ILogger } from '@distributed-social-platform/shared-kernel'
-import { config } from '@/config'
 import { AuthProvisioningGrpcService } from './auth-provisioning.grpc-service'
+import { config } from '@/config'
 
 // Minimal fake grpc-js ServerUnaryCall — only what verifyInternalGrpcSecret +
 // the handler bodies actually read (metadata.get, request).
@@ -25,7 +25,7 @@ describe('AuthProvisioningGrpcService — internal-secret rejection logging (202
       warn: jest.fn(),
       error: jest.fn(),
       debug: jest.fn(),
-    } as unknown as jest.Mocked<ILogger>
+    }
     service = new AuthProvisioningGrpcService(mockCommandBus, mockLogger)
   })
 
@@ -34,9 +34,7 @@ describe('AuthProvisioningGrpcService — internal-secret rejection logging (202
     service.provisionUser(buildCall('wrong-secret', { email: 'a@b.com' }), callback)
     await new Promise((r) => setImmediate(r))
 
-    expect(callback).toHaveBeenCalledWith(
-      expect.objectContaining({ code: expect.any(Number) }),
-    )
+    expect(callback).toHaveBeenCalledWith(expect.objectContaining({ code: expect.any(Number) }))
     expect(mockCommandBus.execute).not.toHaveBeenCalled()
     expect(mockLogger.warn).toHaveBeenCalledWith(
       expect.objectContaining({ context: 'GrpcLayer' }),

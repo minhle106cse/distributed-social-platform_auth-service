@@ -1,6 +1,6 @@
-import type { AuthServiceRepos } from '@/container/repos'
 import { LogoutHandler } from './logout.handler'
 import { LogoutCommand } from './logout.command'
+import type { AuthServiceRepos } from '@/container/repos'
 import type { IRefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
 import type { ITokenService } from '@/modules/auth/domain/services/token.service'
 import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'

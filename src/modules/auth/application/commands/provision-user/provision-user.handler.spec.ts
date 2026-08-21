@@ -1,6 +1,6 @@
-import type { AuthServiceRepos } from '@/container/repos'
 import { ProvisionUserHandler } from './provision-user.handler'
 import { ProvisionUserCommand } from './provision-user.command'
+import type { AuthServiceRepos } from '@/container/repos'
 import type { IUserRepository } from '@/modules/user/domain/repositories/user.repository'
 import type { IGrpcIdempotencyRepository } from '@/modules/auth/domain/repositories/grpc-idempotency.repository'
 import type { IPasswordService } from '@/modules/auth/domain/services/password.service'

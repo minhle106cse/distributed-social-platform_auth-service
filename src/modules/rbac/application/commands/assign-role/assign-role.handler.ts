@@ -1,12 +1,11 @@
-import type { AuthServiceRepos } from '@/container/repos'
 import type { ITransactionalCommandHandler } from '@distributed-social-platform/shared-kernel'
-import type { IRoleRepository } from '../../../domain/repositories/role.repository'
 import type { AssignRoleCommand } from './assign-role.command'
+import type { AuthServiceRepos } from '@/container/repos'
 import { RoleNotFoundError } from '@/common/errors/rbac.error'
 
 export class AssignRoleHandler implements ITransactionalCommandHandler<
   AssignRoleCommand,
-  any,
+  { success: boolean },
   AuthServiceRepos
 > {
   readonly kind = 'transactional' as const

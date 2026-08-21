@@ -1,9 +1,9 @@
-import type { AuthServiceRepos } from '@/container/repos'
 import type { IUserRepository } from '../../../domain/repositories/user.repository'
 import { User } from '../../../domain/entities/user.entity'
 import { UserProfile } from '../../../domain/entities/user-profile.entity'
 import { UpdateProfileCommand } from './update-profile.command'
 import { UpdateProfileHandler } from './update-profile.handler'
+import type { AuthServiceRepos } from '@/container/repos'
 import { UserNotFoundError } from '@/common/errors/user.error'
 
 describe('UpdateProfileHandler', () => {

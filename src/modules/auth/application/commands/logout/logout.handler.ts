@@ -1,7 +1,6 @@
-import type { AuthServiceRepos } from '@/container/repos'
 import type { ITransactionalCommandHandler } from '@distributed-social-platform/shared-kernel'
 import type { LogoutCommand } from './logout.command'
-import type { IRefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
+import type { AuthServiceRepos } from '@/container/repos'
 import type { ITokenService } from '@/modules/auth/domain/services/token.service'
 import { RefreshTokenNotFoundError, ForbiddenError } from '@/common/errors/auth.error'
 

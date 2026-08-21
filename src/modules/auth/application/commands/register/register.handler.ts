@@ -1,13 +1,12 @@
-import type { AuthServiceRepos } from '@/container/repos'
 import type {
   ITransactionalCommandHandler,
   ILogger,
 } from '@distributed-social-platform/shared-kernel'
 import { logAudit, hashEmail } from '@distributed-social-platform/shared-kernel'
 import type { RegisterCommand } from './register.command'
+import type { AuthServiceRepos } from '@/container/repos'
 import { UserAlreadyExistsError } from '@/common/errors/user.error'
 import { User } from '@/modules/user/domain/entities/user.entity'
-import type { IUserRepository } from '@/modules/user/domain/repositories/user.repository'
 import type { IPasswordService } from '@/modules/auth/domain/services/password.service'
 
 export class RegisterHandler implements ITransactionalCommandHandler<

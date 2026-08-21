@@ -20,7 +20,10 @@ export function startGrpcServer(commandBus: CommandBus, logger: ILogger): grpc.S
         logger.error({ context: LogContext.GRPC, err }, 'Failed to start gRPC server')
         return
       }
-      logger.info({ context: LogContext.GRPC }, `🔌 gRPC (AuthProvisioning) listening on port ${port}`)
+      logger.info(
+        { context: LogContext.GRPC },
+        `🔌 gRPC (AuthProvisioning) listening on port ${port}`,
+      )
     },
   )
 

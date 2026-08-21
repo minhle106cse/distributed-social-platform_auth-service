@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify'
-import { buildServer } from '@/bootstrap/server'
 import { SystemPermission } from '@distributed-social-platform/shared-kernel'
+import { buildServer } from '@/bootstrap/server'
 import type { Application } from '@/container/application'
 
 jest.setTimeout(30000)

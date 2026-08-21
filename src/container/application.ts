@@ -1,5 +1,6 @@
 import { CommandBus, EventBus, QueryBus } from '@distributed-social-platform/shared-kernel'
 import { type InfraDeps } from './infra'
+import { authServiceRepoFactory } from './repos'
 import { LoginHandler } from '@/modules/auth/application/commands/login/login.handler'
 import { RefreshHandler } from '@/modules/auth/application/commands/refresh/refresh.handler'
 import { RegisterHandler } from '@/modules/auth/application/commands/register/register.handler'
@@ -19,7 +20,6 @@ import { GetPermissionsHandler } from '@/modules/rbac/application/queries/get-pe
 import { PrismaRoleQueryRepository } from '@/modules/rbac/infrastructure/repositories/prisma-role.query-repository'
 import { PrismaUserQueryRepository } from '@/modules/user/infrastructure/repositories/prisma-user.query-repository'
 import { PrismaTxRunner } from '@/infrastructure/database/prisma/prisma-tx-runner'
-import { authServiceRepoFactory } from './repos'
 import { transientError } from '@/infrastructure/database/prisma/prisma-transient-error'
 
 export function buildApplication(infra: InfraDeps) {

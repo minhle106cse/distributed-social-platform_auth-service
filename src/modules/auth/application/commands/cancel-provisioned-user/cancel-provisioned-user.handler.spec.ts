@@ -1,6 +1,6 @@
-import type { AuthServiceRepos } from '@/container/repos'
 import { CancelProvisionedUserHandler } from './cancel-provisioned-user.handler'
 import { CancelProvisionedUserCommand } from './cancel-provisioned-user.command'
+import type { AuthServiceRepos } from '@/container/repos'
 import type { IUserRepository } from '@/modules/user/domain/repositories/user.repository'
 import { User } from '@/modules/user/domain/entities/user.entity'
 

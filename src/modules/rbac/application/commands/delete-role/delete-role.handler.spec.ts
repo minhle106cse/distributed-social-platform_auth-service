@@ -1,6 +1,6 @@
-import type { AuthServiceRepos } from '@/container/repos'
 import { DeleteRoleHandler } from './delete-role.handler'
 import { DeleteRoleCommand } from './delete-role.command'
+import type { AuthServiceRepos } from '@/container/repos'
 import type { IRoleRepository } from '@/modules/rbac/domain/repositories/role.repository'
 import { RoleNotFoundError } from '@/common/errors/rbac.error'
 import { Role } from '@/modules/rbac/domain/entities/role.entity'

@@ -1,7 +1,7 @@
-import type { AuthServiceRepos } from '@/container/repos'
 import type { IRoleRepository } from '../../../domain/repositories/role.repository'
 import { RevokePermissionsHandler } from './revoke-permissions.handler'
 import { RevokePermissionsCommand } from './revoke-permissions.command'
+import type { AuthServiceRepos } from '@/container/repos'
 import { RoleNotFoundError } from '@/common/errors/rbac.error'
 import { Role } from '@/modules/rbac/domain/entities/role.entity'
 

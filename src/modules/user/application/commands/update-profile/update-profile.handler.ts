@@ -1,13 +1,12 @@
-import type { AuthServiceRepos } from '@/container/repos'
 import type { ITransactionalCommandHandler } from '@distributed-social-platform/shared-kernel'
-import type { IUserRepository } from '../../../domain/repositories/user.repository'
 import { UserProfile } from '../../../domain/entities/user-profile.entity'
 import type { UpdateProfileCommand } from './update-profile.command'
+import type { AuthServiceRepos } from '@/container/repos'
 import { UserNotFoundError } from '@/common/errors/user.error'
 
 export class UpdateProfileHandler implements ITransactionalCommandHandler<
   UpdateProfileCommand,
-  any,
+  { success: boolean },
   AuthServiceRepos
 > {
   readonly kind = 'transactional' as const

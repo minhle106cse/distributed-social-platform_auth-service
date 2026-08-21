@@ -1,5 +1,5 @@
-import { Prisma, type PrismaClient } from '@/generated'
 import { PrismaUserRepository } from './prisma-user.repository'
+import { Prisma, type PrismaClient } from '@/generated'
 import { UserAlreadyExistsError } from '@/common/errors/user.error'
 import { User } from '@/modules/user/domain/entities/user.entity'
 

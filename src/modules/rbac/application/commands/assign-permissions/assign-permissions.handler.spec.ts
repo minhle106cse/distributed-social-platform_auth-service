@@ -1,8 +1,8 @@
-import type { AuthServiceRepos } from '@/container/repos'
 import { SystemPermission } from '@distributed-social-platform/shared-kernel'
 import type { IRoleRepository } from '../../../domain/repositories/role.repository'
 import { AssignPermissionsHandler } from './assign-permissions.handler'
 import { AssignPermissionsCommand } from './assign-permissions.command'
+import type { AuthServiceRepos } from '@/container/repos'
 import { RoleNotFoundError, InvalidPermissionCodeError } from '@/common/errors/rbac.error'
 import { Role } from '@/modules/rbac/domain/entities/role.entity'
 

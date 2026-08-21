@@ -1,13 +1,12 @@
-import type { AuthServiceRepos } from '@/container/repos'
 import { isValidSystemPermission } from '@distributed-social-platform/shared-kernel'
 import type { ITransactionalCommandHandler } from '@distributed-social-platform/shared-kernel'
-import type { IRoleRepository } from '../../../domain/repositories/role.repository'
 import type { AssignPermissionsCommand } from './assign-permissions.command'
+import type { AuthServiceRepos } from '@/container/repos'
 import { RoleNotFoundError, InvalidPermissionCodeError } from '@/common/errors/rbac.error'
 
 export class AssignPermissionsHandler implements ITransactionalCommandHandler<
   AssignPermissionsCommand,
-  any,
+  { id: string; code: string; permissions: string[] },
   AuthServiceRepos
 > {
   readonly kind = 'transactional' as const
