@@ -9,7 +9,7 @@ import { buildInfra } from './container/infra'
 import { buildApplication } from './container/application'
 import { startGrpcServer } from './bootstrap/grpc'
 import { prismaService } from './infrastructure/database/prisma/prisma.client'
-import { startOrphanedProvisionedUserWatcher } from './modules/user/infrastructure/jobs/orphaned-provisioned-user-watcher'
+import { startOrphanedProvisionedUserWatcher } from './modules/user/infrastructure/services/orphaned-provisioned-user-watcher'
 
 collectDefaultMetrics()
 

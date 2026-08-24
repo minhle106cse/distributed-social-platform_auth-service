@@ -1,7 +1,7 @@
 import type { Prisma } from '@/generated'
 import { type RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
 import { type IRefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
-import { RefreshTokenMapper } from '@/modules/auth/infrastructure/mapper/refresh-token.mapper'
+import { RefreshTokenMapper } from '@/modules/auth/infrastructure/mappers/refresh-token.mapper'
 
 export class PrismaRefreshTokenRepository implements IRefreshTokenRepository {
   constructor(private readonly db: Prisma.TransactionClient) {}

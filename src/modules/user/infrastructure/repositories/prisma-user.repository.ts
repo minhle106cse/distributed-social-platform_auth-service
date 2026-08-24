@@ -1,8 +1,8 @@
 import { Prisma } from '@/generated'
 import type { User } from '@/modules/user/domain/entities/user.entity'
 import type { IUserRepository } from '@/modules/user/domain/repositories/user.repository'
-import { UserMapper } from '@/modules/user/infrastructure/mapper/user.mapper'
-import { UserAlreadyExistsError } from '@/common/errors/user.error'
+import { UserMapper } from '@/modules/user/infrastructure/mappers/user.mapper'
+import { UserAlreadyExistsError } from '@/modules/user/domain/user.error'
 
 const rolesInclude = {
   roles: {

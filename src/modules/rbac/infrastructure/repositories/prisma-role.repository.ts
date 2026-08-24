@@ -1,5 +1,5 @@
 import type { Role } from '../../domain/entities/role.entity'
-import { RoleMapper } from '../mapper/role.mapper'
+import { RoleMapper } from '../mappers/role.mapper'
 import type { IRoleRepository } from '../../domain/repositories/role.repository'
 import { Prisma } from '@/generated'
 
