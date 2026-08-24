@@ -2,7 +2,7 @@ import { isValidSystemPermission } from '@distributed-social-platform/shared-ker
 import type { ITransactionalCommandHandler } from '@distributed-social-platform/shared-kernel'
 import type { AssignPermissionsCommand } from './assign-permissions.command'
 import type { AuthServiceRepos } from '@/container/repos'
-import { RoleNotFoundError, InvalidPermissionCodeError } from '@/common/errors/rbac.error'
+import { RoleNotFoundError, InvalidPermissionCodeError } from '@/modules/rbac/domain/rbac.error'
 
 export class AssignPermissionsHandler implements ITransactionalCommandHandler<
   AssignPermissionsCommand,

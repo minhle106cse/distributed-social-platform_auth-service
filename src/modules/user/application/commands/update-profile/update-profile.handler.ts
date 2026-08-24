@@ -2,7 +2,7 @@ import type { ITransactionalCommandHandler } from '@distributed-social-platform/
 import { UserProfile } from '../../../domain/entities/user-profile.entity'
 import type { UpdateProfileCommand } from './update-profile.command'
 import type { AuthServiceRepos } from '@/container/repos'
-import { UserNotFoundError } from '@/common/errors/user.error'
+import { UserNotFoundError } from '@/modules/user/domain/user.error'
 
 export class UpdateProfileHandler implements ITransactionalCommandHandler<
   UpdateProfileCommand,

@@ -140,12 +140,20 @@ export default [
                 '@/generated/**',
                 '@/infrastructure/**',
                 '@/container/**',
+                // 2026-08-24: added, unifying on core-api's stricter boundary (owner's call).
+                // It used to allow `common/`, which is why auth-service's error classes lived in
+                // common/errors/ while core-api's credit errors could not. Now every module owns
+                // exactly one error file under its own domain/, so nothing needs the exemption.
+                // `check:arch` check D reads THIS list, so adding the line also starts blocking
+                // the relative-path way around it ('../../../../common/x'), which eslint alone
+                // cannot see.
+                '@/common/**',
                 '@/modules/*/application/**',
                 '@/modules/*/infrastructure/**',
                 '@/modules/*/presentation/**',
               ],
               message:
-                'Domain phải pure TypeScript: chỉ shared-kernel + common/ + relative. Cấm framework (Fastify), ORM (Prisma/generated), container/ (composition root), và mọi tầng ngoài.',
+                'Domain phải pure TypeScript: chỉ shared-kernel + relative cùng domain. Cấm framework (Fastify), ORM (Prisma/generated), container/ (composition root), common/, và mọi tầng ngoài.',
             },
           ],
         },

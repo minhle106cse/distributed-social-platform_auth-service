@@ -1,6 +1,6 @@
+import { UserCannotLoginError } from '../user.error'
 import { User } from './user.entity'
-import { AuthMethodNotFoundError } from '@/common/errors/auth.error'
-import { UserCannotLoginError } from '@/common/errors/user.error'
+import { AuthMethodNotFoundError } from '@/modules/auth/domain/auth.error'
 import { AuthIdentity } from '@/modules/auth/domain/value-objects/auth-identity.vo'
 import { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
 

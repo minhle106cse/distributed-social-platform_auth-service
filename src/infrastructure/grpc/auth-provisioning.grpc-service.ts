@@ -13,7 +13,7 @@ import { ProvisionUserCommand } from '@/modules/auth/application/commands/provis
 import type { ProvisionUserResult } from '@/modules/auth/application/commands/provision-user/provision-user.handler'
 import { CancelProvisionedUserCommand } from '@/modules/auth/application/commands/cancel-provisioned-user/cancel-provisioned-user.command'
 import type { CancelProvisionedUserResult } from '@/modules/auth/application/commands/cancel-provisioned-user/cancel-provisioned-user.handler'
-import { UserAlreadyExistsError } from '@/common/errors/user.error'
+import { UserAlreadyExistsError } from '@/modules/user/domain/user.error'
 import { config } from '@/config'
 
 export class AuthProvisioningGrpcService implements AuthProvisioningServer {

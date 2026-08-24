@@ -1,5 +1,5 @@
 import { v7 } from 'uuid'
-import { RefreshTokenExpiredError, RefreshTokenRevokedError } from '@/common/errors/auth.error'
+import { RefreshTokenExpiredError, RefreshTokenRevokedError } from '../auth.error'
 import { type ITokenService } from '@/modules/auth/domain/services/token.service'
 
 export interface RefreshTokenProps {

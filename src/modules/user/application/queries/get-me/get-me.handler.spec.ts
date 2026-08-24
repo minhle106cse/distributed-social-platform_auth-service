@@ -1,7 +1,7 @@
 import { GetMeHandler } from './get-me.handler'
 import { GetMeQuery } from './get-me.query'
 import type { IUserQueryRepository } from '@/modules/user/application/repositories/user.query-repository'
-import { UserNotFoundError } from '@/common/errors/user.error'
+import { UserNotFoundError } from '@/modules/user/domain/user.error'
 
 describe('GetMeHandler', () => {
   let handler: GetMeHandler
@@ -37,7 +37,7 @@ describe('GetMeHandler', () => {
     })
 
     await expect(handler.execute(query)).rejects.toThrow(
-      require('@/common/errors/user.error').UserCannotLoginError,
+      require('@/modules/user/domain/user.error').UserCannotLoginError,
     )
   })
 

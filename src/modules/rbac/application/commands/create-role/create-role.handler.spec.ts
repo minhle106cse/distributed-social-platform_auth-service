@@ -2,7 +2,7 @@ import type { IRoleRepository } from '../../../domain/repositories/role.reposito
 import { CreateRoleHandler } from './create-role.handler'
 import { CreateRoleCommand } from './create-role.command'
 import type { AuthServiceRepos } from '@/container/repos'
-import { RoleAlreadyExistsError } from '@/common/errors/rbac.error'
+import { RoleAlreadyExistsError } from '@/modules/rbac/domain/rbac.error'
 import { Role } from '@/modules/rbac/domain/entities/role.entity'
 
 describe('CreateRoleHandler', () => {

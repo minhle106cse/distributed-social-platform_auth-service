@@ -4,7 +4,7 @@ import { UserProfile } from '../../../domain/entities/user-profile.entity'
 import { UpdateProfileCommand } from './update-profile.command'
 import { UpdateProfileHandler } from './update-profile.handler'
 import type { AuthServiceRepos } from '@/container/repos'
-import { UserNotFoundError } from '@/common/errors/user.error'
+import { UserNotFoundError } from '@/modules/user/domain/user.error'
 
 describe('UpdateProfileHandler', () => {
   let handler: UpdateProfileHandler

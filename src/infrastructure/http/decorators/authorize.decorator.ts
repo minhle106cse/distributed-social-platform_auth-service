@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { ForbiddenError, UnauthorizedError } from '@/common/errors/auth.error'
+import { ForbiddenError, UnauthorizedError } from '@/modules/auth/domain/auth.error'
 
 // Wildcard matching theo AWS IAM style:
 //   '*'          — global wildcard, pass mọi thứ

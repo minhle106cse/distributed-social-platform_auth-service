@@ -4,7 +4,7 @@ import type { AuthServiceRepos } from '@/container/repos'
 import type { IRefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
 import type { ITokenService } from '@/modules/auth/domain/services/token.service'
 import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
-import { RefreshTokenNotFoundError, ForbiddenError } from '@/common/errors/auth.error'
+import { RefreshTokenNotFoundError, ForbiddenError } from '@/modules/auth/domain/auth.error'
 
 describe('LogoutHandler', () => {
   let handler: LogoutHandler

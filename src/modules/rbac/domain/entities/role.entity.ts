@@ -1,5 +1,5 @@
 import { v7 } from 'uuid'
-import { RoleInactiveError } from '@/common/errors/rbac.error'
+import { RoleInactiveError } from '../rbac.error'
 
 export interface RoleProps {
   id: string

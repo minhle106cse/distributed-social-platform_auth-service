@@ -4,7 +4,10 @@ import type { AuthServiceRepos } from '@/container/repos'
 import type { IUserRepository } from '@/modules/user/domain/repositories/user.repository'
 import type { IGrpcIdempotencyRepository } from '@/modules/auth/domain/repositories/grpc-idempotency.repository'
 import type { IPasswordService } from '@/modules/auth/domain/services/password.service'
-import { UserAlreadyExistsError, IdempotencyKeyConflictError } from '@/common/errors/user.error'
+import {
+  UserAlreadyExistsError,
+  IdempotencyKeyConflictError,
+} from '@/modules/user/domain/user.error'
 import { User } from '@/modules/user/domain/entities/user.entity'
 
 jest.mock('uuid', () => ({

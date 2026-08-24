@@ -5,8 +5,8 @@ import type {
 import { logAudit, hashEmail } from '@distributed-social-platform/shared-kernel'
 import type { RefreshCommand } from './refresh.command'
 import type { AuthServiceRepos } from '@/container/repos'
-import { RefreshTokenNotFoundError } from '@/common/errors/auth.error'
-import { UserNotFoundError } from '@/common/errors/user.error'
+import { RefreshTokenNotFoundError } from '@/modules/auth/domain/auth.error'
+import { UserNotFoundError } from '@/modules/user/domain/user.error'
 import type { ITokenService } from '@/modules/auth/domain/services/token.service'
 import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
 

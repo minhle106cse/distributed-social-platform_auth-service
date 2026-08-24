@@ -1,7 +1,7 @@
 import type { ITransactionalCommandHandler } from '@distributed-social-platform/shared-kernel'
 import type { RevokePermissionsCommand } from './revoke-permissions.command'
 import type { AuthServiceRepos } from '@/container/repos'
-import { RoleNotFoundError } from '@/common/errors/rbac.error'
+import { RoleNotFoundError } from '@/modules/rbac/domain/rbac.error'
 
 export class RevokePermissionsHandler implements ITransactionalCommandHandler<
   RevokePermissionsCommand,

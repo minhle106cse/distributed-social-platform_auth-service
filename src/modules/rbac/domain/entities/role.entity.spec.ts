@@ -1,5 +1,5 @@
+import { RoleInactiveError } from '../rbac.error'
 import { Role } from './role.entity'
-import { RoleInactiveError } from '@/common/errors/rbac.error'
 
 jest.mock('uuid', () => ({
   v7: jest.fn(() => 'mock-uuid-v7'),

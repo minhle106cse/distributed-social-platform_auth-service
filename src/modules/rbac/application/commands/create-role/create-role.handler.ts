@@ -2,7 +2,7 @@ import type { ITransactionalCommandHandler } from '@distributed-social-platform/
 import type { CreateRoleCommand } from './create-role.command'
 import type { AuthServiceRepos } from '@/container/repos'
 import { Role } from '@/modules/rbac/domain/entities/role.entity'
-import { RoleAlreadyExistsError } from '@/common/errors/rbac.error'
+import { RoleAlreadyExistsError } from '@/modules/rbac/domain/rbac.error'
 
 export class CreateRoleHandler implements ITransactionalCommandHandler<
   CreateRoleCommand,

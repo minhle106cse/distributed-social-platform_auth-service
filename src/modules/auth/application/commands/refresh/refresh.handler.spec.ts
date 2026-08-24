@@ -5,8 +5,11 @@ import type { AuthServiceRepos } from '@/container/repos'
 import type { IRefreshTokenRepository } from '@/modules/auth/domain/repositories/refresh-token.repository'
 import type { ITokenService } from '@/modules/auth/domain/services/token.service'
 import { RefreshToken } from '@/modules/auth/domain/entities/refresh-token.entity'
-import { RefreshTokenNotFoundError, RefreshTokenExpiredError } from '@/common/errors/auth.error'
-import { UserNotFoundError } from '@/common/errors/user.error'
+import {
+  RefreshTokenNotFoundError,
+  RefreshTokenExpiredError,
+} from '@/modules/auth/domain/auth.error'
+import { UserNotFoundError } from '@/modules/user/domain/user.error'
 import { User } from '@/modules/user/domain/entities/user.entity'
 
 describe('RefreshHandler', () => {

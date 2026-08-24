@@ -1,6 +1,6 @@
+import { InvalidAuthProviderError, InvalidCredentialsError } from '../auth.error'
 import { AuthIdentity } from './auth-identity.vo'
 import { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
-import { InvalidAuthProviderError, InvalidCredentialsError } from '@/common/errors/auth.error'
 
 describe('AuthIdentity Value Object', () => {
   const mockPasswordService = {

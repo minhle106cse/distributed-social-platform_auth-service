@@ -2,7 +2,10 @@ import { randomBytes } from 'crypto'
 import type { ITransactionalCommandHandler } from '@distributed-social-platform/shared-kernel'
 import type { ProvisionUserCommand } from './provision-user.command'
 import type { AuthServiceRepos } from '@/container/repos'
-import { UserAlreadyExistsError, IdempotencyKeyConflictError } from '@/common/errors/user.error'
+import {
+  UserAlreadyExistsError,
+  IdempotencyKeyConflictError,
+} from '@/modules/user/domain/user.error'
 import { User } from '@/modules/user/domain/entities/user.entity'
 import type { IPasswordService } from '@/modules/auth/domain/services/password.service'
 

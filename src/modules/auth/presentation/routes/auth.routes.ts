@@ -12,7 +12,7 @@ import { RegisterCommand } from '@/modules/auth/application/commands/register/re
 import { RefreshCommand } from '@/modules/auth/application/commands/refresh/refresh.command'
 import { LogoutCommand } from '@/modules/auth/application/commands/logout/logout.command'
 import { logoutSchema } from '@/modules/auth/presentation/schemas/logout.schema'
-import { UnauthorizedError, RefreshTokenUsedError } from '@/common/errors/auth.error'
+import { UnauthorizedError, RefreshTokenUsedError } from '@/modules/auth/domain/auth.error'
 import type { RefreshResult } from '@/modules/auth/application/commands/refresh/refresh.handler'
 
 interface AuthRouteOptions extends FastifyPluginOptions {

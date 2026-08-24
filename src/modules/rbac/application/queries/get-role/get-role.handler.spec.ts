@@ -1,7 +1,7 @@
 import { GetRoleHandler } from './get-role.handler'
 import { GetRoleQuery } from './get-role.query'
 import type { IRoleQueryRepository } from '@/modules/rbac/application/repositories/role.query-repository'
-import { RoleNotFoundError } from '@/common/errors/rbac.error'
+import { RoleNotFoundError } from '@/modules/rbac/domain/rbac.error'
 
 describe('GetRoleHandler', () => {
   let handler: GetRoleHandler

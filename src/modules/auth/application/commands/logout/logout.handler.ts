@@ -2,7 +2,7 @@ import type { ITransactionalCommandHandler } from '@distributed-social-platform/
 import type { LogoutCommand } from './logout.command'
 import type { AuthServiceRepos } from '@/container/repos'
 import type { ITokenService } from '@/modules/auth/domain/services/token.service'
-import { RefreshTokenNotFoundError, ForbiddenError } from '@/common/errors/auth.error'
+import { RefreshTokenNotFoundError, ForbiddenError } from '@/modules/auth/domain/auth.error'
 
 export class LogoutHandler implements ITransactionalCommandHandler<
   LogoutCommand,

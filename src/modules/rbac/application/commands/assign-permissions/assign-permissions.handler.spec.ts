@@ -3,7 +3,7 @@ import type { IRoleRepository } from '../../../domain/repositories/role.reposito
 import { AssignPermissionsHandler } from './assign-permissions.handler'
 import { AssignPermissionsCommand } from './assign-permissions.command'
 import type { AuthServiceRepos } from '@/container/repos'
-import { RoleNotFoundError, InvalidPermissionCodeError } from '@/common/errors/rbac.error'
+import { RoleNotFoundError, InvalidPermissionCodeError } from '@/modules/rbac/domain/rbac.error'
 import { Role } from '@/modules/rbac/domain/entities/role.entity'
 
 describe('AssignPermissionsHandler', () => {
