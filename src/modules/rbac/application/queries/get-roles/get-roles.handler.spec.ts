@@ -10,6 +10,7 @@ describe('GetRolesHandler', () => {
     mockRoleQueryRepo = {
       getRoles: jest.fn(),
       getRoleByCode: jest.fn(),
+      findRolesByUserId: jest.fn(),
     }
 
     handler = new GetRolesHandler(mockRoleQueryRepo)

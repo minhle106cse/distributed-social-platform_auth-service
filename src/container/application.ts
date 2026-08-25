@@ -17,6 +17,7 @@ import { DeleteRoleHandler } from '@/modules/rbac/application/commands/delete-ro
 import { GetRolesHandler } from '@/modules/rbac/application/queries/get-roles/get-roles.handler'
 import { GetRoleHandler } from '@/modules/rbac/application/queries/get-role/get-role.handler'
 import { GetPermissionsHandler } from '@/modules/rbac/application/queries/get-permissions/get-permissions.handler'
+import { ResolveSystemPermissionsHandler } from '@/modules/rbac/application/queries/resolve-system-permissions/resolve-system-permissions.handler'
 import { PrismaRoleQueryRepository } from '@/modules/rbac/infrastructure/repositories/prisma-role.query-repository'
 import { PrismaUserQueryRepository } from '@/modules/user/infrastructure/repositories/prisma-user.query-repository'
 import { PrismaTxRunner } from '@/infrastructure/database/prisma/prisma-tx-runner'
@@ -75,6 +76,12 @@ export function buildApplication(infra: InfraDeps) {
   queryBus.register('GetRolesQuery', new GetRolesHandler(roleQueryRepository))
   queryBus.register('GetRoleQuery', new GetRoleHandler(roleQueryRepository))
   queryBus.register('GetPermissionsQuery', new GetPermissionsHandler())
+  // Served over gRPC to core-api's SystemPermissionGuard on every platform-admin
+  // request — see infrastructure/grpc/system-rbac.grpc-service.ts.
+  queryBus.register(
+    'ResolveSystemPermissionsQuery',
+    new ResolveSystemPermissionsHandler(roleQueryRepository),
+  )
 
   return {
     CommandBus: commandBus,

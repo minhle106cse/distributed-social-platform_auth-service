@@ -1,4 +1,3 @@
-import { ALL_SYSTEM_PERMISSIONS } from '@distributed-social-platform/shared-kernel'
 import type {
   User as PrismaUser,
   AuthIdentity as PrismaAuthIdentity,
@@ -10,7 +9,7 @@ import { User } from '@/modules/user/domain/entities/user.entity'
 import { UserProfile } from '@/modules/user/domain/entities/user-profile.entity'
 import { AuthIdentity } from '@/modules/auth/domain/value-objects/auth-identity.vo'
 import type { AuthProvider } from '@/modules/auth/domain/enums/auth-provider.enum'
-import { SystemRole } from '@/common/rbac/system-rbac'
+import { resolveSystemPermissions } from '@/common/rbac/resolve-system-permissions'
 
 type PrismaUserWithRelations = PrismaUser & {
   authIdentities?: PrismaAuthIdentity[]
@@ -49,13 +48,13 @@ export class UserMapper {
       roles: record.roles ? record.roles.map((r) => r.role.code) : [],
       // SUPER_ADMIN never has role_permissions rows (implicit-all by design —
       // see system-rbac.ts) — without this expansion, its JWT `permissions`
-      // claim would be empty and every downstream guard (auth-service's own
-      // requirePermissions, core-api's SystemPermissionGuard) would reject it.
-      permissions: record.roles?.some((r) => r.role.code === SystemRole.SUPER_ADMIN)
-        ? [...ALL_SYSTEM_PERMISSIONS]
-        : record.roles
-          ? Array.from(new Set(record.roles.flatMap((r) => r.role.permissions ?? [])))
-          : [],
+      // claim would be empty and every downstream guard would reject it.
+      // The rule itself lives in resolveSystemPermissions() because core-api's
+      // per-request gRPC lookup must apply the IDENTICAL one (2026-08-25).
+      permissions: resolveSystemPermissions(
+        record.roles?.map((r) => ({ code: r.role.code, permissions: r.role.permissions ?? [] })) ??
+          [],
+      ),
       deletedAt: record.deletedAt,
     })
   }

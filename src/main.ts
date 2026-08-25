@@ -37,7 +37,7 @@ async function bootstrap() {
 
   app.log.info(`🚀 Server running on port ${config.port}`)
 
-  const grpcServer = startGrpcServer(application.CommandBus, logger)
+  const grpcServer = startGrpcServer(application.CommandBus, application.QueryBus, logger)
 
   // Observability-only safety net for saga-orphaned provisioned users — see
   // the watcher's own doc for why this does NOT auto-delete (review of
